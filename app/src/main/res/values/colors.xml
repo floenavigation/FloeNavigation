@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+
+    <!--Dashboard Icons Color -->
+    <color name="backgroundColor">#fcfcfc</color>
+    <color name="deepPurple">#7c4dff</color>
+    <color name="lightGray">#ededed</color>
+    <color name="green">#00bfa5</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="aqua">#7fffd4</color>
+    <color name="maroon">#b03060</color>
+    <color name="orange">#ffa500</color>
+
+    <!--Login Screen -->
+    <color name="gradStart">#19AA8B</color>
+    <color name="gradStop">#23A7D8</color>
+    <color name="white">#FFFFFF</color>
+
+    <!--Setup Screen-->
+    <color name="red">#d32f2f</color>
+    <color name="darkBrown">#3e2723</color>
+    <color name="darkBlue">#303F9F</color>
+    <color name="progressBarColor">#6d4c41</color>
+    <color name="setupScreenGradientStart">#81c784</color>
+    <color name="setupScreenGradientStop">#2e7d32</color>
+    <color name="darkGray">#212121</color>
+
+
+</resources>

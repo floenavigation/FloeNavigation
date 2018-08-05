@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">FloeNavigation</string>
+
+    <!--Dashboard Buttons Names -->
+    <string name="deploymentButton">Deployment</string>
+    <string name="recoveryButton">Recovery</string>
+    <string name="redeploymentButton">Redeployment</string>
+    <string name="sampleMeasurementButton">Sample/Measurement</string>
+    <string name="waypointButton">Waypoint</string>
+    <string name="gridButton">Grid</string>
+    <string name="adminButton">Administration</string>
+
+    <!--Login Screen -->
+    <string name="login">Login</string>
+    <string name="login_btn">Login</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+
+    <!--Admin Screen-->
+    <string name="grid_initial_configuration">Grid Initial Configuration</string>
+    <string name="synchronization">Synchronization</string>
+    <string name="administrator_privileges">Administrator Privileges</string>
+
+    <!--Setup Screens -->
+    <string name="setup">Device Setup</string>
+    <string name="stationName">AIS Station Name</string>
+    <string name="confirmBtn">Confirm</string>
+    <string name="mmsi">MMSI</string>
+    <string name="add_point">Add Point</string>
+    <string name="discard_point">Discard Point</string>
+    <string name="waitingMsg">Please wait while the AIS Station is configured. Do not close the App</string>
+    <string name="stationLat">AIS Station Latitude</string>
+    <string name="stationLon">AIS Station Longitude</string>
+    <string name="tabLat">Current Latitude</string>
+    <string name="tabLon">Current Longitude</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
