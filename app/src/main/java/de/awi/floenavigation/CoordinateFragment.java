@@ -2,8 +2,10 @@ package de.awi.floenavigation;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -20,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,14 +44,16 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     }
 
     public static final String MMSI_NUMBER = "mmsi";
+    public static final int GPS_REQUEST_CODE = 10;
     private int MMSINumber;
     private double latitude;
     private double longitude;
     private LocationManager locationManager;
     private LocationListener listener;
+    private BroadcastReceiver broadcastReceiver;
     private final Handler handler = new Handler();
-    private double tabletLat;
-    private double tabletLon;
+    private String tabletLat;
+    private String tabletLon;
     private boolean isConfigDone;
     private long countAIS;
 
@@ -60,11 +65,13 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         View layout = inflater.inflate(R.layout.fragment_coordinate, container, false);
         Button confirmButton = layout.findViewById(R.id.confirm_Coordinates);
         confirmButton.setOnClickListener(this);
-        configureTabLocation();
+        //configureTabLocation();
         if (savedInstanceState != null){
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
         MMSINumber = getArguments().getInt(MMSI_NUMBER);
+
+
         return layout;
     }
 
@@ -79,6 +86,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 @Override
                 public void run() {
                     if (checkForCoordinates()){
+
                         isConfigDone = true;
                         //show the packet received
                         changeLayout();
@@ -88,6 +96,29 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                     }
                 }
             });
+        }
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    /*String coordinateString = intent.getExtras().get("coordinates").toString();
+                    String[] coordinates = coordinateString.split(",");*/
+                    tabletLat = intent.getExtras().get("Latitude").toString();
+                    tabletLon = intent.getExtras().get("Longitude").toString();
+                    //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
+                    populateTabLocation();
+                }
+            };
+        }
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("location_updates"));
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(broadcastReceiver != null){
+            getActivity().unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
         }
     }
 
@@ -148,69 +179,31 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         View v = getView();
         final TextView tabLat = v.findViewById(R.id.tablet_latitude);
         final TextView tabLon = v.findViewById(R.id.tablet_longitude);
+
+        if (tabletLat == null || tabletLat.isEmpty()){
+            try {
+                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+
+            } catch (SecurityException e){
+                Toast.makeText(getActivity(),"Location Service Problem", Toast.LENGTH_LONG).show();
+            }
+        }
+        if (tabletLon == null || tabletLon.isEmpty()){
+            try {
+                tabletLon = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());
+
+            } catch (SecurityException e){
+                Toast.makeText(getActivity(),"Location Service Problem", Toast.LENGTH_LONG).show();
+            }
+        }
         tabLat.setEnabled(true);
-        if (tabletLat == 0){
-            try {
-                tabletLat = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude();
-            } catch (SecurityException e){
-                checkPermission();
-            }
-        }
-        if (tabletLon == 0){
-            try {
-                tabletLon = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude();
-            } catch (SecurityException e){
-                checkPermission();
-            }
-        }
-        tabLat.setText(String.format("%f", tabletLat));
+        tabLat.setText(tabletLat);
         tabLat.setEnabled(false);
         tabLon.setEnabled(true);
-        tabLon.setText(String.format("%f", tabletLon));
+        tabLon.setText(tabletLon);
         tabLon.setEnabled(false);
-    }
 
-    private void configureTabLocation(){
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                tabletLat = location.getLatitude();
-                tabletLon = location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(i);
-            }
-        };
-        checkPermission();
-    }
-
-    private void checkPermission(){
-        if(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.INTERNET},
-                        10);
-            }
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, listener);
     }
 
     @Override
@@ -232,16 +225,4 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             startActivity(intent);
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        switch (requestCode){
-            case 10:
-                checkPermission();
-                break;
-            default:
-                break;
-        }
-    }
-
 }

@@ -1,7 +1,12 @@
 package de.awi.floenavigation;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -23,7 +28,7 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
         if (savedInstanceState != null){
             configSetupStep = savedInstanceState.getBoolean("SetupStep");
         }
-
+        checkPermission();
         if (!configSetupStep) {
             configSetupStep = true;
             MMSIFragment mmsiFragment = new MMSIFragment();
@@ -32,6 +37,33 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
            // CoordinateFragment coordinateFragment = new CoordinateFragment();
            // this.replaceFragment(coordinateFragment);
         //}
+    }
+
+    private void checkPermission(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                ActivityCompat.requestPermissions(this,
+                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.INTERNET},
+                        CoordinateFragment.GPS_REQUEST_CODE);
+            }
+            return;
+        }
+        Intent intent = new Intent(this, GPS_Service.class);
+        startService(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        switch (requestCode){
+            case CoordinateFragment.GPS_REQUEST_CODE:
+                checkPermission();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -60,6 +92,12 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
         } else{
             Toast.makeText(this, "Please finish Setup", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        stopService(new Intent(this, GPS_Service.class));
     }
 
 }
