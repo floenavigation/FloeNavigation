@@ -33,6 +33,15 @@
     <string name="stationLon">AIS Station Longitude</string>
     <string name="tabLat">Current Latitude</string>
     <string name="tabLon">Current Longitude</string>
+    <string name="firstStationRcvLat">AIS 1 Received Latitude</string>
+    <string name="firstStationRcvLong">AIS 1 Received Longitude</string>
+    <string name="firstStationPrdLat">AIS 1 Predicted Latitude</string>
+    <string name="firstStationPrdLong">AIS 1 Predicted Longitude</string>
+    <string name="secondStationRcvLat">AIS 2 Received Latitude</string>
+    <string name="secondStationRcvLong">AIS 2 Received Longitude</string>
+    <string name="secondStationPrdLat">AIS 2 Predicted Latitude</string>
+    <string name="secondStationPrdLong">AIS 2 Predicted Longitude</string>
+    <string name="distanceDiff">Difference</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

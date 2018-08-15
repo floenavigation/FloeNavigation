@@ -6,28 +6,318 @@
     android:orientation="horizontal"
     tools:context=".SetupActivity"
     android:divider="@drawable/divider"
-    android:showDividers="middle">
+    android:background="@drawable/setupscreen_bg"
+    android:showDividers="middle"
+    android:weightSum="2">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test1"/>
+            android:orientation="horizontal">
 
-    </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/firstStationRcvLat"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
 
+            <EditText
+                android:id="@+id/first_station_received_Latitude"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test2"/>
+            android:orientation="horizontal">
 
-    </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/firstStationRcvLong"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_received_Longitude"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/firstStationPrdLat"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_predicted_Latitude"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/firstStationPrdLong"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_predicted_Longitude"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/distanceDiff"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_diff_distance"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/secondStationRcvLat"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_received_latitude"
+                android:layout_width="0dp"
+                android:layout_height="40sp"
+                android:layout_weight="2"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/secondStationRcvLong"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_received_longitude"
+                android:layout_width="0dp"
+                android:layout_height="40sp"
+                android:layout_weight="2"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/secondStationPrdLat"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_predicted_latitude"
+                android:layout_width="0dp"
+                android:layout_height="40sp"
+                android:layout_weight="2"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/secondStationPrdLong"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_predicted_longitude"
+                android:layout_width="0dp"
+                android:layout_height="40sp"
+                android:layout_weight="2"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/distanceDiff"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_diff_distance"
+                android:layout_width="0dp"
+                android:layout_height="40sp"
+                android:layout_weight="2"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>
