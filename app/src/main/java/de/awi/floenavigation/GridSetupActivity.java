@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 
@@ -24,6 +25,8 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid_setup);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         if (savedInstanceState != null){
             configSetupStep = savedInstanceState.getBoolean("SetupStep");

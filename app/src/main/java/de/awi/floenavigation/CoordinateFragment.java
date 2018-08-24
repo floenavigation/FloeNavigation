@@ -26,6 +26,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -70,6 +71,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
         MMSINumber = getArguments().getInt(MMSI_NUMBER);
+
 
 
         return layout;
@@ -135,22 +137,22 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             SQLiteDatabase db;
             DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
             db = databaseHelper.getReadableDatabase();
-            countAIS = DatabaseUtils.queryNumEntries(db, "AIS_STATION_LIST");
+            countAIS = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
             success = true;
-           /* Cursor cursor = db.query("AIS_FIXED_STATION_POSITION",
-                    new String[]{"LATITUDE", "LONGITUDE"},
+            Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
+                    new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude},
                     "MMSI = ?",
                     new String[] {Integer.toString(MMSINumber)},
                     null, null, null);
             if(cursor.moveToFirst()){
-                index = cursor.getColumnIndexOrThrow("LATITUDE");
+                index = cursor.getColumnIndexOrThrow(DatabaseHelper.latitude);
                 latitude = cursor.getDouble(index);
 
-                index = cursor.getColumnIndexOrThrow("LONGITUDE");
+                index = cursor.getColumnIndexOrThrow(DatabaseHelper.longitude);
                 longitude = cursor.getDouble(index);
                 success = true;
             }
-            cursor.close();*/
+            cursor.close();
             db.close();
         } catch (SQLiteException e){
             Toast.makeText(getActivity(), "Database Unavailable", Toast.LENGTH_LONG).show();
@@ -171,7 +173,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         v.findViewById(R.id.tablet_longitude).setEnabled(false);
         if(countAIS == 2){
             Button confirmButton = v.findViewById(R.id.confirm_Coordinates);
-            confirmButton.setText("Start Setup");
+            confirmButton.setText(R.string.startSetup);
         }
     }
 
@@ -183,6 +185,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         if (tabletLat == null || tabletLat.isEmpty()){
             try {
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
                 tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
 
             } catch (SecurityException e){

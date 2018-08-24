@@ -3,9 +3,9 @@
     android:shape="rectangle">
 
     <gradient
-        android:startColor="@color/setupScreenGradientStart"
+        android:startColor="@color/backgroundGradStart"
         android:angle="270"
         android:type="linear"
-        android:endColor="@color/setupScreenGradientStop"/>
+        android:endColor="@color/backgroundGradStop" />
 
 </shape>

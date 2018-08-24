@@ -3,9 +3,12 @@ package de.awi.floenavigation;
 
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
 
     private SQLiteDatabase db;
+    private long stationCount;
 
 
     @Override
@@ -35,6 +39,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
         Button confirmButton = layout.findViewById(R.id.confirm_Button);
         confirmButton.setOnClickListener(this);
+        stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
         return layout;
     }
 
@@ -69,10 +74,11 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         db = databaseHelper.getWritableDatabase();
         ContentValues station = new ContentValues();
-        station.put("MMSI", MMSI);
-        station.put("AIS_STATION_NAME", AISStationName);
-        db.insert("AIS_STATION_LIST", null, station);
-        db.insert("AIS_FIXED_STATION_POSITION", null, station);
+        station.put(DatabaseHelper.mmsi, MMSI);
+        station.put(DatabaseHelper.stationName, AISStationName);
+       // ContentValues stationData =
+        db.insert(DatabaseHelper.stationListTable, null, station);
+        db.insert(DatabaseHelper.fixedStationTable, null, station);
         db.close();
     }
 

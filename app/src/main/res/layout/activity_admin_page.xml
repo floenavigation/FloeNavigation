@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="10dp"
     android:animateLayoutChanges="true"
-    android:background="@drawable/gradcolorbgd">
+    android:background="@drawable/background_bg">
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardView_1"

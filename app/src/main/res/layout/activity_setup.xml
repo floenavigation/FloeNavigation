@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     tools:context=".SetupActivity"
     android:divider="@drawable/divider"
-    android:background="@drawable/setupscreen_bg"
+    android:background="@drawable/background_bg"
     android:showDividers="middle"
     android:weightSum="2">
 

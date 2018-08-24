@@ -33,6 +33,7 @@
     <string name="stationLon">AIS Station Longitude</string>
     <string name="tabLat">Current Latitude</string>
     <string name="tabLon">Current Longitude</string>
+    <string name="startSetup">Start Setup</string>
     <string name="firstStationRcvLat">AIS 1 Received Latitude</string>
     <string name="firstStationRcvLong">AIS 1 Received Longitude</string>
     <string name="firstStationPrdLat">AIS 1 Predicted Latitude</string>

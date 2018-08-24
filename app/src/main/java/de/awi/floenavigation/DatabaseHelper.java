@@ -16,30 +16,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseHelpler";
 
     //Database Tables Names
-    private static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
-    private static final String stationListTable = "AIS_STATION_LIST";
-    private static final String mobileStationTable = "AIS_MOBILE_STATION_POSITION";
-    private static final String usersTable = "USERS";
-    private static final String sampleMeasurementTable = "SAMPLE_MEASUREMENT";
-    private static final String deviceListTable = "DEVICE_LIST";
-    private static final String waypointsTable = "WAYPOINTS";
+    public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
+    public static final String stationListTable = "AIS_STATION_LIST";
+    public static final String mobileStationTable = "AIS_MOBILE_STATION_POSITION";
+    public static final String usersTable = "USERS";
+    public static final String sampleMeasurementTable = "SAMPLE_MEASUREMENT";
+    public static final String deviceListTable = "DEVICE_LIST";
+    public static final String waypointsTable = "WAYPOINTS";
 
     //Database Fields Names
-    private static final  String stationName = "AIS_STATION_NAME";
-    private static final String latitude = "LATITUDE";
-    private static final String longitude = "LONGITUDE";
-    private static final String xPosition = "X_POSITION";
-    private static final String yPosition = "Y_POSITION";
-    private static final String sog = "SPEED_OVER_GROUND";
-    private static final String cog = "COURSE_OVER_GROUND";
-    private static final String mmsi = "MMSI";
-    private static final String deviceType = "DEVICE_TYPE";
-    private static final String updateTime = "UPDTAE_TIME";
-    private static final String isPredicted = "IS_POSITION_PREDICTED";
-    private static final String userName = "USERNAME";
-    private static final String password = "PASSWORD";
-    private static final String deviceName = "DEVICE_NAME";
-    private static final String label = "LABEL";
+    public static final  String stationName = "AIS_STATION_NAME";
+    public static final String latitude = "LATITUDE";
+    public static final String longitude = "LONGITUDE";
+    public static final String xPosition = "X_POSITION";
+    public static final String yPosition = "Y_POSITION";
+    public static final String sog = "SPEED_OVER_GROUND";
+    public static final String cog = "COURSE_OVER_GROUND";
+    public static final String mmsi = "MMSI";
+    public static final String deviceType = "DEVICE_TYPE";
+    public static final String updateTime = "UPDTAE_TIME";
+    public static final String isPredicted = "IS_POSITION_PREDICTED";
+    public static final String userName = "USERNAME";
+    public static final String password = "PASSWORD";
+    public static final String deviceName = "DEVICE_NAME";
+    public static final String label = "LABEL";
 
 
 

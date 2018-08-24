@@ -15,11 +15,13 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class SetupActivity extends Activity {
 
@@ -47,6 +49,8 @@ public class SetupActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         setContentView(R.layout.activity_setup);
         findViewById(R.id.first_station_predicted_Latitude).setEnabled(false);
         findViewById(R.id.first_station_predicted_Longitude).setEnabled(false);
@@ -112,48 +116,51 @@ public class SetupActivity extends Activity {
     }
 
     private void refreshScreen(){
-        EditText ais1RcvLatitude = findViewById(R.id.first_station_received_Latitude);
-        EditText ais1RcvLongitude = findViewById(R.id.first_station_received_Longitude);
-        EditText ais1PrdLatitude = findViewById(R.id.first_station_predicted_Latitude);
-        EditText ais1PrdLongitude = findViewById(R.id.first_station_predicted_Longitude);
-        EditText ais1Difference = findViewById(R.id.first_station_diff_distance);
-        EditText ais2RcvLatitude = findViewById(R.id.second_station_received_latitude);
-        EditText ais2RcvLongitude = findViewById(R.id.second_station_received_longitude);
-        EditText ais2PrdLatitude = findViewById(R.id.second_station_predicted_latitude);
-        EditText ais2PrdLongitude = findViewById(R.id.second_station_predicted_longitude);
-        EditText ais2Difference = findViewById(R.id.second_station_diff_distance);
-        ais1Difference.setEnabled(true);
-        ais1PrdLatitude.setEnabled(true);
-        ais1PrdLongitude.setEnabled(true);
-        ais1RcvLatitude.setEnabled(true);
-        ais1RcvLongitude.setEnabled(true);
-        ais2Difference.setEnabled(true);
-        ais2PrdLatitude.setEnabled(true);
-        ais2PrdLongitude.setEnabled(true);
-        ais2RcvLatitude.setEnabled(true);
-        ais2RcvLongitude.setEnabled(true);
-        ais1Difference.setText(String.valueOf(distanceDiff[0]));
-        ais1PrdLatitude.setText(String.valueOf(predictedLatitude[0]));
-        ais1PrdLongitude.setText(String.valueOf(predictedLongitude[0]));
-        ais1RcvLatitude.setText(String.valueOf(stationLatitude[0]));
-        ais1RcvLongitude.setText(String.valueOf(stationLongitude[0]));
-        ais2Difference.setText(String.valueOf(distanceDiff[1]));
-        ais2PrdLatitude.setText(String.valueOf(predictedLatitude[1]));
-        ais2PrdLongitude.setText(String.valueOf(predictedLongitude[1]));
-        ais2RcvLatitude.setText(String.valueOf(stationLatitude[1]));
-        ais2RcvLongitude.setText(String.valueOf(stationLongitude[1]));
-        ais1Difference.setEnabled(false);
-        ais1PrdLatitude.setEnabled(false);
-        ais1PrdLongitude.setEnabled(false);
-        ais1RcvLatitude.setEnabled(false);
-        ais1RcvLongitude.setEnabled(false);
-        ais2Difference.setEnabled(false);
-        ais2PrdLatitude.setEnabled(false);
-        ais2PrdLongitude.setEnabled(false);
-        ais2RcvLatitude.setEnabled(false);
-        ais2RcvLongitude.setEnabled(false);
-
-
+        final EditText ais1RcvLatitude = findViewById(R.id.first_station_received_Latitude);
+        final EditText ais1RcvLongitude = findViewById(R.id.first_station_received_Longitude);
+        final EditText ais1PrdLatitude = findViewById(R.id.first_station_predicted_Latitude);
+        final EditText ais1PrdLongitude = findViewById(R.id.first_station_predicted_Longitude);
+        final EditText ais1Difference = findViewById(R.id.first_station_diff_distance);
+        final EditText ais2RcvLatitude = findViewById(R.id.second_station_received_latitude);
+        final EditText ais2RcvLongitude = findViewById(R.id.second_station_received_longitude);
+        final EditText ais2PrdLatitude = findViewById(R.id.second_station_predicted_latitude);
+        final EditText ais2PrdLongitude = findViewById(R.id.second_station_predicted_longitude);
+        final EditText ais2Difference = findViewById(R.id.second_station_diff_distance);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ais1Difference.setEnabled(true);
+                ais1PrdLatitude.setEnabled(true);
+                ais1PrdLongitude.setEnabled(true);
+                ais1RcvLatitude.setEnabled(true);
+                ais1RcvLongitude.setEnabled(true);
+                ais2Difference.setEnabled(true);
+                ais2PrdLatitude.setEnabled(true);
+                ais2PrdLongitude.setEnabled(true);
+                ais2RcvLatitude.setEnabled(true);
+                ais2RcvLongitude.setEnabled(true);
+                ais1Difference.setText(String.valueOf(distanceDiff[0]));
+                ais1PrdLatitude.setText(String.valueOf(predictedLatitude[0]));
+                ais1PrdLongitude.setText(String.valueOf(predictedLongitude[0]));
+                ais1RcvLatitude.setText(String.valueOf(stationLatitude[0]));
+                ais1RcvLongitude.setText(String.valueOf(stationLongitude[0]));
+                ais2Difference.setText(String.valueOf(distanceDiff[1]));
+                ais2PrdLatitude.setText(String.valueOf(predictedLatitude[1]));
+                ais2PrdLongitude.setText(String.valueOf(predictedLongitude[1]));
+                ais2RcvLatitude.setText(String.valueOf(stationLatitude[1]));
+                ais2RcvLongitude.setText(String.valueOf(stationLongitude[1]));
+                ais1Difference.setEnabled(false);
+                ais1PrdLatitude.setEnabled(false);
+                ais1PrdLongitude.setEnabled(false);
+                ais1RcvLatitude.setEnabled(false);
+                ais1RcvLongitude.setEnabled(false);
+                ais2Difference.setEnabled(false);
+                ais2PrdLatitude.setEnabled(false);
+                ais2PrdLongitude.setEnabled(false);
+                ais2RcvLatitude.setEnabled(false);
+                ais2RcvLongitude.setEnabled(false);
+            }
+        });
     }
 
     private double calculateDifference(double lat1, double lon1, double lat2, double lon2){
@@ -200,16 +207,16 @@ public class SetupActivity extends Activity {
             DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
             try{
                 SQLiteDatabase db = helper.getReadableDatabase();
-                Cursor cursor = db.query("AIS_FIXED_STATION_POSITION",
-                        new String[] {"LATITUDE", "LONGITUDE", "SPEED_OVER_GROUND", "COURSE_OVER_GROUND", "MMSI"},
+                Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
+                        new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.mmsi},
                         null, null, null, null, null);
                 if (cursor.moveToFirst()){
                     int i = 0;
                     do{
-                        stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex("LATITUDE"));
-                        stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex("LONGITUDE"));
-                        stationSOG[i] = cursor.getDouble(cursor.getColumnIndex("SPEED_OVER_GROUND"));
-                        stationCOG[i] = cursor.getDouble(cursor.getColumnIndex("COURSE_OVER_GROUND"));
+                        stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
+                        stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
+                        stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
+                        stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
                         i++;
                     } while(cursor.moveToNext());
                     cursor.close();
@@ -241,6 +248,7 @@ public class SetupActivity extends Activity {
         protected Boolean doInBackground(Void... voids) {
             DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
             return helper.createTables();
+
         }
 
         @Override
