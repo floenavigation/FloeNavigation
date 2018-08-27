@@ -5,15 +5,18 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 /**
@@ -29,6 +32,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
     private SQLiteDatabase db;
     private long stationCount;
+    private static final String TAG = "MMSI Fragment";
 
 
     @Override
@@ -72,14 +76,32 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
     private void insertStation(String AISStationName, int MMSI){
         DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-        db = databaseHelper.getWritableDatabase();
-        ContentValues station = new ContentValues();
-        station.put(DatabaseHelper.mmsi, MMSI);
-        station.put(DatabaseHelper.stationName, AISStationName);
-       // ContentValues stationData =
-        db.insert(DatabaseHelper.stationListTable, null, station);
-        db.insert(DatabaseHelper.fixedStationTable, null, station);
-        db.close();
+        try{
+            db = databaseHelper.getWritableDatabase();
+            ContentValues station = new ContentValues();
+            station.put(DatabaseHelper.mmsi, MMSI);
+            station.put(DatabaseHelper.stationName, AISStationName);
+            ContentValues stationData = new ContentValues();
+            stationData.put(DatabaseHelper.mmsi, MMSI);
+            stationData.put(DatabaseHelper.stationName, AISStationName);
+            if(stationCount == 0){
+                stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station1InitialX);
+                stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station1InitialY);
+            } else if(stationCount == 1){
+                stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station2InitialX);
+                stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station2InitialY);
+            } else{
+                Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
+            }
+
+                db.insert(DatabaseHelper.stationListTable, null, station);
+                db.insert(DatabaseHelper.fixedStationTable, null, stationData);
+                db.close();
+        } catch (SQLiteException e){
+            Log.d(TAG, "Database Unavailable");
+            e.printStackTrace();
+        }
+
     }
 
     @Override

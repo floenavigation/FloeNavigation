@@ -41,6 +41,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String deviceName = "DEVICE_NAME";
     public static final String label = "LABEL";
 
+    //Initial Position of Setup Points in Custom Coordinate System
+    public static final long station1InitialX = 0;
+    public static final long station1InitialY = 0;
+    public static final long station2InitialX = 0;
+    public static final long station2InitialY = 10;
+
 
 
 
