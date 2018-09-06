@@ -70,5 +70,47 @@ public class NavigationFunctions {
         return Math.toDegrees(Math.atan2(y,x));
     }
 
+    private static String convertToDegMinSec(double decCoodinate){
+
+        String degMinSec;
+
+        int deg = (int)decCoodinate;  // Truncate the decimals
+        double temp = (decCoodinate - deg) * 60;
+        int min = (int)temp;
+        int sec = (int)((temp - min) * 60);
+
+        degMinSec = String.valueOf(deg) + "°" + String.valueOf(min) + "'" + String.valueOf(sec)+ "\"";
+
+        return degMinSec;
+    }
+
+    private static double calculateAngleBeta(double lat1, double lon1, double lat2, double lon2){
+
+        //double fixedLat = lat1;
+        //double fixedLon = lon2;
+
+        double bearing = calculateBearing(lat1, lon1, lat2, lon2);
+
+        if(bearing >= 0 && bearing <= 180){
+            bearing -= 90;
+        }
+        else if(bearing > 180 && bearing <= 360){
+            bearing -= 270;
+        }
+
+
+        //double hypDistance = calculateDifference(lat1, lon1, lat2, lon2);
+        //double leg1Distance = calculateDifference(fixedLat, fixedLon, lat2, lon2);
+        //double leg2Distance = calculateDifference(lat1, lon1, fixedLat, fixedLon);
+
+
+        //double angle = Math.toDegrees(Math.atan(leg1Distance/leg2Distance));
+
+        //double firstangle = Math.atan2(lon1 - fixedLon, lat1 - fixedLat);
+        //double secondangle = Math.atan2(lon2 - fixedLon, lat2 - fixedLat);
+
+        return Math.abs(bearing);
+    }
+
 
 }
