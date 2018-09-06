@@ -36,6 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String deviceType = "DEVICE_TYPE";
     public static final String updateTime = "UPDTAE_TIME";
     public static final String isPredicted = "IS_POSITION_PREDICTED";
+    public static final String isLocationReceived = "IS_LOCATION_RECEIVED";
     public static final String userName = "USERNAME";
     public static final String password = "PASSWORD";
     public static final String deviceName = "DEVICE_NAME";
@@ -44,8 +45,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //Initial Position of Setup Points in Custom Coordinate System
     public static final long station1InitialX = 0;
     public static final long station1InitialY = 0;
-    public static final long station2InitialX = 0;
-    public static final long station2InitialY = 10;
+    public static final long station2InitialX = 500;
+    public static final long station2InitialY = 0;
 
 
 
@@ -62,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //Create AIS Fixed Station Position Table
         db.execSQL("CREATE TABLE " + fixedStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                stationName + " TEXT NOT NULL," +
+                stationName + " TEXT," +
                 latitude + " REAL," +
                 longitude + " REAL," +
                 xPosition + " REAL," +
@@ -72,6 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sog + " REAL," +
                 cog + " REAL," +
                 isPredicted + " NUMERIC," +
+                isLocationReceived + " NUMERIC," +
                 mmsi + " INTEGER NOT NULL," +
                 "FOREIGN KEY (" + mmsi + ") REFERENCES " + stationListTable + "(" + mmsi + "));");
 
@@ -93,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try{
             //Create Mobile Station Table
             db.execSQL("CREATE TABLE " + mobileStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    stationName + " TEXT NOT NULL," +
+                    stationName + " TEXT," +
                     latitude + " REAL," +
                     longitude + " REAL," +
                     xPosition + " REAL," +
@@ -129,16 +131,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void insertUser(SQLiteDatabase db, String name, String pass){
         ContentValues defaultUser = new ContentValues();
-        defaultUser.put("USERNAME", name);
-        defaultUser.put("PASSWORD", pass);
-        db.insert("USERS", null, defaultUser);
+        defaultUser.put(userName, name);
+        defaultUser.put(password, pass);
+        db.insert(usersTable, null, defaultUser);
     }
 
     public String searchPassword(String uname){
         SQLiteDatabase db = this.getReadableDatabase();
         //String query = "SELECT USERNAME, PASSWORD FROM USERS";
-        Cursor cursor = db.query("USERS",
-                new String[]{"USERNAME", "PASSWORD"},
+        Cursor cursor = db.query(usersTable,
+                new String[]{userName, password},
                 null, null, null, null, null);
         String user, pwd;
         pwd = "Not Found";
@@ -160,6 +162,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return pwd;
+    }
+
+    public  double[] readBaseCoordinatePointsLatLon(){
+        double[] coordinates = new double[4];
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            Cursor cursor = db.query(fixedStationTable,
+                    new String[]{latitude, longitude},
+                    "(X_Position = ? AND Y_POSITION = ?) OR (X_POSITION = ? AND Y_POSITION = ? ",
+                    new String[]{Long.toString(station1InitialX), Long.toString(station1InitialY), Long.toString(station2InitialX), Long.toString(station2InitialY)},
+                    null, null, null);
+            if (cursor.moveToFirst()) {
+                int i = 0;
+                do {
+
+                    coordinates[i] = cursor.getDouble(cursor.getColumnIndex(latitude));
+                    coordinates[i + 1] = cursor.getDouble(cursor.getColumnIndex(longitude));
+                    i += 2;
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            db.close();
+        } catch (SQLiteException e){
+            Log.d(TAG, "Database Unavailable");
+            e.printStackTrace();
+        }
+        return coordinates;
     }
 
 }

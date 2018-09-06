@@ -67,7 +67,7 @@ public class AdminPageActivity extends Activity {
             SQLiteDatabase db;
             DatabaseHelper databaseHelper = new DatabaseHelper(this);
             db = databaseHelper.getReadableDatabase();
-            count = DatabaseUtils.queryNumEntries(db, "AIS_STATION_LIST");
+            count = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
             db.close();
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();

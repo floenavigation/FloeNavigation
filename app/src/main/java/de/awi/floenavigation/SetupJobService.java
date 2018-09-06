@@ -34,7 +34,7 @@ public class SetupJobService extends JobService {
         Log.d(TAG, "Job Started");
         new ReadParamsFromDB().execute();
         for(int i = 0; i < 2; i++){
-            double[] predictedCoordinates = calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
+            double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
             predictedLatitude[i] = predictedCoordinates[0];
             predictedLongitude[i] = predictedCoordinates[1];
         }
@@ -59,21 +59,6 @@ public class SetupJobService extends JobService {
     }
 
 
-    public double[] calculateNewPosition(double lat, double lon, double speed, double bearing){
-
-        final double r = 6371 * 1000; // Earth Radius in m
-        double distance = speed * 10;
-
-        double lat2 = Math.asin(Math.sin(Math.toRadians(lat)) * Math.cos(distance / r)
-                + Math.cos(Math.toRadians(lat)) * Math.sin(distance / r) * Math.cos(Math.toRadians(bearing)));
-        double lon2 = Math.toRadians(lon)
-                + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(distance / r) * Math.cos(Math.toRadians(lat)), Math.cos(distance / r)
-                - Math.sin(Math.toRadians(lat)) * Math.sin(lat2));
-        lat2 = Math.toDegrees( lat2);
-        lon2 = Math.toDegrees(lon2);
-        return new double[]{lat2, lon2};
-    }
-
     @Override
     public boolean onStopJob(JobParameters params){
         Log.d(TAG, "Job Cancelled");
@@ -93,16 +78,16 @@ public class SetupJobService extends JobService {
             DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
             try{
                 SQLiteDatabase db = helper.getReadableDatabase();
-                Cursor cursor = db.query("AIS_FIXED_STATION_POSITION",
-                        new String[] {"LATITUDE", "LONGITUDE", "SPEED_OVER_GROUND", "COURSE_OVER_GROUND", "MMSI"},
+                Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
+                        new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.mmsi},
                         null, null, null, null, null);
                 if (cursor.moveToFirst()){
                     int i = 0;
                     do{
-                        stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex("LATITUDE"));
-                        stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex("LONGITUDE"));
-                        stationSOG[i] = cursor.getDouble(cursor.getColumnIndex("SPEED_OVER_GROUND"));
-                        stationCOG[i] = cursor.getDouble(cursor.getColumnIndex("COURSE_OVER_GROUND"));
+                        stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
+                        stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
+                        stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
+                        stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
                         i++;
                     } while(cursor.moveToNext());
                     cursor.close();

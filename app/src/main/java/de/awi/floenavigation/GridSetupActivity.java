@@ -21,6 +21,9 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
     private boolean configSetupStep;
     private static final String TAG = "GridSetupActivity";
 
+    public static final String dstAddress = "192.168.0.1";
+    public static final int dstPort = 2000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,7 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
            // CoordinateFragment coordinateFragment = new CoordinateFragment();
            // this.replaceFragment(coordinateFragment);
         //}
+
     }
 
     private void checkPermission(){

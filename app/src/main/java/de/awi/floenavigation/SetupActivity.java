@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.internal.NavigationMenuItemView;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -84,13 +85,13 @@ public class SetupActivity extends Activity {
             public void run() {
                 Log.d(TAG, "3 minutes Timer");
                 timerCounter++;
-                /*new ReadParamsFromDB().execute();
+                new ReadParamsFromDB().execute();
                 for(int i = 0; i < 2; i++){
-                    double[] predictedCoordinates = calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
+                    double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
                     predictedLatitude[i] = predictedCoordinates[0];
                     predictedLongitude[i] = predictedCoordinates[1];
-                    distanceDiff[i] = calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
-                }*/
+                    distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
+                }
                 //calculateDifference();
                 refreshScreen();
             }
@@ -163,37 +164,6 @@ public class SetupActivity extends Activity {
         });
     }
 
-    private double calculateDifference(double lat1, double lon1, double lat2, double lon2){
-
-            final int R = 6371; // Radius of the earth change this
-
-            double latDistance = Math.toRadians(lat2 - lat1);
-            double lonDistance = Math.toRadians(lon2 - lon1);
-            double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                    + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                    * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            double distance = R * c * 1000; // convert to meters
-
-            distance = Math.pow(distance, 2);
-
-            return Math.sqrt(distance);
-    }
-
-    private double[] calculateNewPosition(double lat, double lon, double speed, double bearing){
-
-        final double r = 6371 * 1000; // Earth Radius in m
-        double distance = speed * 10;
-
-        double lat2 = Math.asin(Math.sin(Math.toRadians(lat)) * Math.cos(distance / r)
-                + Math.cos(Math.toRadians(lat)) * Math.sin(distance / r) * Math.cos(Math.toRadians(bearing)));
-        double lon2 = Math.toRadians(lon)
-                + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(distance / r) * Math.cos(Math.toRadians(lat)), Math.cos(distance / r)
-                - Math.sin(Math.toRadians(lat)) * Math.sin(lat2));
-        lat2 = Math.toDegrees( lat2);
-        lon2 = Math.toDegrees(lon2);
-        return new double[]{lat2, lon2};
-    }
 
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {
 

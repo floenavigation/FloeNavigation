@@ -39,6 +39,8 @@ import android.widget.Toast;
  */
 public class CoordinateFragment extends Fragment implements View.OnClickListener {
 
+    private static final String TAG = "CoordinateFragment";
+
 
     public CoordinateFragment() {
         // Required empty public constructor
@@ -49,6 +51,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private int MMSINumber;
     private double latitude;
     private double longitude;
+    private String stationName;
+    private int locationReceived;
     private LocationManager locationManager;
     private LocationListener listener;
     private BroadcastReceiver broadcastReceiver;
@@ -71,10 +75,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
         MMSINumber = getArguments().getInt(MMSI_NUMBER);
-
-
-
-        return layout;
+       return layout;
     }
 
     @Override
@@ -94,6 +95,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                         changeLayout();
                         populateTabLocation();
                     } else {
+                        Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
                         handler.postDelayed(this, 1000);
                     }
                 }
@@ -138,19 +140,23 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
             db = databaseHelper.getReadableDatabase();
             countAIS = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
-            success = true;
             Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
-                    new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude},
+                    new String[]{DatabaseHelper.stationName, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.isLocationReceived},
                     "MMSI = ?",
                     new String[] {Integer.toString(MMSINumber)},
                     null, null, null);
             if(cursor.moveToFirst()){
-                index = cursor.getColumnIndexOrThrow(DatabaseHelper.latitude);
-                latitude = cursor.getDouble(index);
+                stationName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.stationName));
+                //index = cursor.getColumnIndexOrThrow(DatabaseHelper.latitude);
+                latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.latitude));
 
-                index = cursor.getColumnIndexOrThrow(DatabaseHelper.longitude);
-                longitude = cursor.getDouble(index);
-                success = true;
+                longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
+                locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
+                Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
+                if(locationReceived == 1) {
+                    success = true;
+                    Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();
+                }
             }
             cursor.close();
             db.close();
@@ -181,10 +187,14 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         View v = getView();
         final TextView tabLat = v.findViewById(R.id.tablet_latitude);
         final TextView tabLon = v.findViewById(R.id.tablet_longitude);
+        final TextView aisLat = v.findViewById(R.id.ais_station_latitude);
+        final TextView aisLon = v.findViewById(R.id.ais_station_longitude);
+        final TextView aisName = v.findViewById(R.id.ais_station);
 
         if (tabletLat == null || tabletLat.isEmpty()){
             try {
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
 
                 tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
 
@@ -206,6 +216,16 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         tabLon.setEnabled(true);
         tabLon.setText(tabletLon);
         tabLon.setEnabled(false);
+        aisName.setEnabled(true);
+        aisName.setText(stationName);
+        aisName.setEnabled(false);
+        aisLat.setEnabled(true);
+        aisLat.setText(String.valueOf(latitude));
+        aisLat.setEnabled(false);
+        aisLon.setEnabled(true);
+        aisLon.setText(String.valueOf(longitude));
+        aisLon.setEnabled(false);
+
 
     }
 
