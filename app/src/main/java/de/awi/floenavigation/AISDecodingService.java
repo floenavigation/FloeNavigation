@@ -105,8 +105,10 @@ public class AISDecodingService extends IntentService {
                 StringBuilder binary = aivdmObj.decodePayload();
                 num = (int) strbuildtodec(0, 5, 6, binary, int.class);
                 msgDecoding(num, binary);
-                //Log.d(TAG, String.valueOf(recvdMMSI));
+                Log.d(TAG, String.valueOf(recvdMMSI));
             }
+
+            //if(recvdMMSI == 21100)
 
 
             if(cursor_stnlist.moveToFirst())

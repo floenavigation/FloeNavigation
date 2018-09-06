@@ -70,7 +70,7 @@ public class NavigationFunctions {
         return Math.toDegrees(Math.atan2(y,x));
     }
 
-    private static String convertToDegMinSec(double decCoodinate){
+    public static String convertToDegMinSec(double decCoodinate){
 
         String degMinSec;
 
@@ -84,7 +84,7 @@ public class NavigationFunctions {
         return degMinSec;
     }
 
-    private static double calculateAngleBeta(double lat1, double lon1, double lat2, double lon2){
+    public static double calculateAngleBeta(double lat1, double lon1, double lat2, double lon2){
 
         //double fixedLat = lat1;
         //double fixedLon = lon2;

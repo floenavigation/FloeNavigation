@@ -1,6 +1,7 @@
 package de.awi.floenavigation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,7 +16,7 @@ public class NetworkMonitor implements Runnable {
     Context appContext;
     AISMessageReceiver aisMessage;
     Thread aisMessageThread;
-    public static volatile boolean mdisconnectFlag = false;
+    //public static volatile boolean mdisconnectFlag = false;
 
     public NetworkMonitor(Context con){
         this.appContext = con;
@@ -46,17 +47,24 @@ public class NetworkMonitor implements Runnable {
             else if(!success){
                 mdisconnectFlag = true; //to disconnect the client
             }*/
-
+            Intent intent = new Intent();
+            intent.setAction("Reconnect");
             if(success){
                 if(!aisMessageThread.isAlive()){
 
                     aisMessageThread.start();
                     //prevSuccess = true;
-                    mdisconnectFlag = false;
+
+                    intent.putExtra("mDisconnectFlag", false);
+                    appContext.sendBroadcast(intent);
                 }
             }
             else {
-                mdisconnectFlag = true; //to disconnect the client
+                if(aisMessageThread.isAlive()) {
+                    //mdisconnectFlag = true; //to disconnect the client
+                    intent.putExtra("mDisconnectFlag", true);
+                    appContext.sendBroadcast(intent);
+                }
             }
 
 

@@ -1,8 +1,10 @@
 package de.awi.floenavigation;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import org.apache.commons.net.telnet.TelnetClient;
@@ -24,16 +26,27 @@ public class AISMessageReceiver implements Runnable {
     boolean isConnected = false;
    // private NetworkMonitor monitor;
     private Context context;
+    private boolean mDisconnectFlag = false;
+    private BroadcastReceiver reconnectReceiver;
 
     public AISMessageReceiver(String addr, int port, Context con){
         this.dstAddress = addr;
         this.dstPort = port;
         this.context = con;
+        reconnectReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getExtras()!= null) {
+                    mDisconnectFlag = intent.getExtras().getBoolean("mDisconnectFlag");
+                }
+            }
+        };
+
     }
 
     @Override
     public void run(){
-
+        context.registerReceiver(reconnectReceiver, new IntentFilter("Reconnect"));
         responseString = new StringBuilder();
         try {
 
@@ -63,7 +76,7 @@ public class AISMessageReceiver implements Runnable {
                     this.context.sendBroadcast(intent);*/
                     //Log.d(TAG, packet);
 
-                    if(NetworkMonitor.mdisconnectFlag){
+                    if(mDisconnectFlag){
                         client.disconnect();
                         break;
                     }
