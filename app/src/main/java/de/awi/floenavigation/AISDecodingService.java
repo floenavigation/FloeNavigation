@@ -40,12 +40,12 @@ public class AISDecodingService extends IntentService {
     private StaticVoyageData voyageDataObj;
     private StaticDataReport dataReportObj;
 
-    private static final int POSITION_REPORT_CLASSA_TYPE_1 = 1;
-    private static final int POSITION_REPORT_CLASSA_TYPE_2 = 2;
-    private static final int POSITION_REPORT_CLASSA_TYPE_3 = 3;
-    private static final int STATIC_VOYAGE_DATA_CLASSB = 5;
-    private static final int POSITION_REPORT_CLASSB = 18;
-    private static final int STATIC_DATA_CLASSA = 24;
+    public static final int POSITION_REPORT_CLASSA_TYPE_1 = 1;
+    public static final int POSITION_REPORT_CLASSA_TYPE_2 = 2;
+    public static final int POSITION_REPORT_CLASSA_TYPE_3 = 3;
+    public static final int STATIC_VOYAGE_DATA_CLASSB = 5;
+    public static final int POSITION_REPORT_CLASSB = 18;
+    public static final int STATIC_DATA_CLASSA = 24;
 
     //Data to be decoded
     private long recvdMMSI;
@@ -55,6 +55,7 @@ public class AISDecodingService extends IntentService {
     private float recvdCourse;
     private String recvdTimeStamp;
     private String recvdStationName;
+    private int packetType;
     private BroadcastReceiver wifiReceiver;
 
     public AISDecodingService() {
@@ -132,6 +133,7 @@ public class AISDecodingService extends IntentService {
                                 decodedValues.put(DatabaseHelper.stationName, recvdStationName);
                                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
                                 decodedValues.put(DatabaseHelper.isLocationReceived, 1);
+                                decodedValues.put(DatabaseHelper.packetType, packetType);
                                 if ((num != STATIC_VOYAGE_DATA_CLASSB) && (num != STATIC_DATA_CLASSA)) {
                                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
@@ -155,6 +157,7 @@ public class AISDecodingService extends IntentService {
                                 ContentValues decodedValues = new ContentValues();
                                 decodedValues.put(DatabaseHelper.stationName, recvdStationName);
                                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
+                                decodedValues.put(DatabaseHelper.packetType, packetType);
                                 if ((num != 5) && (num != 24)) {
                                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
@@ -203,11 +206,13 @@ public class AISDecodingService extends IntentService {
                 recvdSpeed = posObjA.getSpeed();
                 recvdCourse = posObjA.getCourse();
                 recvdTimeStamp = String.valueOf(posObjA.getSeconds());
+                packetType = POSITION_REPORT_CLASSA_TYPE_1;
                 break;
             case STATIC_VOYAGE_DATA_CLASSB:
                 voyageDataObj.setData(binary);
                 recvdMMSI = voyageDataObj.getMMSI();
                 recvdStationName = voyageDataObj.getVesselName();
+                packetType = STATIC_VOYAGE_DATA_CLASSB;
                 break;
             case POSITION_REPORT_CLASSB:
                 posObjB.setData(binary);
@@ -217,11 +222,13 @@ public class AISDecodingService extends IntentService {
                 recvdSpeed = posObjB.getSpeed();
                 recvdCourse = posObjB.getCourse();
                 recvdTimeStamp = String.valueOf(posObjB.getSeconds());
+                packetType = POSITION_REPORT_CLASSB;
                 break;
             case STATIC_DATA_CLASSA:
                 dataReportObj.setData(binary);
                 recvdMMSI = dataReportObj.getMMSI();
                 recvdStationName = dataReportObj.getVesselName();
+                packetType = STATIC_DATA_CLASSA;
                 break;
             default:
                 recvdMMSI = 0;
