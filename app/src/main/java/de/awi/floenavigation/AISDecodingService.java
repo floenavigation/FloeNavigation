@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -205,7 +206,7 @@ public class AISDecodingService extends IntentService {
                 recvdLon = posObjA.getLongitude();
                 recvdSpeed = posObjA.getSpeed();
                 recvdCourse = posObjA.getCourse();
-                recvdTimeStamp = String.valueOf(posObjA.getSeconds());
+                recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjA.getSeconds());
                 packetType = POSITION_REPORT_CLASSA_TYPE_1;
                 break;
             case STATIC_VOYAGE_DATA_CLASSB:
@@ -221,7 +222,7 @@ public class AISDecodingService extends IntentService {
                 recvdLon = posObjB.getLongitude();
                 recvdSpeed = posObjB.getSpeed();
                 recvdCourse = posObjB.getCourse();
-                recvdTimeStamp = String.valueOf(posObjB.getSeconds());
+                recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjB.getSeconds());
                 packetType = POSITION_REPORT_CLASSB;
                 break;
             case STATIC_DATA_CLASSA:

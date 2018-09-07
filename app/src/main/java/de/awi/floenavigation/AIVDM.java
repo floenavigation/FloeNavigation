@@ -1,9 +1,12 @@
 package de.awi.floenavigation;
 
+import android.util.Log;
+
 import java.util.Arrays;
 
 public class AIVDM {
 
+    private static final String TAG = "AIVDM";
     private String packetName;
     private int fragCount;
     private int fragNum;
@@ -113,53 +116,64 @@ public class AIVDM {
 
     static <T> Object strbuildtodec(int begin, int end, int len, StringBuilder binLocal, Class<?> type)
     {
-        char[] array = new char[len];
-        binLocal.getChars(begin,(end + 1),array,0);
+        try{
+            char[] array = new char[len];
+            binLocal.getChars(begin,(end + 1),array,0);
 
-        long decimal = 0;
-        for(int pow = len; pow > 0; pow--)
-        {
-            if(array[pow - 1] == '1')
-                decimal += Math.pow(2,len - pow);
+            long decimal = 0;
+            for(int pow = len; pow > 0; pow--)
+            {
+                if(array[pow - 1] == '1')
+                    decimal += Math.pow(2,len - pow);
+            }
+    //		System.out.println("dec: " + decimal);
+            if(type == int.class)
+                return (int)(long)decimal;
+            else
+                return decimal;
+        }catch (IndexOutOfBoundsException e) {
+            String text = String.valueOf(e.getStackTrace());
+            Log.d(TAG, text);
+            return 0;
         }
-//		System.out.println("dec: " + decimal);
-        if(type == int.class)
-            return (int)(long)decimal;
-        else
-            return decimal;
         //return Integer.parseInt(new String(array));
     }
 
     public static String convertToString(int begin, int end, int len, StringBuilder bin){
 
-        char[] array = new char[len];
-        bin.getChars(begin,(end + 1),array,0);
-        int binLen = 6;
-        StringBuilder stringValue = new StringBuilder();
+        try {
+            char[] array = new char[len];
+            bin.getChars(begin, (end + 1), array, 0);
+            int binLen = 6;
+            StringBuilder stringValue = new StringBuilder();
 
-        //char[] array = new char[binLen];
-        int beginIndex = 0;
-        int endIndex = 0;
-        for(beginIndex = 0, endIndex = 6; endIndex < len ;beginIndex += binLen, endIndex += binLen){
+            //char[] array = new char[binLen];
+            int beginIndex = 0;
+            int endIndex = 0;
+            for (beginIndex = 0, endIndex = 6; endIndex < len; beginIndex += binLen, endIndex += binLen) {
 
-            char[] newArray = Arrays.copyOfRange(array, beginIndex, endIndex);
-            int length = newArray.length;
-            long decimal = 0;
-            for(int pow = length; pow > 0; pow--)
-            {
-                if(newArray[pow - 1] == '1')
-                    decimal += Math.pow(2,length - pow);
+                char[] newArray = Arrays.copyOfRange(array, beginIndex, endIndex);
+                int length = newArray.length;
+                long decimal = 0;
+                for (int pow = length; pow > 0; pow--) {
+                    if (newArray[pow - 1] == '1')
+                        decimal += Math.pow(2, length - pow);
+                }
+                decimal = (int) (long) decimal;
+                decimal += 64;
+                if (Character.isLetter(((char) decimal))) {
+                    stringValue.append((char) decimal);
+                } else {
+                    stringValue.append(" ");
+                }
             }
-            decimal = (int)(long)decimal;
-            decimal += 64;
-            if(Character.isLetter(((char)decimal))){
-                stringValue.append((char) decimal);
-            } else{
-                stringValue.append(" ");
-            }
+
+            return stringValue.toString().trim();
+        }catch (IndexOutOfBoundsException e) {
+            String text = String.valueOf(e.getStackTrace());
+            Log.d(TAG, text);
+            return null;
         }
-
-        return stringValue.toString().trim();
     }
 
 };

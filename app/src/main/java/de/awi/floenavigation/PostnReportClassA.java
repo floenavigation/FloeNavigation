@@ -118,7 +118,7 @@ public class PostnReportClassA {
 
     public void setData(StringBuilder bin)
     {
-//		System.out.println(bin);
+
         msgInd = (int)strbuildtodec(0,5,6,bin,int.class);
         repeatInd = (int)strbuildtodec(6,7,2,bin,int.class);
         mmsi =  (long)strbuildtodec(8,37,30,bin,long.class);
