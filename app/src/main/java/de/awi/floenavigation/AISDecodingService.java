@@ -40,6 +40,13 @@ public class AISDecodingService extends IntentService {
     private StaticVoyageData voyageDataObj;
     private StaticDataReport dataReportObj;
 
+    private static final int POSITION_REPORT_CLASSA_TYPE_1 = 1;
+    private static final int POSITION_REPORT_CLASSA_TYPE_2 = 2;
+    private static final int POSITION_REPORT_CLASSA_TYPE_3 = 3;
+    private static final int STATIC_VOYAGE_DATA_CLASSB = 5;
+    private static final int POSITION_REPORT_CLASSB = 18;
+    private static final int STATIC_DATA_CLASSA = 24;
+
     //Data to be decoded
     private long recvdMMSI;
     private double recvdLat;
@@ -79,15 +86,10 @@ public class AISDecodingService extends IntentService {
             SQLiteDatabase db = databaseHelper.getReadableDatabase();
             Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
                     new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
-                    null,
-                    null,
-                    null, null, null);
+                    null, null, null, null, null);
 
             Cursor cursor_fixedstnlist = db.query(DatabaseHelper.fixedStationTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);
+                    null, null, null, null, null, null);
 
             //Mobile Station Disabled for now. Uncomment later
            /* Cursor cursor_mobilestnlist = db.query(DatabaseHelper.mobileStationTable,
@@ -117,26 +119,8 @@ public class AISDecodingService extends IntentService {
                     int mmsi = cursor_stnlist.getInt(cursor_stnlist.getColumnIndex(DatabaseHelper.mmsi));
                     String aisStnName = cursor_stnlist.getString(cursor_stnlist.getColumnIndex(DatabaseHelper.stationName));
 
-                    //Compared with the MMSI and AISStationName received from the WiFi
-                    //This needs to be implemented in Wifi Service
                     //Decoding logic
-                    //String packet = "!AIVDM,1,1,1,B,15UDQt001aPT136NlWiD93E20<<P,0*30"; //will be received from Wifi Service
 
-                   /* Log.d("decoded", String.valueOf(posObjA.getMsgInd()));
-                    Log.d("decoded", String.valueOf(posObjA.getRepeatInd()));
-                    Log.d("decoded", String.valueOf(posObjA.getMMSI()));
-                    Log.d("decoded", String.valueOf(posObjA.getStatus()));
-                    Log.d("decoded", String.valueOf(posObjA.getTurn()));
-                    Log.d("decoded", String.valueOf(posObjA.getSpeed()));
-                    Log.d("decoded", String.valueOf(posObjA.getAccuracy()));
-                    Log.d("decoded", String.valueOf(posObjA.getLongitude()));
-                    Log.d("decoded", String.valueOf(posObjA.getLatitude()));
-                    Log.d("decoded", String.valueOf(posObjA.getCourse()));
-                    Log.d("decoded", String.valueOf(posObjA.getHeading()));
-                    Log.d("decoded", String.valueOf(posObjA.getSeconds()));
-                    Log.d("decoded", String.valueOf(posObjA.getManeuver()));
-                    Log.d("decoded", String.valueOf(posObjA.getRaim()));
-                    Log.d("decoded", String.valueOf(posObjA.getRadio()));*/
                     if(recvdMMSI == mmsi){
 
                         //Writing to the database table AISFIXEDSTATIONPOSITION
@@ -148,7 +132,7 @@ public class AISDecodingService extends IntentService {
                                 decodedValues.put(DatabaseHelper.stationName, recvdStationName);
                                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
                                 decodedValues.put(DatabaseHelper.isLocationReceived, 1);
-                                if ((num != 5) && (num != 24)) {
+                                if ((num != STATIC_VOYAGE_DATA_CLASSB) && (num != STATIC_DATA_CLASSA)) {
                                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
                                     decodedValues.put(DatabaseHelper.sog, recvdSpeed);
@@ -163,20 +147,6 @@ public class AISDecodingService extends IntentService {
                             } while (cursor_fixedstnlist.moveToNext());
                         }
 
-                            /*if(!cursor_fixedstnlist.moveToNext()) {
-                                //Writing to the database table AISFIXEDSTATIONPOSITION
-                                ContentValues decodedValues = new ContentValues();
-                                decodedValues.put(DatabaseHelper.stationName, recvdStationName);
-                                if((num != 5) && (num != 24)) {
-                                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
-                                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
-                                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
-                                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
-                                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
-                                    decodedValues.put(DatabaseHelper.isPredicted, 0);
-                                }
-                                db.insert(DatabaseHelper.fixedStationTable, null, decodedValues);
-                            }*/
                     } //Uncomment later
                     /*else{
                         if(cursor_mobilestnlist.moveToFirst()) {
@@ -199,21 +169,7 @@ public class AISDecodingService extends IntentService {
                             } while (cursor_mobilestnlist.moveToNext());
                         }
 
-                           *//* if(!cursor_mobilestnlist.moveToNext()) {
-                                //Writing to the database table AISMOBILESTATION
-                                ContentValues decodedValues = new ContentValues();
-                                decodedValues.put(DatabaseHelper.stationName, recvdStationName);
-                                if((num != 5) && (num != 24)) {
-                                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
-                                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
-                                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
-                                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
-                                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
-                                    decodedValues.put(DatabaseHelper.isPredicted, 0);
-                                }
-                                db.insert(DatabaseHelper.mobileStationTable, null, decodedValues);
-                            }*//*
-                    }*/
+                           */
 
                 }while(cursor_stnlist.moveToNext());
 
@@ -237,9 +193,9 @@ public class AISDecodingService extends IntentService {
 
         switch(num)
         {
-            case 1 :
-            case 2 :
-            case 3 :
+            case POSITION_REPORT_CLASSA_TYPE_1 :
+            case POSITION_REPORT_CLASSA_TYPE_2 :
+            case POSITION_REPORT_CLASSA_TYPE_3 :
                 posObjA.setData(binary);
                 recvdMMSI = posObjA.getMMSI();
                 recvdLat = posObjA.getLatitude();
@@ -248,12 +204,12 @@ public class AISDecodingService extends IntentService {
                 recvdCourse = posObjA.getCourse();
                 recvdTimeStamp = String.valueOf(posObjA.getSeconds());
                 break;
-            case 5:
+            case STATIC_VOYAGE_DATA_CLASSB:
                 voyageDataObj.setData(binary);
                 recvdMMSI = voyageDataObj.getMMSI();
                 recvdStationName = voyageDataObj.getVesselName();
                 break;
-            case 18:
+            case POSITION_REPORT_CLASSB:
                 posObjB.setData(binary);
                 recvdMMSI = posObjB.getMMSI();
                 recvdLat = posObjB.getLatitude();
@@ -262,7 +218,7 @@ public class AISDecodingService extends IntentService {
                 recvdCourse = posObjB.getCourse();
                 recvdTimeStamp = String.valueOf(posObjB.getSeconds());
                 break;
-            case 24:
+            case STATIC_DATA_CLASSA:
                 dataReportObj.setData(binary);
                 recvdMMSI = dataReportObj.getMMSI();
                 recvdStationName = dataReportObj.getVesselName();

@@ -2,6 +2,8 @@ package de.awi.floenavigation;
 
 import android.content.Context;
 
+import java.text.DecimalFormat;
+
 public class NavigationFunctions {
 
     public static double[] calculateNewPosition(double lat, double lon, double speed, double bearing){
@@ -70,16 +72,18 @@ public class NavigationFunctions {
         return Math.toDegrees(Math.atan2(y,x));
     }
 
-    public static String convertToDegMinSec(double decCoodinate){
+    public static String convertToDegMinSec(double decCoord){
 
         String degMinSec;
+        DecimalFormat df = new DecimalFormat("#.0000");
 
-        int deg = (int)decCoodinate;  // Truncate the decimals
-        double temp = (decCoodinate - deg) * 60;
+        double decCoordinate = Math.abs(decCoord);
+        int deg = (int)decCoordinate;
+        double temp = (decCoordinate - deg) * 60;
         int min = (int)temp;
-        int sec = (int)((temp - min) * 60);
+        double sec = ((temp - min) * 60);
 
-        degMinSec = String.valueOf(deg) + "°" + String.valueOf(min) + "'" + String.valueOf(sec)+ "\"";
+        degMinSec = String.valueOf(deg) + "°" + String.valueOf(min) + "'" + String.valueOf(df.format(sec))+ "\"";
 
         return degMinSec;
     }
@@ -110,6 +114,29 @@ public class NavigationFunctions {
         //double secondangle = Math.atan2(lon2 - fixedLon, lat2 - fixedLat);
 
         return Math.abs(bearing);
+    }
+
+    public static String[] locationInDegrees(double latitude, double longitude){
+
+        int MAX_SIZE = 2;
+        String[] coordinatesInDegree = new String[MAX_SIZE];
+        String latDirection = "N";
+        String lonDirection = "E";
+
+        if(latitude < 0){
+            latDirection = "S";
+        }
+        if(longitude < 0){
+            lonDirection = "W";
+        }
+
+        String latitudeInDeg = convertToDegMinSec(latitude) + latDirection;
+        String longitudeInDeg = convertToDegMinSec(longitude) + lonDirection;
+
+        coordinatesInDegree[0] = latitudeInDeg;
+        coordinatesInDegree[1] = longitudeInDeg;
+
+        return coordinatesInDegree;
     }
 
 

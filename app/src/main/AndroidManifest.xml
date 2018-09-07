@@ -40,7 +40,13 @@
             android:exported="false" />
         <service
             android:name=".NetworkService"
-            android:exported="false"></service>
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".AngleCalculationService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
