@@ -23,6 +23,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String sampleMeasurementTable = "SAMPLE_MEASUREMENT";
     public static final String deviceListTable = "DEVICE_LIST";
     public static final String waypointsTable = "WAYPOINTS";
+    public static final String baseStationTable = "BASE_STATIONS";
+    public static final String betaTable = "BETA";
+
 
     //Database Fields Names
     public static final  String stationName = "AIS_STATION_NAME";
@@ -32,6 +35,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String yPosition = "Y_POSITION";
     public static final String sog = "SPEED_OVER_GROUND";
     public static final String cog = "COURSE_OVER_GROUND";
+    public static final String alpha = "ALPHA";
+    public static final String beta = "BETA";
+    public static final String packetType = "LAST_RECEIVED_PACKET_TYPE";
     public static final String mmsi = "MMSI";
     public static final String deviceType = "DEVICE_TYPE";
     public static final String updateTime = "UPDTAE_TIME";
@@ -62,20 +68,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 stationName + " TEXT NOT NULL );");
 
         //Create AIS Fixed Station Position Table
-        db.execSQL("CREATE TABLE " + fixedStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                stationName + " TEXT," +
-                latitude + " REAL," +
-                longitude + " REAL," +
-                xPosition + " REAL," +
-                yPosition + " REAL," +
-                deviceType + " TEXT," +
-                updateTime + " TEXT," +
-                sog + " REAL," +
-                cog + " REAL," +
-                isPredicted + " NUMERIC," +
-                isLocationReceived + " NUMERIC," +
-                mmsi + " INTEGER NOT NULL," +
+        db.execSQL("CREATE TABLE " + fixedStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                stationName + " TEXT, " +
+                latitude + " REAL, " +
+                longitude + " REAL, " +
+                alpha + " REAL, " +
+                xPosition + " REAL, " +
+                yPosition + " REAL, " +
+                deviceType + " TEXT, " +
+                updateTime + " TEXT, " +
+                sog + " REAL, " +
+                cog + " REAL, " +
+                packetType + " INTEGER, " +
+                isPredicted + " NUMERIC, " +
+                isLocationReceived + " NUMERIC, " +
+                mmsi + " INTEGER NOT NULL, " +
                 "FOREIGN KEY (" + mmsi + ") REFERENCES " + stationListTable + "(" + mmsi + "));");
+
+        //Create Base Stations Table
+        db.execSQL("CREATE TABLE " + baseStationTable + "(" + mmsi + " INTEGER PRIMARY KEY, " +
+                stationName + " TEXT NOT NULL);");
+
+        //Create Beta Table
+        db.execSQL("CREATE TABLE " + betaTable + "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                beta + " REAL NOT NULL, " +
+                updateTime + " TEXT);");
 
         //Create Users Table
         db.execSQL("CREATE TABLE " + usersTable + "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -94,32 +111,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         try{
             //Create Mobile Station Table
-            db.execSQL("CREATE TABLE " + mobileStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    stationName + " TEXT," +
-                    latitude + " REAL," +
-                    longitude + " REAL," +
-                    xPosition + " REAL," +
-                    yPosition + " REAL," +
-                    deviceType + " TEXT," +
-                    updateTime + " TEXT," +
-                    mmsi + " INTEGER NOT NULL," +
-                    "FOREIGN KEY (" + mmsi + ") REFERENCES " + stationListTable + "(" + mmsi + "));");
+            db.execSQL("CREATE TABLE " + mobileStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    stationName + " TEXT, " +
+                    latitude + " REAL, " +
+                    longitude + " REAL, " +
+                    alpha + " REAL, " +
+                    xPosition + " REAL, " +
+                    yPosition + " REAL, " +
+                    deviceType + " TEXT, " +
+                    updateTime + " TEXT, " +
+                    mmsi + " INTEGER NOT NULL);");
 
             //Create Sample/Measurement Table
-            db.execSQL("CREATE TABLE " + sampleMeasurementTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    deviceName + " TEXT," +
+            db.execSQL("CREATE TABLE " + sampleMeasurementTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    deviceName + " TEXT, " +
                     label + " TEXT);");
 
             //Create DeviceList Table
-            db.execSQL("CREATE TABLE " + deviceListTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    deviceName + " TEXT," +
-                    deviceType + " TEXT," +
-                    xPosition + " REAL," +
+            db.execSQL("CREATE TABLE " + deviceListTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    deviceName + " TEXT, " +
+                    deviceType + " TEXT, " +
+                    xPosition + " REAL, " +
                     yPosition + "REAL);");
 
             //Create Waypoints Table
-            db.execSQL("CREATE TABLE " + waypointsTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    label + " TEXT);");
+            db.execSQL("CREATE TABLE " + waypointsTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    label + " TEXT); ");
 
             return  true;
         } catch(SQLiteException e){
