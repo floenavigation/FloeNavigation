@@ -10,9 +10,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent serviceIntent = new Intent(this, NetworkService.class);
-        startService(serviceIntent);
+
+        //Start Network Monitor Service
+        Intent networkServiceIntent = new Intent(this, NetworkService.class);
+        startService(networkServiceIntent);
+
+
+
         setContentView(R.layout.activity_main);
+
+
 
 
     }

@@ -16,6 +16,7 @@ public class NetworkMonitor implements Runnable {
     Context appContext;
     AISMessageReceiver aisMessage;
     Thread aisMessageThread;
+    private static final String TAG = "NetworkMonitor";
     //public static volatile boolean mdisconnectFlag = false;
 
     public NetworkMonitor(Context con){
@@ -29,11 +30,11 @@ public class NetworkMonitor implements Runnable {
     public void run(){
 
         while(true) {
-            /*try {
-                Thread.sleep(1000);
+            try {
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            }
             success = pingRequest("/system/bin/ping -c 1 " + GridSetupActivity.dstAddress);
 
             /*if(success != prevSuccess){
@@ -49,7 +50,13 @@ public class NetworkMonitor implements Runnable {
             }*/
             Intent intent = new Intent();
             intent.setAction("Reconnect");
+            Log.d(TAG, "Success Value: " + String.valueOf(success));
             if(success){
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(!aisMessageThread.isAlive()){
 
                     aisMessageThread.start();
@@ -60,6 +67,11 @@ public class NetworkMonitor implements Runnable {
                 }
             }
             else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(aisMessageThread.isAlive()) {
                     //mdisconnectFlag = true; //to disconnect the client
                     intent.putExtra("mDisconnectFlag", true);

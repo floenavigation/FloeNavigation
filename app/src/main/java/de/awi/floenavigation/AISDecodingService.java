@@ -72,7 +72,6 @@ public class AISDecodingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "Service OnStart Command");
 
         /*synchronized (this){
             try{

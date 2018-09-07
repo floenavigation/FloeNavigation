@@ -15,6 +15,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
     private static final String TAG = "DatabaseHelpler";
 
+    public static final int firstStationIndex = 0;
+    public static final int secondStationIndex = 1;
+    public static final int INITIALIZATION_SIZE = 2;
+
     //Database Tables Names
     public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
     public static final String stationListTable = "AIS_STATION_LIST";

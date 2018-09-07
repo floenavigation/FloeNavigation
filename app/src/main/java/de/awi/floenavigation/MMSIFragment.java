@@ -103,8 +103,8 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
             } else{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
             }
-                db.insert(DatabaseHelper.baseStationTable, null, station);
                 db.insert(DatabaseHelper.stationListTable, null, station);
+                db.insert(DatabaseHelper.baseStationTable, null, station);
                 db.insert(DatabaseHelper.fixedStationTable, null, stationData);
                 db.close();
         } catch (SQLiteException e){

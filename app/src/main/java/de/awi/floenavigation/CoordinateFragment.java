@@ -61,6 +61,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private String tabletLon;
     private boolean isConfigDone;
     private long countAIS;
+    private static final int checkInterval = 1000;
+
 
 
     @Override
@@ -96,7 +98,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                         populateTabLocation();
                     } else {
                         Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
-                        handler.postDelayed(this, 1000);
+                        handler.postDelayed(this, checkInterval);
                     }
                 }
             });
@@ -107,14 +109,14 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 public void onReceive(Context context, Intent intent){
                     /*String coordinateString = intent.getExtras().get("coordinates").toString();
                     String[] coordinates = coordinateString.split(",");*/
-                    tabletLat = intent.getExtras().get("Latitude").toString();
-                    tabletLon = intent.getExtras().get("Longitude").toString();
+                    tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
+                    tabletLon = intent.getExtras().get(GPS_Service.longitude).toString();
                     //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
                     populateTabLocation();
                 }
             };
         }
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("location_updates"));
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
 
     @Override
@@ -142,8 +144,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             countAIS = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
             Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
                     new String[]{DatabaseHelper.stationName, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.isLocationReceived},
-                    "MMSI = ?",
-                    new String[] {Integer.toString(MMSINumber)},
+                    DatabaseHelper.mmsi + " = ? AND " + DatabaseHelper.packetType + " = ? OR " + DatabaseHelper.packetType + " = ?",
+                    new String[] {Integer.toString(MMSINumber), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSA_TYPE_1), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSB)},
                     null, null, null);
             if(cursor.moveToFirst()){
                 stationName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.stationName));
@@ -195,8 +197,11 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             try {
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-
-                tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+                if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude() != 0) {
+                    tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+                } else {
+                    tabletLat = "0.0";
+                }
 
             } catch (SecurityException e){
                 Toast.makeText(getActivity(),"Location Service Problem", Toast.LENGTH_LONG).show();
@@ -204,7 +209,12 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         if (tabletLon == null || tabletLon.isEmpty()){
             try {
-                tabletLon = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());
+                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude() != 0) {
+                    tabletLon = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());
+                } else{
+                    tabletLon = "0.0";
+                }
 
             } catch (SecurityException e){
                 Toast.makeText(getActivity(),"Location Service Problem", Toast.LENGTH_LONG).show();

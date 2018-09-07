@@ -10,10 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.internal.NavigationMenuItemView;
 import android.util.Log;
 import android.view.WindowManager;
@@ -27,22 +29,25 @@ import java.util.TimerTask;
 public class SetupActivity extends Activity {
 
     private static final String TAG = "SetupActivity";
-    private static final int INITIALIZATION_SIZE = 2;
     private static final int JOB_ID = 100;
     private static final int PREDICTION_TIME = 65 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
+
 
     Timer parentTimer = new Timer();
     Timer timer = new Timer();
     private int timerCounter = 0;
 
-    private double[] stationLatitude = new double[INITIALIZATION_SIZE];
-    private double[] stationLongitude = new double[INITIALIZATION_SIZE];
-    private double[] stationSOG = new double[INITIALIZATION_SIZE];
-    private double[] stationCOG = new double[INITIALIZATION_SIZE];
-    private double[] predictedLatitude = new double[INITIALIZATION_SIZE];
-    private double[] predictedLongitude = new double[INITIALIZATION_SIZE];
-    private double[] distanceDiff = new double[INITIALIZATION_SIZE];
+    private double[] stationLatitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] stationLongitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] stationSOG = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] stationCOG = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] predictedLatitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] predictedLongitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double[] distanceDiff = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private double predictedBeta = 0.0;
+    private double receivedBeta = 0.0;
+    private double betaDifference = 0.0;
 
 
 
@@ -63,6 +68,9 @@ public class SetupActivity extends Activity {
         findViewById(R.id.second_station_received_latitude).setEnabled(false);
         findViewById(R.id.second_station_received_longitude).setEnabled(false);
         findViewById(R.id.second_station_diff_distance).setEnabled(false);
+        findViewById(R.id.receivedBeta).setEnabled(false);
+        findViewById(R.id.calculatedBeta).setEnabled(false);
+        findViewById(R.id.betaDifference).setEnabled(false);
 
 
        /*
@@ -83,15 +91,21 @@ public class SetupActivity extends Activity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Log.d(TAG, "3 minutes Timer");
+                Log.d(TAG, "Predicting New Values");
                 timerCounter++;
                 new ReadParamsFromDB().execute();
-                for(int i = 0; i < 2; i++){
+                for(int i = 0; i < DatabaseHelper.INITIALIZATION_SIZE; i++){
                     double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
                     predictedLatitude[i] = predictedCoordinates[0];
                     predictedLongitude[i] = predictedCoordinates[1];
                     distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
+
+
                 }
+
+                predictedBeta = NavigationFunctions.calculateAngleBeta(predictedLatitude[DatabaseHelper.firstStationIndex], predictedLongitude[DatabaseHelper.firstStationIndex], predictedLatitude[DatabaseHelper.secondStationIndex], predictedLongitude[DatabaseHelper.secondStationIndex]);
+                receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex], stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
+                betaDifference = Math.abs(predictedBeta - receivedBeta);
                 //calculateDifference();
                 refreshScreen();
             }
@@ -101,7 +115,7 @@ public class SetupActivity extends Activity {
             @Override
             public void run() {
                 //scheduler.cancel(JOB_ID);
-                Log.d(TAG, "In Parent Timer" + Integer.toString(timerCounter));
+                Log.d(TAG, "StartupComplete");
                 if (timerCounter >= 6)
                 {
                     timer.cancel();
@@ -127,6 +141,9 @@ public class SetupActivity extends Activity {
         final EditText ais2PrdLatitude = findViewById(R.id.second_station_predicted_latitude);
         final EditText ais2PrdLongitude = findViewById(R.id.second_station_predicted_longitude);
         final EditText ais2Difference = findViewById(R.id.second_station_diff_distance);
+        final EditText calculatedBeta = findViewById(R.id.calculatedBeta);
+        final EditText rcvBeta = findViewById(R.id.receivedBeta);
+        final EditText betaDiff = findViewById(R.id.betaDifference);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -140,16 +157,22 @@ public class SetupActivity extends Activity {
                 ais2PrdLongitude.setEnabled(true);
                 ais2RcvLatitude.setEnabled(true);
                 ais2RcvLongitude.setEnabled(true);
-                ais1Difference.setText(String.valueOf(distanceDiff[0]));
-                ais1PrdLatitude.setText(String.valueOf(predictedLatitude[0]));
-                ais1PrdLongitude.setText(String.valueOf(predictedLongitude[0]));
-                ais1RcvLatitude.setText(String.valueOf(stationLatitude[0]));
-                ais1RcvLongitude.setText(String.valueOf(stationLongitude[0]));
-                ais2Difference.setText(String.valueOf(distanceDiff[1]));
-                ais2PrdLatitude.setText(String.valueOf(predictedLatitude[1]));
-                ais2PrdLongitude.setText(String.valueOf(predictedLongitude[1]));
-                ais2RcvLatitude.setText(String.valueOf(stationLatitude[1]));
-                ais2RcvLongitude.setText(String.valueOf(stationLongitude[1]));
+                calculatedBeta.setEnabled(true);
+                rcvBeta.setEnabled(true);
+                betaDiff.setEnabled(true);
+                ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
+                ais1PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.firstStationIndex]));
+                ais1PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.firstStationIndex]));
+                ais1RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]));
+                ais1RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+                ais2Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.secondStationIndex]));
+                ais2PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.secondStationIndex]));
+                ais2PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex]));
+                ais2RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]));
+                ais2RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+                calculatedBeta.setText(String.valueOf(predictedBeta));
+                rcvBeta.setText(String.valueOf(receivedBeta));
+                betaDiff.setText(String.valueOf(betaDifference));
                 ais1Difference.setEnabled(false);
                 ais1PrdLatitude.setEnabled(false);
                 ais1PrdLongitude.setEnabled(false);
@@ -160,6 +183,9 @@ public class SetupActivity extends Activity {
                 ais2PrdLongitude.setEnabled(false);
                 ais2RcvLatitude.setEnabled(false);
                 ais2RcvLongitude.setEnabled(false);
+                calculatedBeta.setEnabled(false);
+                rcvBeta.setEnabled(false);
+                betaDiff.setEnabled(false);
             }
         });
     }
@@ -180,20 +206,27 @@ public class SetupActivity extends Activity {
                 Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
                         new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.mmsi},
                         null, null, null, null, null);
-                if (cursor.moveToFirst()){
-                    int i = 0;
-                    do{
-                        stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
-                        stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
-                        stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
-                        stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
-                        i++;
-                    } while(cursor.moveToNext());
-                    cursor.close();
-                    db.close();
+                long stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
+                if (stationCount == DatabaseHelper.INITIALIZATION_SIZE) {
+                    if (cursor.moveToFirst()) {
+                        int i = 0;
+                        do {
+                            stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
+                            stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
+                            stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
+                            stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
+                            i++;
+                        } while (cursor.moveToNext());
+                        cursor.close();
+                        db.close();
 
+                    }
+
+                    return true;
+                } else{
+                    Log.d(TAG, "Invalid Number of Entries in Station List Table");
+                    return false;
                 }
-                return true;
             } catch (SQLiteException e){
                 return false;
             }
@@ -224,7 +257,7 @@ public class SetupActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result){
-                Log.d(TAG, "Database Unavailable");
+                Log.d(TAG, "Database Error");
             }
         }
     }

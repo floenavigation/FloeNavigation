@@ -34,4 +34,6 @@ dependencies {
     implementation 'io.github.yavski:fab-speed-dial:1.0.6'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
     implementation 'org.kie.modules:org-apache-commons-net:6.5.0.Final'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
 }
