@@ -44,7 +44,7 @@ public class AngleCalculationService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
 
-            Runnable mRunnable = new Runnable() {
+            Runnable betaRunnable = new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -99,7 +99,15 @@ public class AngleCalculationService extends IntentService {
                 }
             };
 
-            mHandler.postDelayed(mRunnable, 10000);
+            /*Runnable alphaRunnable = new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            };*/
+
+            mHandler.postDelayed(betaRunnable, 10000);
+            //mHandler.postDelayed(alphaRunnable, 10000);
         }
     }
 

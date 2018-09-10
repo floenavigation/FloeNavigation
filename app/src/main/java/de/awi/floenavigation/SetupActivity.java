@@ -30,8 +30,8 @@ public class SetupActivity extends Activity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static final int PREDICTION_TIME = 65 * 1000;
-    private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
+    private static final int PREDICTION_TIME = 305 * 1000;
+    private static final int PREDICATION_TIME_PERIOD = 1 * 1000;
 
 
     Timer parentTimer = new Timer();
@@ -96,15 +96,18 @@ public class SetupActivity extends Activity {
                 new ReadParamsFromDB().execute();
                 for(int i = 0; i < DatabaseHelper.INITIALIZATION_SIZE; i++){
                     double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
+                    //Log.d(TAG, "StationLatitude: " + String.valueOf(i) + " " + String.valueOf(stationLatitude[i]));
+                    //Log.d(TAG, "StationLongitude: " + String.valueOf(i) + " " + String.valueOf(stationLongitude[i]));
                     predictedLatitude[i] = predictedCoordinates[0];
                     predictedLongitude[i] = predictedCoordinates[1];
                     distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
-
-
                 }
 
                 predictedBeta = NavigationFunctions.calculateAngleBeta(predictedLatitude[DatabaseHelper.firstStationIndex], predictedLongitude[DatabaseHelper.firstStationIndex], predictedLatitude[DatabaseHelper.secondStationIndex], predictedLongitude[DatabaseHelper.secondStationIndex]);
                 receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex], stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
+                Log.d(TAG, "AIS 1: " + String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+                Log.d(TAG, "AIS 2: " + String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+                Log.d(TAG, "Beta: " + String.valueOf(receivedBeta));
                 betaDifference = Math.abs(predictedBeta - receivedBeta);
                 //calculateDifference();
                 refreshScreen();
@@ -193,14 +196,25 @@ public class SetupActivity extends Activity {
 
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {
 
+        double[] latitude;
+        double[] longitude;
+        double[] sog;
+        double[] cog;
+
         @Override
         protected void onPreExecute(){
+
 
         }
 
         @Override
         protected Boolean doInBackground(Void... voids) {
+            latitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+            longitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
+            sog = new double[DatabaseHelper.INITIALIZATION_SIZE];
+            cog = new double[DatabaseHelper.INITIALIZATION_SIZE];
             DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+
             try{
                 SQLiteDatabase db = helper.getReadableDatabase();
                 Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
@@ -211,10 +225,11 @@ public class SetupActivity extends Activity {
                     if (cursor.moveToFirst()) {
                         int i = 0;
                         do {
-                            stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
-                            stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
-                            stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
-                            stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
+                            latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
+                            Log.d(TAG, String.valueOf(i) + " " + String.valueOf(latitude[i]));
+                            longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
+                            sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
+                            cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
                             i++;
                         } while (cursor.moveToNext());
                         cursor.close();
@@ -236,6 +251,11 @@ public class SetupActivity extends Activity {
         protected void onPostExecute(Boolean result) {
             if (!result){
                 Log.d(TAG, "Database Unavailable");
+            } else{
+                stationLatitude = latitude;
+                stationLongitude = longitude;
+                stationSOG = sog;
+                stationCOG = cog;
             }
         }
     }

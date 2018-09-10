@@ -134,7 +134,11 @@ public class AIVDM {
         }catch (IndexOutOfBoundsException e) {
             String text = String.valueOf(e.getStackTrace());
             Log.d(TAG, text);
-            return 0;
+            if(type == int.class)
+                return (int)(long)0;
+            else
+                return (long) 0;
+            //return 0;
         }
         //return Integer.parseInt(new String(array));
     }

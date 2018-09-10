@@ -1,10 +1,12 @@
 package de.awi.floenavigation;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.text.DecimalFormat;
 
 public class NavigationFunctions {
+    private static final String TAG = "Navigation Functions";
 
     public static double[] calculateNewPosition(double lat, double lon, double speed, double bearing){
 
@@ -94,6 +96,7 @@ public class NavigationFunctions {
         //double fixedLon = lon2;
 
         double bearing = calculateBearing(lat1, lon1, lat2, lon2);
+        Log.d(TAG, "Bearing: " + String.valueOf(bearing));
 
         if(bearing >= 0 && bearing <= 180){
             bearing -= 90;

@@ -102,6 +102,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station2InitialY);
             } else{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "StationCount Greater than 2");
             }
                 db.insert(DatabaseHelper.stationListTable, null, station);
                 db.insert(DatabaseHelper.baseStationTable, null, station);

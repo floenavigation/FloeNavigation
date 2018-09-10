@@ -2,6 +2,7 @@ package de.awi.floenavigation;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 
 /**
@@ -107,6 +111,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             broadcastReceiver = new BroadcastReceiver(){
                 @Override
                 public void onReceive(Context context, Intent intent){
+                    //Log.d(TAG, "BroadCast Received");
                     /*String coordinateString = intent.getExtras().get("coordinates").toString();
                     String[] coordinates = coordinateString.split(",");*/
                     tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
@@ -195,10 +200,11 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
 
         if (tabletLat == null || tabletLat.isEmpty()){
             try {
-                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                //locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-                if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude() != 0) {
-                    tabletLat = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+                //assert locationManager != null;
+                if (getLastKnownLocation() != null) {
+                    tabletLat = String.valueOf(getLastKnownLocation().getLatitude());
                 } else {
                     tabletLat = "0.0";
                 }
@@ -209,15 +215,17 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         if (tabletLon == null || tabletLon.isEmpty()){
             try {
-                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude() != 0) {
-                    tabletLon = String.valueOf(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());
+                //locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                if(getLastKnownLocation() != null) {
+                    tabletLon = String.valueOf(getLastKnownLocation().getLongitude());
                 } else{
                     tabletLon = "0.0";
                 }
 
             } catch (SecurityException e){
                 Toast.makeText(getActivity(),"Location Service Problem", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Location Service Not Available");
+                e.printStackTrace();
             }
         }
         tabLat.setEnabled(true);
@@ -257,5 +265,23 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             Intent intent = new Intent(getActivity(), SetupActivity.class);
             startActivity(intent);
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private Location getLastKnownLocation() {
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            Location l = locationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                // Found best last known location: %s", l);
+                bestLocation = l;
+            }
+        }
+        return bestLocation;
     }
 }

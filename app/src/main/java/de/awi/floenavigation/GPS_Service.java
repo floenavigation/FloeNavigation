@@ -50,7 +50,6 @@ public class GPS_Service extends Service {
         locationManager = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
-
         new Thread(locationUpdates).start();
 
     }
@@ -74,7 +73,7 @@ public class GPS_Service extends Service {
 
                 locationUpdates.setLatitude(location.getLatitude());
                 locationUpdates.setLongitude(location.getLongitude());
-
+                //Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
         }
 
         @Override
@@ -99,7 +98,7 @@ public class GPS_Service extends Service {
 
     private class LocationUpdates implements Runnable {
         private double lat = 0.0;
-        private double lon= 0.0;
+        private double lon = 0.0;
 
         public void setLatitude(double lat) {
             this.lat = lat;
@@ -120,6 +119,8 @@ public class GPS_Service extends Service {
                 Intent broadcastIntent = new Intent(GPSBroadcast);
                 broadcastIntent.putExtra(latitude, lat);
                 broadcastIntent.putExtra(longitude, lon);
+                //Log.d(TAG, "BroadCast sent");
+                //Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
                 //Toast.makeText(getApplicationContext(),"Broadcast Sent", Toast.LENGTH_LONG).show();
                 sendBroadcast(broadcastIntent);
             }

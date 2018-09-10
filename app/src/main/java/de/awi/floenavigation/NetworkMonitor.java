@@ -23,8 +23,6 @@ public class NetworkMonitor implements Runnable {
         this.appContext = con;
         aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, con);
         aisMessageThread = new Thread(aisMessage);
-
-
     }
 
     public void run(){
@@ -76,6 +74,7 @@ public class NetworkMonitor implements Runnable {
                     //mdisconnectFlag = true; //to disconnect the client
                     intent.putExtra("mDisconnectFlag", true);
                     appContext.sendBroadcast(intent);
+                    //aisMessageThread.interrupt();
                 }
             }
 

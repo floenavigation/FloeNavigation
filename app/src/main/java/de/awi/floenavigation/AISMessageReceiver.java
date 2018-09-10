@@ -55,12 +55,13 @@ public class AISMessageReceiver implements Runnable {
             client.connect(dstAddress, dstPort);
 
 
-            isConnected =  client.isConnected();
+
             bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             /*Intent serviceIntent = new Intent(context, AISDecodingService.class);
             context.startService(serviceIntent);*/
 
             do{
+                isConnected =  client.isConnected();
                 while(bufferedReader.read() != -1) {
                     responseString.append(bufferedReader.readLine());
                     if (responseString.toString().contains("AIVDM") || responseString.toString().contains("AIVDO")) {
@@ -92,7 +93,7 @@ public class AISMessageReceiver implements Runnable {
 
 
     public boolean isConnected(){
-        return isConnected;
+        return client.isConnected();
     }
 
 }
