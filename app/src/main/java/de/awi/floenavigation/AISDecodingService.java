@@ -108,7 +108,7 @@ public class AISDecodingService extends IntentService {
                 StringBuilder binary = aivdmObj.decodePayload();
                 num = (int) strbuildtodec(0, 5, 6, binary, int.class);
                 msgDecoding(num, binary);
-                Log.d(TAG, String.valueOf(recvdMMSI));
+                //Log.d(TAG, String.valueOf(recvdMMSI));
             }
 
             //if(recvdMMSI == 21100)
@@ -142,7 +142,9 @@ public class AISDecodingService extends IntentService {
                                     decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
                                     decodedValues.put(DatabaseHelper.isPredicted, 0);
                                 }
+                                Log.d(TAG, "Updated DB " + String.valueOf(recvdMMSI));
                                 int a = db.update(DatabaseHelper.fixedStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
+                                Log.d(TAG, "Update Result: " + String.valueOf(a));
 
                                 break;
                                 //}

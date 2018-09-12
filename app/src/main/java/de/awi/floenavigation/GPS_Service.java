@@ -46,10 +46,17 @@ public class GPS_Service extends Service {
     @Override
     public void onCreate(){
         Log.d(TAG, "GPS Service Started");
-        listener =  new Listener();
+        listener =  new Listener(LocationManager.GPS_PROVIDER);
         locationManager = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+        } catch (SecurityException ex){
+            Log.d(TAG, "Fail to Request Location updates");
+        } catch (IllegalArgumentException ex){
+            Log.d(TAG, "GPS Provider does not exist");
+            ex.printStackTrace();
+        }
         new Thread(locationUpdates).start();
 
     }
@@ -68,12 +75,27 @@ public class GPS_Service extends Service {
 
     private class Listener implements LocationListener{
 
+        Location lastLocation;
+
+        public Listener(String provider){
+            Log.d(TAG, "LocationListener " + provider);
+            lastLocation = new Location(provider);
+        }
+
         @Override
         public void onLocationChanged(Location location){
 
                 locationUpdates.setLatitude(location.getLatitude());
                 locationUpdates.setLongitude(location.getLongitude());
-                //Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
+                Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
+            /*lastLocation.set(location);
+            Intent broadcastIntent = new Intent(GPSBroadcast);
+            broadcastIntent.putExtra(latitude, location.getLatitude());
+            broadcastIntent.putExtra(longitude, location.getLongitude());
+            //Log.d(TAG, "BroadCast sent");
+            Log.d(TAG, "Tablet Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
+            //Toast.makeText(getApplicationContext(),"Broadcast Sent", Toast.LENGTH_LONG).show();
+            sendBroadcast(broadcastIntent);*/
         }
 
         @Override

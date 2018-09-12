@@ -31,7 +31,7 @@ public class SetupActivity extends Activity {
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
     private static final int PREDICTION_TIME = 305 * 1000;
-    private static final int PREDICATION_TIME_PERIOD = 1 * 1000;
+    private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
 
 
     Timer parentTimer = new Timer();
@@ -105,9 +105,9 @@ public class SetupActivity extends Activity {
 
                 predictedBeta = NavigationFunctions.calculateAngleBeta(predictedLatitude[DatabaseHelper.firstStationIndex], predictedLongitude[DatabaseHelper.firstStationIndex], predictedLatitude[DatabaseHelper.secondStationIndex], predictedLongitude[DatabaseHelper.secondStationIndex]);
                 receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex], stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
-                Log.d(TAG, "AIS 1: " + String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
-                Log.d(TAG, "AIS 2: " + String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
-                Log.d(TAG, "Beta: " + String.valueOf(receivedBeta));
+                //Log.d(TAG, "AIS 1: " + String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+                //Log.d(TAG, "AIS 2: " + String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]) + " " + String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+                //Log.d(TAG, "Beta: " + String.valueOf(receivedBeta));
                 betaDifference = Math.abs(predictedBeta - receivedBeta);
                 //calculateDifference();
                 refreshScreen();
@@ -223,10 +223,12 @@ public class SetupActivity extends Activity {
                 long stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
                 if (stationCount == DatabaseHelper.INITIALIZATION_SIZE) {
                     if (cursor.moveToFirst()) {
+                        Log.d(TAG, "Row Count: " + String.valueOf(cursor.getCount()));
                         int i = 0;
                         do {
                             latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
                             Log.d(TAG, String.valueOf(i) + " " + String.valueOf(latitude[i]));
+                            Log.d(TAG, "MMSIs: " + String.valueOf(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi))));
                             longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
                             sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
                             cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));

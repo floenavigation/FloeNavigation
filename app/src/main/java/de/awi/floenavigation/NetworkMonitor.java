@@ -65,6 +65,7 @@ public class NetworkMonitor implements Runnable {
                 }
             }
             else {
+                Log.d(TAG, "Ping Failed");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
