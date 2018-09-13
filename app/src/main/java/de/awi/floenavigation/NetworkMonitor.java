@@ -8,6 +8,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 
 public class NetworkMonitor implements Runnable {
     //final static String IPADDRESS = "192.168.0.102";
@@ -29,7 +30,7 @@ public class NetworkMonitor implements Runnable {
 
         while(true) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -49,32 +50,38 @@ public class NetworkMonitor implements Runnable {
             Intent intent = new Intent();
             intent.setAction("Reconnect");
             Log.d(TAG, "Success Value: " + String.valueOf(success));
+            //Log.d(TAG, "Thread Status: " + String.valueOf(aisMessageThread.isAlive()));
             if(success){
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(!aisMessageThread.isAlive()){
 
+                if(!aisMessageThread.isAlive()){
+/*                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }*/
                     aisMessageThread.start();
                     //prevSuccess = true;
-
+                    Log.d(TAG, "Connect Flag send");
                     intent.putExtra("mDisconnectFlag", false);
                     appContext.sendBroadcast(intent);
                 }
             }
             else {
                 Log.d(TAG, "Ping Failed");
-                try {
+                /*try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
                 if(aisMessageThread.isAlive()) {
                     //mdisconnectFlag = true; //to disconnect the client
                     intent.putExtra("mDisconnectFlag", true);
                     appContext.sendBroadcast(intent);
+
+
+                    aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, appContext);
+                    aisMessageThread = new Thread(aisMessage);
+                    //aisMessageThread.start();
                     //aisMessageThread.interrupt();
                 }
             }
@@ -89,14 +96,16 @@ public class NetworkMonitor implements Runnable {
         int counter = 0;
         int maxCount = 5;
         Process  mIpAddrProcess;
-        int mExitValue;
+        boolean mExitValue;
         try
         {
-            do{
+            //do{
                 mIpAddrProcess = runtime.exec(Instr);
-                mExitValue = mIpAddrProcess.waitFor();
-                ++counter;
-            }while(counter < maxCount);
+                mExitValue = InetAddress.getByName("192.168.0.1").isReachable(1000);
+                //Log.d(TAG, "ExitValue: " + String.valueOf(mExitValue));
+                //mExitValue = mIpAddrProcess.waitFor();
+              //  ++counter;
+            //}while(counter < maxCount);
 
             BufferedReader stdInput;
             stdInput = new BufferedReader(new InputStreamReader(mIpAddrProcess.getInputStream()));
@@ -106,27 +115,29 @@ public class NetworkMonitor implements Runnable {
             while ((s = stdInput.readLine()) != null) {
                 res += s + "\n";
             }
-            Log.d("pingmsg", res);
+            //Log.d("pingmsg", res);
 
             mIpAddrProcess.destroy();
 
-            if(mExitValue==0){
+            /*if(mExitValue==0){
                 return true;
             }else{
                 return false;
-            }
+            }*/
+            return mExitValue;
         }
-        catch (InterruptedException e)
+        /*catch (InterruptedException e)
         {
             e.printStackTrace();
 
-        }
+        }*/
         catch (IOException e)
         {
             e.printStackTrace();
+            return false;
 
         }
-        return false;
+
     }
 
     public boolean isSuccess() {

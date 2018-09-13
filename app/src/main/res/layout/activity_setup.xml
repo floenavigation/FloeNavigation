@@ -24,6 +24,34 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/mmsi"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_MMSI"
+                android:layout_width="wrap_content"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/firstStationRcvLat"
                 android:textAllCaps="true"
                 android:textSize="15sp"
@@ -155,6 +183,34 @@
                 android:background="@drawable/et_bg"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/updateTime"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/first_station_updateTime"
+                android:layout_width="wrap_content"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -162,6 +218,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mmsi"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_MMSI"
+                android:layout_width="wrap_content"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -316,6 +400,34 @@
                 android:background="@drawable/et_bg"/>
 
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/updateTime"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/second_station_updateTime"
+                android:layout_width="wrap_content"
+                android:layout_weight="2"
+                android:layout_height="40sp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:inputType="none"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
         </LinearLayout>
 
         <LinearLayout

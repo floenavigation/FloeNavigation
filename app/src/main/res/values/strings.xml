@@ -46,6 +46,7 @@
     <string name="predictedBeta">Predicated Beta</string>
     <string name="calculatedBeta">Beta from Received Lat-Lon</string>
     <string name="betaDifference">Beta Difference</string>
+    <string name="updateTime">Update Time</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

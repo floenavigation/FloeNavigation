@@ -160,7 +160,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
 
                 longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
                 locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
-                Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
                 if(locationReceived == 1) {
                     success = true;
                     Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();

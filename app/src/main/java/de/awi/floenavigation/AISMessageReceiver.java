@@ -36,7 +36,9 @@ public class AISMessageReceiver implements Runnable {
         reconnectReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 if (intent.getExtras()!= null) {
+                    Log.d(TAG, "BraodCastReceived: " + String.valueOf( intent.getExtras().getBoolean("mDisconnectFlag")));
                     mDisconnectFlag = intent.getExtras().getBoolean("mDisconnectFlag");
                 }
             }
@@ -61,8 +63,11 @@ public class AISMessageReceiver implements Runnable {
             context.startService(serviceIntent);*/
 
             do{
+
                 isConnected =  client.isConnected();
                 while(bufferedReader.read() != -1) {
+                    //Log.d(TAG, "ConnectionStatus: " + String.valueOf(client.isConnected()));
+                    //Log.d(TAG, "DisconnectFlag Value: " + String.valueOf(mDisconnectFlag));
                     responseString.append(bufferedReader.readLine());
                     if (responseString.toString().contains("AIVDM") || responseString.toString().contains("AIVDO")) {
                         packet = responseString.toString();
@@ -79,6 +84,7 @@ public class AISMessageReceiver implements Runnable {
 
                     if(mDisconnectFlag){
                         client.disconnect();
+                        //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
                         break;
                     }
                 }
