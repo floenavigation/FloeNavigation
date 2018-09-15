@@ -92,16 +92,25 @@ public class NetworkMonitor implements Runnable {
 
     private boolean pingRequest(String Instr){
 
-        Runtime runtime = Runtime.getRuntime();
-        int counter = 0;
-        int maxCount = 5;
-        Process  mIpAddrProcess;
-        boolean mExitValue;
+        //Runtime runtime = Runtime.getRuntime();
+        //int counter = 0;
+        //int maxCount = 5;
+        //Process  mIpAddrProcess;
+        boolean mExitValue = false;
+
+        try {
+            mExitValue = InetAddress.getByName("192.168.0.1").isReachable(1000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return mExitValue;
+        /*
         try
         {
             //do{
                 mIpAddrProcess = runtime.exec(Instr);
-                mExitValue = InetAddress.getByName("192.168.0.1").isReachable(1000);
+
                 //Log.d(TAG, "ExitValue: " + String.valueOf(mExitValue));
                 //mExitValue = mIpAddrProcess.waitFor();
               //  ++counter;
@@ -119,28 +128,25 @@ public class NetworkMonitor implements Runnable {
 
             mIpAddrProcess.destroy();
 
-            /*if(mExitValue==0){
+            if(mExitValue==0){
                 return true;
             }else{
                 return false;
-            }*/
-            return mExitValue;
+            }
+
         }
-        /*catch (InterruptedException e)
+        catch (InterruptedException e)
         {
             e.printStackTrace();
 
-        }*/
+        }
         catch (IOException e)
         {
             e.printStackTrace();
             return false;
 
-        }
+        }*/
 
     }
 
-    public boolean isSuccess() {
-        return success;
-    }
 }

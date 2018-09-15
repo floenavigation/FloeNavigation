@@ -18,6 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int firstStationIndex = 0;
     public static final int secondStationIndex = 1;
     public static final int INITIALIZATION_SIZE = 2;
+    public static final int NUM_OF_BASE_STATIONS = 2;
 
     //Database Tables Names
     public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
