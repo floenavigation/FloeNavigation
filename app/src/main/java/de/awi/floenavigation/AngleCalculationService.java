@@ -124,7 +124,7 @@ public class AngleCalculationService extends IntentService {
                             }
 
                         }
-                        db.close();
+                        //db.close();
                         mHandler.postDelayed(this, 10000);
                     }catch (SQLException e){
                         String text = "Database unavailable";

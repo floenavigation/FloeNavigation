@@ -91,7 +91,7 @@ public class SetupJobService extends JobService {
                         i++;
                     } while(cursor.moveToNext());
                     cursor.close();
-                    db.close();
+                    //db.close();
 
                 }
                 return true;

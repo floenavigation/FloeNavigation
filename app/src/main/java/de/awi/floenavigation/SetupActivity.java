@@ -16,6 +16,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.support.design.internal.NavigationMenuItemView;
 import android.util.Log;
@@ -275,11 +276,11 @@ public class SetupActivity extends Activity {
                             longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
                             sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
                             cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
-                            updateTime[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
+                            updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
                             i++;
                         } while (cursor.moveToNext());
                         cursor.close();
-                        db.close();
+                        //db.close();
 
                     }
 

@@ -70,7 +70,7 @@ public class AdminPageActivity extends Activity {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //db = databaseHelper.getReadableDatabase();
             count = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
-            db.close();
+            //db.close();
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();
         }

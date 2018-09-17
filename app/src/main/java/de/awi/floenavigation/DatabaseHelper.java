@@ -183,7 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while(cursor.moveToNext());
         }
         cursor.close();
-        db.close();
+        //db.close();
 
         return pwd;
     }
@@ -208,7 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 } while (cursor.moveToNext());
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Unavailable");
             e.printStackTrace();

@@ -110,7 +110,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
             db.insert(DatabaseHelper.stationListTable, null, station);
             db.insert(DatabaseHelper.baseStationTable, null, station);
             db.insert(DatabaseHelper.fixedStationTable, null, stationData);
-            db.close();
+            //db.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Unavailable");
             e.printStackTrace();

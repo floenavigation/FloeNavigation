@@ -167,7 +167,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 }
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (SQLiteException e){
             Toast.makeText(getActivity(), "Database Unavailable", Toast.LENGTH_LONG).show();
         }

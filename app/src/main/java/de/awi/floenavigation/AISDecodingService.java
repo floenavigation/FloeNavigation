@@ -184,7 +184,7 @@ public class AISDecodingService extends IntentService {
             cursor_fixedstnlist.close();
             //Uncomment later
             // cursor_mobilestnlist.close();
-            db.close();
+            //db.close();
         }catch (SQLException e)
         {
             String text = "Database unavailable";
