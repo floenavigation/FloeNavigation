@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -253,10 +254,10 @@ public class SetupActivity extends Activity {
             sog = new double[DatabaseHelper.INITIALIZATION_SIZE];
             cog = new double[DatabaseHelper.INITIALIZATION_SIZE];
             updateTime = new double[DatabaseHelper.INITIALIZATION_SIZE];
-            DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
 
             try{
-                SQLiteDatabase db = helper.getReadableDatabase();
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
                 Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
                         new String[] {DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.updateTime},
                         null, null, null, null, null);
@@ -315,8 +316,9 @@ public class SetupActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
-            return helper.createTables();
+            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            return dbHelper.createTables(db);
 
         }
 

@@ -83,8 +83,8 @@ public class AISDecodingService extends IntentService {
         try
         {
             packet = intent.getExtras().getString("AISPacket");
-            SQLiteOpenHelper databaseHelper = new DatabaseHelper(this);
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
                     new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
                     null, null, null, null, null);

@@ -15,6 +15,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
     private static final String TAG = "DatabaseHelpler";
 
+    private static DatabaseHelper dbInstance;
+
     public static final int firstStationIndex = 0;
     public static final int secondStationIndex = 1;
     public static final int INITIALIZATION_SIZE = 2;
@@ -112,8 +114,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean createTables(){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static boolean createTables(SQLiteDatabase db){
+        //SQLiteDatabase db = this.getWritableDatabase();
         try{
             //Create Mobile Station Table
             db.execSQL("CREATE TABLE " + mobileStationTable + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -212,6 +214,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return coordinates;
+    }
+
+    public static synchronized DatabaseHelper getDbInstance(Context context){
+        if (dbInstance == null){
+            dbInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return dbInstance;
     }
 
 }

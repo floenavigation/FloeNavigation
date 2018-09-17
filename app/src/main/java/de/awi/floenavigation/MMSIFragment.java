@@ -44,8 +44,8 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
         Button confirmButton = layout.findViewById(R.id.confirm_Button);
         confirmButton.setOnClickListener(this);
-        SQLiteOpenHelper databaseHelper = new DatabaseHelper(getActivity());
-        db = databaseHelper.getReadableDatabase();
+        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
+        db = dbHelper.getReadableDatabase();
         stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
         return layout;
     }

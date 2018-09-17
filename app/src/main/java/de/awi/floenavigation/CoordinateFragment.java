@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -144,9 +145,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         int index;
         boolean success = false;
         try{
-            SQLiteDatabase db;
-            DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-            db = databaseHelper.getReadableDatabase();
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             countAIS = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
             Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
                     new String[]{DatabaseHelper.stationName, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.isLocationReceived},

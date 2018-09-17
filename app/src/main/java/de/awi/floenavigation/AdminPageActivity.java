@@ -3,6 +3,7 @@ package de.awi.floenavigation;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
@@ -64,9 +65,10 @@ public class AdminPageActivity extends Activity {
         long count = 0;
         boolean success = true;
         try{
-            SQLiteDatabase db;
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            db = databaseHelper.getReadableDatabase();
+
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //db = databaseHelper.getReadableDatabase();
             count = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
             db.close();
         } catch (SQLiteException e){
@@ -81,9 +83,8 @@ public class AdminPageActivity extends Activity {
 
     private void clearDatabase(){
         try {
-            SQLiteDatabase db;
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            db = databaseHelper.getWritableDatabase();
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             db.execSQL("delete from AIS_STATION_LIST");
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();

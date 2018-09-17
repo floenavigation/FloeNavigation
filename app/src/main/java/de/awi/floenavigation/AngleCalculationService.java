@@ -50,7 +50,8 @@ public class AngleCalculationService extends IntentService {
                 @Override
                 public void run() {
                     try {
-                        SQLiteOpenHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+                        SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                        //SQLiteOpenHelper databaseHelper = new DatabaseHelper(getApplicationContext());
                         SQLiteDatabase db = databaseHelper.getReadableDatabase();
                         Cursor mBaseStnCursor, mFixedStnCursor, mBetaCursor;
 
@@ -112,12 +113,13 @@ public class AngleCalculationService extends IntentService {
                                             fixedStationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                             fixedStationMMSI = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
                                             double theta = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], fixedStationLatitude, fixedStationLongitude);
-                                            double alpha = theta - fixedStationBeta;
+                                            double alpha = Math.abs(theta - fixedStationBeta);
                                             mContentValues.put(DatabaseHelper.alpha, alpha);
                                             db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(fixedStationMMSI)});
                                         } while (mFixedStnCursor.moveToNext());
                                         mFixedStnCursor.close();
                                     }
+                                    mBetaCursor.close();
                                 }
                             }
 
