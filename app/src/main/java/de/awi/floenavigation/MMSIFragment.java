@@ -26,14 +26,15 @@ import android.widget.Toast;
 public class MMSIFragment extends Fragment implements View.OnClickListener{
 
 
-    public MMSIFragment() {
-        // Required empty public constructor
-    }
-
-
     private SQLiteDatabase db;
     private long stationCount;
     private static final String TAG = "MMSI Fragment";
+    private SQLiteOpenHelper dbHelper;
+
+
+    public MMSIFragment() {
+        // Required empty public constructor
+    }
 
 
     @Override
@@ -44,7 +45,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
         Button confirmButton = layout.findViewById(R.id.confirm_Button);
         confirmButton.setOnClickListener(this);
-        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
+        dbHelper = DatabaseHelper.getDbInstance(getActivity());
         db = dbHelper.getReadableDatabase();
         stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
         return layout;
@@ -87,6 +88,8 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         //DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         try{
             //db = databaseHelper.getWritableDatabase();
+            dbHelper = DatabaseHelper.getDbInstance(getActivity());
+            db = dbHelper.getReadableDatabase();
             ContentValues station = new ContentValues();
             station.put(DatabaseHelper.mmsi, MMSI);
             station.put(DatabaseHelper.stationName, AISStationName);
@@ -104,10 +107,10 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "StationCount Greater than 2");
             }
-                db.insert(DatabaseHelper.stationListTable, null, station);
-                db.insert(DatabaseHelper.baseStationTable, null, station);
-                db.insert(DatabaseHelper.fixedStationTable, null, stationData);
-                db.close();
+            db.insert(DatabaseHelper.stationListTable, null, station);
+            db.insert(DatabaseHelper.baseStationTable, null, station);
+            db.insert(DatabaseHelper.fixedStationTable, null, stationData);
+            db.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Unavailable");
             e.printStackTrace();

@@ -32,7 +32,7 @@ public class SetupActivity extends Activity {
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
     private static final int PREDICTION_TIME = 15 * 60 * 1000;
-    private static final int PREDICATION_TIME_PERIOD = 60 * 1000;
+    private static final int PREDICATION_TIME_PERIOD = 30 * 1000;
 
 
     Timer parentTimer = new Timer();
@@ -63,7 +63,8 @@ public class SetupActivity extends Activity {
 
         //Populate Screen with Initial Values from DB
         new ReadParamsFromDB().execute();
-        receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex], stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
+        receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex],
+                stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
         refreshScreen();
         findViewById(R.id.first_station_predicted_Latitude).setEnabled(false);
         findViewById(R.id.first_station_predicted_Longitude).setEnabled(false);
@@ -318,7 +319,7 @@ public class SetupActivity extends Activity {
         protected Boolean doInBackground(Void... voids) {
             DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            return dbHelper.createTables(db);
+            return DatabaseHelper.createTables(db);
 
         }
 
