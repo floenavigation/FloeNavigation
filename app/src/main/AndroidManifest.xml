@@ -45,15 +45,20 @@
         <service
             android:name=".AngleCalculationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".MobileAlphaCalculationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".ValidationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+        <service
+            android:name=".PredictionService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
