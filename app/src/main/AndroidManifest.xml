@@ -47,7 +47,12 @@
             android:enabled="true"
             android:exported="false"></service>
         <service
+            android:name=".MobileAlphaCalculationService"
+            android:enabled="true"
+            android:exported="false"></service>
+        <service
             android:name=".ValidationService"
+            android:enabled="true"
             android:exported="false"></service>
     </application>
 
