@@ -67,10 +67,11 @@ public class ValidationService extends IntentService {
                                 }
 
                                 evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
-
+                                Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
                                 if (evaluationDifference > ERROR_THRESHOLD_VALUE){
                                     ContentValues mContentValues = new ContentValues();
                                     mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
+                                    Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
                                     db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(mmsi)});
                                 }
                             } while(mFixedStnCursor.moveToNext());

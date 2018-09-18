@@ -60,6 +60,8 @@ public class PredictionService extends IntentService {
                                     mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[1]);
                                     mContentValues.put(DatabaseHelper.isPredicted, 1);
                                     db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(mmsi)});
+                                    Log.d(TAG, "Lat: " + stationLatitude + " Lon: " + stationLongitude);
+                                    Log.d(TAG, "PredLat: " + predictedCoordinate[0] + "PredLon: " + predictedCoordinate[1]);
                                 } while (mFixedStnCursor.moveToNext());
                                 mFixedStnCursor.close();
                             }
