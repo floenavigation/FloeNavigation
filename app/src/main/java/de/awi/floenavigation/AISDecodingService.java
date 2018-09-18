@@ -99,15 +99,15 @@ public class AISDecodingService extends IntentService {
                     null,
                     null, null, null);*/
 
-            int num = 0;
+            int msgType = 0;
 
             if(packet != null) {
                 Log.d(TAG, packet);
                 String[] dataExtr = packet.split(",");
                 aivdmObj.setData(dataExtr);
                 StringBuilder binary = aivdmObj.decodePayload();
-                num = (int) strbuildtodec(0, 5, 6, binary, int.class);
-                msgDecoding(num, binary);
+                msgType = (int) strbuildtodec(0, 5, 6, binary, int.class);
+                msgDecoding(msgType, binary);
                 //Log.d(TAG, String.valueOf(recvdMMSI));
             }
 
@@ -134,9 +134,11 @@ public class AISDecodingService extends IntentService {
                                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
                                 decodedValues.put(DatabaseHelper.isLocationReceived, 1);
                                 decodedValues.put(DatabaseHelper.packetType, packetType);
-                                if ((num != STATIC_VOYAGE_DATA_CLASSB) && (num != STATIC_DATA_CLASSA)) {
+                                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
                                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
+                                    decodedValues.put(DatabaseHelper.recvdLatitude, recvdLat);
+                                    decodedValues.put(DatabaseHelper.recvdLongitude, recvdLon);
                                     decodedValues.put(DatabaseHelper.sog, recvdSpeed);
                                     decodedValues.put(DatabaseHelper.cog, recvdCourse);
                                     decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
@@ -193,10 +195,10 @@ public class AISDecodingService extends IntentService {
         }
     }
 
-    private void msgDecoding(int num, StringBuilder binary){
+    private void msgDecoding(int msgType, StringBuilder binary){
 
 
-        switch(num)
+        switch(msgType)
         {
             case POSITION_REPORT_CLASSA_TYPE_1 :
             case POSITION_REPORT_CLASSA_TYPE_2 :

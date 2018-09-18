@@ -45,8 +45,10 @@
         <service
             android:name=".AngleCalculationService"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false"></service>
+        <service
+            android:name=".ValidationService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

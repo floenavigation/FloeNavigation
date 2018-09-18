@@ -28,8 +28,9 @@ public class AngleCalculationService extends IntentService {
     private static final int INITIALIZATION_SIZE = 2;
     private double[] stationLatitude;
     private double[] stationLongitude;
-    final Handler mHandler;
+    private final Handler mHandler;
     private int[] mmsi;
+    private static final int CALCULATION_TIME = 1000;
 
 
     public AngleCalculationService() {
@@ -125,7 +126,7 @@ public class AngleCalculationService extends IntentService {
 
                         }
                         //db.close();
-                        mHandler.postDelayed(this, 10000);
+                        mHandler.postDelayed(this, CALCULATION_TIME);
                     }catch (SQLException e){
                         String text = "Database unavailable";
                         Log.d(TAG, text);
@@ -134,7 +135,7 @@ public class AngleCalculationService extends IntentService {
             };
 
 
-            mHandler.postDelayed(betaRunnable, 10000);
+            mHandler.postDelayed(betaRunnable, CALCULATION_TIME);
         }
     }
 

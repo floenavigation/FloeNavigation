@@ -35,9 +35,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     //Database Fields Names
-    public static final  String stationName = "AIS_STATION_NAME";
+    public static final String stationName = "AIS_STATION_NAME";
     public static final String latitude = "LATITUDE";
     public static final String longitude = "LONGITUDE";
+    public static final String recvdLatitude = "RECEIVED_LATITUDE";
+    public static final String recvdLongitude = "RECEIVED_LONGITUDE";
     public static final String xPosition = "X_POSITION";
     public static final String yPosition = "Y_POSITION";
     public static final String sog = "SPEED_OVER_GROUND";
@@ -45,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String alpha = "ALPHA";
     public static final String beta = "BETA";
     public static final String packetType = "LAST_RECEIVED_PACKET_TYPE";
+    public static final String predictionAccuracy = "PREDICTION_ACCURACY";
     public static final String mmsi = "MMSI";
     public static final String deviceType = "DEVICE_TYPE";
     public static final String updateTime = "UPDTAE_TIME";
@@ -79,6 +82,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 stationName + " TEXT, " +
                 latitude + " REAL, " +
                 longitude + " REAL, " +
+                recvdLatitude + " REAL, " +
+                recvdLongitude + " REAL, " +
                 alpha + " REAL, " +
                 xPosition + " REAL, " +
                 yPosition + " REAL, " +
@@ -88,6 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cog + " REAL, " +
                 packetType + " INTEGER, " +
                 isPredicted + " NUMERIC, " +
+                predictionAccuracy + " NUMERIC, " +
                 isLocationReceived + " NUMERIC, " +
                 mmsi + " INTEGER NOT NULL, " +
                 "FOREIGN KEY (" + mmsi + ") REFERENCES " + stationListTable + "(" + mmsi + "));");
