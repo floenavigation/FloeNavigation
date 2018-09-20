@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.initialsetup;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -9,6 +9,9 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+
+import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.NavigationFunctions;
 
 /*
     Class for creating the Initial Setup task as a Background Job Service

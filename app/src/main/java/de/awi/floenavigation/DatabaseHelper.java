@@ -66,6 +66,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final long station2InitialX = 500;
     public static final long station2InitialY = 0;
 
+    public static final String[] stationTypes = {
+            "Tent",
+            "Hut",
+            "Mast",
+            "Fixpoint",
+            "Polarstern",
+            "Pistenbully",
+            "Hovercraft",
+            "Scooter",
+            "Pulka",
+            "Buoy"
+    };
+
     public static final String[] deviceNames = {
 
             "2 m Blake Trawl",
@@ -2542,7 +2555,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "ZREMB"
     };
 
-    DatabaseHelper(Context context){
+    public DatabaseHelper(Context context){
         super(context, DB_NAME, null, DB_VERSION);
     }
 

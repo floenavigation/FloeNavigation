@@ -23,7 +23,7 @@
 
     <!--Setup Screens -->
     <string name="setup">Device Setup</string>
-    <string name="stationName">AIS Station Name</string>
+    <string name="AISstationName">AIS Station Name</string>
     <string name="confirmBtn">Confirm</string>
     <string name="mmsi">MMSI</string>
     <string name="add_point">Add Point</string>
@@ -47,6 +47,18 @@
     <string name="calculatedBeta">Beta from Received Lat-Lon</string>
     <string name="betaDifference">Beta Difference</string>
     <string name="updateTime">Update Time</string>
+    <!--  -->
+
+
+    <!--Deployment Screens -->
+    <string name="aisStation">AIS Station</string>
+    <string name="stationType">Station Type</string>
+    <string name="stationName">Station Name</string>
+    <string name="stationMMSI">MMSI</string>
+    <string name="stationConfirmBtn">Confirm</string>
+    <string name="stationPrompt">Choose Station Type</string>
+    <string name="yesChoice">Yes</string>
+    <string name="noChoice">No</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

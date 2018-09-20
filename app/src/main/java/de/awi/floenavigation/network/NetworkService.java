@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.network;
 
 import android.app.IntentService;
 import android.content.Intent;

@@ -1,25 +1,21 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.aismessages;
 
 import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-import org.xml.sax.DTDHandler;
+import de.awi.floenavigation.DatabaseHelper;
 
-import static de.awi.floenavigation.AIVDM.strbuildtodec;
+import static de.awi.floenavigation.aismessages.AIVDM.strbuildtodec;
 
 
 /**

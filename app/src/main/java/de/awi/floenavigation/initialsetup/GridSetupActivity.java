@@ -1,7 +1,6 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.initialsetup;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -15,8 +14,13 @@ import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import de.awi.floenavigation.AdminPageActivity;
+import de.awi.floenavigation.FragmentChangeListener;
+import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.R;
 
-public class GridSetupActivity extends FragmentActivity implements FragmentChangeListener{
+
+public class GridSetupActivity extends FragmentActivity implements FragmentChangeListener {
 
     private boolean configSetupStep;
     private static final String TAG = "GridSetupActivity";

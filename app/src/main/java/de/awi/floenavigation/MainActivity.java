@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import de.awi.floenavigation.deployment.DeploymentActivity;
+import de.awi.floenavigation.network.NetworkService;
+
 public class MainActivity extends Activity {
 
     @Override
@@ -26,6 +29,11 @@ public class MainActivity extends Activity {
 
     public void onClickListener(View view){
 
+    }
+
+    public void onClickDeploymentBtn(View view){
+        Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
+        startActivity(deploymentIntent);
     }
 
     public void onClickAdminBtn(View view){

@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.initialsetup;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -26,6 +26,10 @@ import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.NavigationFunctions;
+import de.awi.floenavigation.R;
 
 
 public class SetupActivity extends Activity {

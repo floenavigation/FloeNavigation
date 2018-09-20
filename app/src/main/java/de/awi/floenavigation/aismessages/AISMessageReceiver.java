@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.aismessages;
 
 
 import android.content.BroadcastReceiver;
@@ -12,6 +12,8 @@ import org.apache.commons.net.telnet.TelnetClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import de.awi.floenavigation.aismessages.AISDecodingService;
 
 public class AISMessageReceiver implements Runnable {
 
@@ -82,11 +84,11 @@ public class AISMessageReceiver implements Runnable {
                     this.context.sendBroadcast(intent);*/
                     //Log.d(TAG, packet);
 
-                    if(mDisconnectFlag){
-                        client.disconnect();
+                    /*if(mDisconnectFlag){
+                        //client.disconnect();
                         //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
                         break;
-                    }
+                    }*/
                 }
             } while (isConnected);
 

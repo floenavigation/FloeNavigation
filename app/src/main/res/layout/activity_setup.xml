@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    tools:context=".SetupActivity"
+    tools:context=".initialsetup.SetupActivity"
     android:divider="@drawable/divider"
     android:background="@drawable/background_bg"
     android:showDividers="middle"

@@ -1,13 +1,11 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.initialsetup;
 
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,27 +14,25 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+
+import de.awi.floenavigation.aismessages.AISDecodingService;
+import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.FragmentChangeListener;
+import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.R;
 
 
 /**
@@ -51,7 +47,6 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         // Required empty public constructor
     }
 
-    public static final String MMSI_NUMBER = "mmsi";
     public static final int GPS_REQUEST_CODE = 10;
     private int MMSINumber;
     private double latitude;
@@ -81,7 +76,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         if (savedInstanceState != null){
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
-        MMSINumber = getArguments().getInt(MMSI_NUMBER);
+        MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
        return layout;
     }
 

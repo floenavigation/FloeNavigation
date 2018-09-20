@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.aismessages;
 
 import android.util.Log;
 

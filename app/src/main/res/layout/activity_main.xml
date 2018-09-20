@@ -25,7 +25,7 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:onClick="onClickListener">
+            android:onClick="onClickDeploymentBtn">
 
             <LinearLayout
                 android:layout_width="match_parent"

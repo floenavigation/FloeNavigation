@@ -24,22 +24,23 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".LoginPage" />
         <activity android:name=".AdminPageActivity" />
-        <activity android:name=".GridSetupActivity" />
-        <activity android:name=".SetupActivity" />
+        <activity android:name=".initialsetup.GridSetupActivity" />
+        <activity android:name=".deployment.DeploymentActivity" />
+        <activity android:name=".initialsetup.SetupActivity" />
 
         <service
-            android:name=".SetupJobService"
+            android:name=".initialsetup.SetupJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".GPS_Service"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".AISDecodingService"
+            android:name=".aismessages.AISDecodingService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".NetworkService"
+            android:name=".network.NetworkService"
             android:enabled="true"
             android:exported="false" />
         <service

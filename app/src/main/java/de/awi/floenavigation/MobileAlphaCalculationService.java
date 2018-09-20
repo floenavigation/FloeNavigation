@@ -23,7 +23,7 @@ import java.util.TimerTask;
  */
 public class MobileAlphaCalculationService extends IntentService {
 
-    private static final String TAG = "AlpahCalculationService";
+    private static final String TAG = "MobileAlphaCalculation";
     private double beta;
     private int originMMSI;
     private int stationMMSI;

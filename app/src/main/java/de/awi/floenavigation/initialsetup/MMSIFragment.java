@@ -1,16 +1,13 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.initialsetup;
 
 
-import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.FragmentChangeListener;
+import de.awi.floenavigation.R;
 
 
 /**
@@ -78,7 +79,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         //}
         CoordinateFragment coordinateFragment = new CoordinateFragment();
         Bundle argument = new Bundle();
-        argument.putInt(CoordinateFragment.MMSI_NUMBER, mmsiNumber);
+        argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
         coordinateFragment.setArguments(argument);
         FragmentChangeListener fc = (FragmentChangeListener)getActivity();
         fc.replaceFragment(coordinateFragment);

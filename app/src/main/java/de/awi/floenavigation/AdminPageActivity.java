@@ -12,6 +12,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.widget.Toast;
 
+import de.awi.floenavigation.initialsetup.GridSetupActivity;
+
 public class AdminPageActivity extends Activity {
     CardView options_1, options_2, options_3;
     Handler handler = new Handler();

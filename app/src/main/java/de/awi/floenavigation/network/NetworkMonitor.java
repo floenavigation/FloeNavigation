@@ -1,14 +1,14 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.network;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
+
+import de.awi.floenavigation.aismessages.AISMessageReceiver;
+import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
 public class NetworkMonitor implements Runnable {
     //final static String IPADDRESS = "192.168.0.102";

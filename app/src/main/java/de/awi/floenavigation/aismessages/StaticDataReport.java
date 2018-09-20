@@ -1,8 +1,8 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.aismessages;
 
 
-import static de.awi.floenavigation.AIVDM.convertToString;
-import static de.awi.floenavigation.AIVDM.strbuildtodec;
+import static de.awi.floenavigation.aismessages.AIVDM.convertToString;
+import static de.awi.floenavigation.aismessages.AIVDM.strbuildtodec;
 
 public class StaticDataReport {
 
