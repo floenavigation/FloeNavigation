@@ -2,8 +2,11 @@ package de.awi.floenavigation.deployment;
 
 
 import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -16,11 +19,13 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
 import de.awi.floenavigation.R;
+import de.awi.floenavigation.aismessages.AISDecodingService;
 
 
 /**
@@ -86,8 +91,13 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
 
     private void insertAISStation(){
         EditText mmsi_TV = activityView.findViewById(R.id.station_mmsi);
+
         int mmsi = Integer.parseInt(mmsi_TV.getText().toString());
         EditText stationName_TV = activityView.findViewById(R.id.station_name);
+
+        Spinner stationTypeOption = activityView.findViewById(R.id.stationType);
+        String stationType = stationTypeOption.getSelectedItem().toString();
+
         String stationName = stationName_TV.getText().toString();
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         try {
@@ -95,6 +105,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             ContentValues station = new ContentValues();
             station.put(DatabaseHelper.mmsi, mmsi);
             station.put(DatabaseHelper.stationName, stationName);
+            station.put(DatabaseHelper.stationType, stationType);
             db.insert(DatabaseHelper.stationListTable, null, station);
             db.insert(DatabaseHelper.fixedStationTable, null, station);
 
@@ -113,13 +124,28 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
 
     private void insertStaticStation(){
 
+        EditText stationName_TV = activityView.findViewById(R.id.station_name);
+        String stationName = stationName_TV.getText().toString();
+        Spinner stationTypeOption = activityView.findViewById(R.id.stationType);
+        String stationType = stationTypeOption.getSelectedItem().toString();
+
+
+        StaticStationFragment stationFragment = new StaticStationFragment();
+        Bundle arguments = new Bundle();
+        arguments.putString(DatabaseHelper.staticStationName, stationName);
+        arguments.putString(DatabaseHelper.stationType, stationType);
+        stationFragment.setArguments(arguments);
+        FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+        fc.replaceFragment(stationFragment);
+
     }
 
     private void populateStationType(View v){
         List<String> stationList = new ArrayList<String>();
-        for(int i = 0; i < DatabaseHelper.stationTypes.length; i++){
+        /*for(int i = 0; i < DatabaseHelper.stationTypes.length; i++){
             stationList.add(DatabaseHelper.stationTypes[i]);
-        }
+        }*/
+        stationList.addAll(Arrays.asList(DatabaseHelper.stationTypes));
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_spinner_item, stationList
         );
@@ -128,5 +154,6 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         Spinner stationType = v.findViewById(R.id.stationType);
         stationType.setAdapter(adapter);
     }
+
 
 }

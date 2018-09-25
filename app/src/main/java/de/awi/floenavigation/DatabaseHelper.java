@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String waypointsTable = "WAYPOINTS";
     public static final String baseStationTable = "BASE_STATIONS";
     public static final String betaTable = "BETA";
+    public static final String staticStationListTable = "STATION_LIST";
 
 
     //Database Fields Names
@@ -50,6 +51,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String packetType = "LAST_RECEIVED_PACKET_TYPE";
     public static final String predictionAccuracy = "PREDICTION_ACCURACY";
     public static final String mmsi = "MMSI";
+    public static final String staticStationName = "STATION_NAME";
+    public static final String stationType = "STATION_TYPE";
+    public static final String distance = "DISTANCE";
     public static final String deviceType = "DEVICE_TYPE";
     public static final String updateTime = "UPDTAE_TIME";
     public static final String isPredicted = "IS_POSITION_PREDICTED";
@@ -2635,6 +2639,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     deviceType + " TEXT," +
                     xPosition + " REAL, " +
                     yPosition + "REAL);");
+
+            //Create StationList Table
+            db.execSQL("CREATE TABLE " + staticStationListTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    staticStationName + " TEXT, " +
+                    stationType + " TEXT, " +
+                    xPosition + " REAL, " +
+                    yPosition + " REAL, " +
+                    alpha + " REAL, " +
+                    distance + " REAL);");
 
             //Create Waypoints Table
             db.execSQL("CREATE TABLE " + waypointsTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +

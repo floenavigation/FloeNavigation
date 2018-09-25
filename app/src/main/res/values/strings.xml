@@ -56,7 +56,10 @@
     <string name="stationName">Station Name</string>
     <string name="stationMMSI">MMSI</string>
     <string name="stationConfirmBtn">Confirm</string>
+    <string name="stationFinishBtn">Finish</string>
     <string name="stationPrompt">Choose Station Type</string>
+    <string name="stationWaitingMsg">Waiting for an AIS Packet. Do not close the App</string>
+    <string name="staticStationWaitingMsg">Inserting new Station. Do not close the App</string>
     <string name="yesChoice">Yes</string>
     <string name="noChoice">No</string>
 
