@@ -58,7 +58,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String stationType = "STATION_TYPE";
     public static final String distance = "DISTANCE";
     public static final String deviceType = "DEVICE_TYPE";
-    public static final String stationType = "STATION_TYPE";
     public static final String updateTime = "UPDTAE_TIME";
     public static final String isPredicted = "IS_POSITION_PREDICTED";
     public static final String isLocationReceived = "IS_LOCATION_RECEIVED";
