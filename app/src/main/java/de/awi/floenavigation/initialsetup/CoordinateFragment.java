@@ -52,7 +52,6 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private double latitude;
     private double longitude;
     private String stationName;
-    private int locationReceived;
     private LocationManager locationManager;
     private LocationListener listener;
     private BroadcastReceiver broadcastReceiver;
@@ -97,7 +96,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                         changeLayout();
                         populateTabLocation();
                     } else {
-                        Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "Waiting for AIS Packet");
                         handler.postDelayed(this, checkInterval);
                     }
                 }
@@ -154,7 +154,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.latitude));
 
                 longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
-                locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
+                int locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
                 //Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
                 if(locationReceived == 1) {
                     success = true;
@@ -164,6 +164,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             cursor.close();
             //db.close();
         } catch (SQLiteException e){
+            Log.d(TAG, "Database Unavailable");
             Toast.makeText(getActivity(), "Database Unavailable", Toast.LENGTH_LONG).show();
         }
         return success;

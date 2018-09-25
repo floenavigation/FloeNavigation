@@ -126,6 +126,7 @@
             android:background="@drawable/et_bg"/>
     </LinearLayout>
 
+
     <Button
         android:id="@+id/station_confirm"
         android:layout_width="150dp"
@@ -138,5 +139,7 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"/>
+
+
 
 </LinearLayout>
