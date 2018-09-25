@@ -39,7 +39,7 @@ public class LoginPage extends Activity {
         String usernameSubmitted = username.getText().toString();
         String passwordSubmitted = password.getText().toString();
 
-        String pass = databaseHelper.searchPassword(usernameSubmitted);
+        String pass = databaseHelper.searchPassword(usernameSubmitted, getApplicationContext());
 
         if (passwordSubmitted.equals(pass)){
             Intent intent = new Intent(this, AdminPageActivity.class);

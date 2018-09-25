@@ -36,8 +36,8 @@ public class SetupActivity extends Activity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static final int PREDICTION_TIME = 15 * 60 * 1000;
-    private static final int PREDICATION_TIME_PERIOD = 30 * 1000;
+    private static final int PREDICTION_TIME = 60 * 1000; //30 * 60 * 1000;
+    private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
 
 
     Timer parentTimer = new Timer();

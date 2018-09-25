@@ -41,7 +41,7 @@ public class NavigationFunctions {
     }
 
     public static double[] calculateCoordinatePosition(double lat, double lon, Context context){
-        double[] referencePointsCoordinates = new DatabaseHelper(context).readBaseCoordinatePointsLatLon();
+        double[] referencePointsCoordinates = new DatabaseHelper(context).readBaseCoordinatePointsLatLon(context);
         /*referencePointsCoordinates[0] = originLatitutde;
         referencePointsCoordinates[1] = originLongitude;
         referencePointsCoordinates[2] = xAxisReferenceLatitude;
