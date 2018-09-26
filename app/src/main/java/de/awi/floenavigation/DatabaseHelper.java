@@ -142,8 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertUser(db, "awi", "awi");
 
 
-        //Only for debugging purpose
-        insertDeviceList(db);
+
 
     }
 
@@ -201,6 +200,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE " + waypointsTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     label + " TEXT); ");
 
+            //Only for debugging purpose
+            insertDeviceList(db);
+
             return  true;
         } catch(SQLiteException e){
             Log.d(TAG, "Database Unavailable");
@@ -217,13 +219,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /******************Only for debugging purpose**************************/
-    private void insertDeviceList(SQLiteDatabase db){
+    private static void insertDeviceList(SQLiteDatabase db){
 
         String[] deviceShortNames = {"2mBT", "3DCAM", "8-CTL", "AC-9", "AGSS"};
         String[] deviceLongNames = {"2 m Blake Trawl", "3D camera", "8-Channel Temperature Lance",
                 "Absorption and beam attenuation", "Accoustic Geodetic Seafloor Station",};
 
-        for(int index = 1; index < 6; index++) {
+        for(int index = 0; index < 5; index++) {
             ContentValues mContentValues = new ContentValues();
             mContentValues.put(deviceID, index);
             mContentValues.put(deviceName, deviceLongNames[index]);
@@ -301,6 +303,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public static void loadDeviceList(Context mContext){
+
 
         deviceTypes = new ArrayList<String>();
         deviceIDs = new ArrayList<String>();

@@ -51,8 +51,8 @@ public class ValidationService extends IntentService {
                         int predictionAccuracy;
                         int mmsi;
 
-                        mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude},
-                                null, null, null, null, null);
+                        mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
+                                DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy},null, null, null, null, null);
                         if (mFixedStnCursor.moveToFirst()){
                             do{
                                 mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
@@ -76,6 +76,8 @@ public class ValidationService extends IntentService {
                                 }
                             } while(mFixedStnCursor.moveToNext());
                             mFixedStnCursor.close();
+                        }else {
+                            Log.d(TAG, "FixedStationTable Cursor Error");
                         }
 
                         mValidationHandler.postDelayed(this, VALIDATION_TIME);

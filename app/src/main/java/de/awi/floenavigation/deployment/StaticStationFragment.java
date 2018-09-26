@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
 
@@ -95,6 +96,8 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
     public void onClick(View v){
         switch (v.getId()){
             case R.id.static_station_finish:
+                Intent mainIntent = new Intent(getActivity(), MainActivity.class);
+                getActivity().startActivity(mainIntent);
 
         }
     }

@@ -103,11 +103,14 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             ContentValues station = new ContentValues();
+            ContentValues fixedStation = new ContentValues();
             station.put(DatabaseHelper.mmsi, mmsi);
             station.put(DatabaseHelper.stationName, stationName);
-            station.put(DatabaseHelper.stationType, stationType);
+            fixedStation.put(DatabaseHelper.mmsi, mmsi);
+            fixedStation.put(DatabaseHelper.stationName, stationName);
+            fixedStation.put(DatabaseHelper.stationType, stationType);
             db.insert(DatabaseHelper.stationListTable, null, station);
-            db.insert(DatabaseHelper.fixedStationTable, null, station);
+            db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
 
             AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
             Bundle argument = new Bundle();

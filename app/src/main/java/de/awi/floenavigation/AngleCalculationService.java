@@ -24,7 +24,7 @@ import android.util.Log;
  */
 public class AngleCalculationService extends IntentService {
 
-    private static final String TAG = "AngleCalcJobService";
+    private static final String TAG = "AngleCalculationService";
     private static final int INITIALIZATION_SIZE = 2;
     private double[] stationLatitude;
     private double[] stationLongitude;
@@ -92,7 +92,7 @@ public class AngleCalculationService extends IntentService {
     private void betaAngleCalculation(SQLiteDatabase db){
         //Beta Angle Calculation
         mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
-                new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude}, DatabaseHelper.mmsi + " = ?",
+                new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude}, DatabaseHelper.mmsi + " = ? OR " + DatabaseHelper.mmsi + " = ?",
                 new String[]{Integer.toString(mmsi[0]), Integer.toString(mmsi[1])},
                 null, null, null);
         if (mFixedStnCursor.moveToFirst()) {
@@ -126,18 +126,21 @@ public class AngleCalculationService extends IntentService {
             double fixedStationBeta;
             int fixedStationMMSI;
             ContentValues mContentValues = new ContentValues(); //for updating alpha value
+
             mBetaCursor = db.query(DatabaseHelper.betaTable, new String[]{DatabaseHelper.beta, DatabaseHelper.updateTime},
                     null, null, null, null, null);
-            if (mBetaCursor.getCount() != 1){
-                Log.d(TAG, "Error reading from Beta Table");
-            } else {
+
+
+            //Log.d(TAG, String.valueOf(mBetaCursor.getDouble(mBetaCursor.getColumnIndex(DatabaseHelper.beta))));
+            if (mBetaCursor.getCount() == 1){
                 if (mBetaCursor.moveToFirst()) {
                     fixedStationBeta = mBetaCursor.getDouble(mBetaCursor.getColumnIndex(DatabaseHelper.beta));
 
                     mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
-                            new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " != ?",
+                            new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " != ? AND " + DatabaseHelper.mmsi + " != ?",
                             new String[]{Integer.toString(mmsi[0]), Integer.toString(mmsi[1])},
                             null, null, null);
+                    Log.d(TAG, String.valueOf(mFixedStnCursor.getCount()));
                     if (mFixedStnCursor.moveToFirst()) {
                         do {
                             fixedStationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
@@ -148,7 +151,7 @@ public class AngleCalculationService extends IntentService {
                             double distance = NavigationFunctions.calculateDifference(stationLatitude[0], stationLongitude[0], fixedStationLatitude, fixedStationLongitude);
                             double stationX = distance * Math.cos(Math.toRadians(alpha));
                             double stationY = distance * Math.sin(Math.toRadians(alpha));
-                            Log.d(TAG, "Alpha: " + String.valueOf(alpha));
+                            Log.d(TAG, "mmsi: " + String.valueOf(fixedStationMMSI) + " Alpha: " + String.valueOf(alpha));
                             Log.d(TAG, "stationX: " + stationX + "stationY: " + stationY);
                             mContentValues.put(DatabaseHelper.alpha, alpha);
                             mContentValues.put(DatabaseHelper.xPosition, stationX);
@@ -156,9 +159,15 @@ public class AngleCalculationService extends IntentService {
                             db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(fixedStationMMSI)});
                         } while (mFixedStnCursor.moveToNext());
                         mFixedStnCursor.close();
+                    }else {
+                        Log.d(TAG, "Error mFixedStnCursor");
                     }
                     mBetaCursor.close();
+                }else {
+                    Log.d(TAG, "Error mBetaCursor");
                 }
+            }else{
+                Log.d(TAG, "Error reading from Beta Table");
             }
         } else {
             Log.d(TAG, "No New Stations Deployed");

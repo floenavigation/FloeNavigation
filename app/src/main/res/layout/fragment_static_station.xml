@@ -34,20 +34,23 @@
             android:foregroundGravity="center"
             android:indeterminate="true"
             android:theme="@style/ProgressBarTheme" />
+
+        <Button
+            android:id="@+id/static_station_finish"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/stationFinishBtn"
+            android:enabled="false"
+            android:background="@drawable/btn_bg"
+            android:textColor="@color/white"
+            android:layout_gravity="right"
+            android:textSize="15sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"/>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/static_station_finish"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="@string/stationFinishBtn"
-        android:enabled="false"
-        android:background="@drawable/btn_bg"
-        android:textColor="@color/white"
-        android:layout_gravity="right"
-        android:textSize="15sp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"/>
+
 
 </LinearLayout>

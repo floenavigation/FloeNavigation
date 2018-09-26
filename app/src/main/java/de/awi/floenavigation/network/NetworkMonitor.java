@@ -35,7 +35,7 @@ public class NetworkMonitor implements Runnable {
                 e.printStackTrace();
             }
             success = pingRequest("/system/bin/ping -c 1 " + GridSetupActivity.dstAddress);
-
+            boolean mdisconnectFlag = true;
             /*if(success != prevSuccess){
                 if(!aisMessageThread.isAlive()){
 
@@ -60,13 +60,12 @@ public class NetworkMonitor implements Runnable {
                         e.printStackTrace();
                     }*/
                     aisMessageThread.start();
-                    //prevSuccess = true;
+                    mdisconnectFlag = false;
                     Log.d(TAG, "Connect Flag send");
-                    intent.putExtra("mDisconnectFlag", false);
+                    intent.putExtra("mDisconnectFlag", mdisconnectFlag);
                     appContext.sendBroadcast(intent);
                 }
-            }
-            else {
+            } else {
                 Log.d(TAG, "Ping Failed");
                 /*try {
                     Thread.sleep(1000);
@@ -74,8 +73,8 @@ public class NetworkMonitor implements Runnable {
                     e.printStackTrace();
                 }*/
                 if(aisMessageThread.isAlive()) {
-                    //mdisconnectFlag = true; //to disconnect the client
-                    intent.putExtra("mDisconnectFlag", true);
+                    mdisconnectFlag = true; //to disconnect the client
+                    intent.putExtra("mDisconnectFlag", mdisconnectFlag);
                     appContext.sendBroadcast(intent);
 
 
@@ -98,8 +97,9 @@ public class NetworkMonitor implements Runnable {
         //Process  mIpAddrProcess;
         boolean mExitValue = false;
 
+
         try {
-            mExitValue = InetAddress.getByName("192.168.0.1").isReachable(1000);
+            mExitValue = InetAddress.getByName(GridSetupActivity.dstAddress).isReachable(1000);
         } catch (IOException e) {
             e.printStackTrace();
         }

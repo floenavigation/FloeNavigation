@@ -45,8 +45,8 @@ public class PredictionService extends IntentService {
                             double[] predictedCoordinate;
                             int mmsi;
 
-                            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude},
-                                    null, null, null, null, null);
+                            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
+                                    DatabaseHelper.sog, DatabaseHelper.cog},null, null, null, null, null);
                             if (mFixedStnCursor.moveToFirst()) {
                                 do {
                                     mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));

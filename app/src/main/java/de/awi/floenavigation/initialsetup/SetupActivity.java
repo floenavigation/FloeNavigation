@@ -6,11 +6,13 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,17 +30,21 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.awi.floenavigation.AngleCalculationService;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.MainActivity;
+import de.awi.floenavigation.MobileAlphaCalculationService;
 import de.awi.floenavigation.NavigationFunctions;
+import de.awi.floenavigation.PredictionService;
 import de.awi.floenavigation.R;
+import de.awi.floenavigation.ValidationService;
 
 
 public class SetupActivity extends Activity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static final int PREDICTION_TIME = 60 * 1000; //30 * 60 * 1000;
+    private static final int PREDICTION_TIME = 20 * 1000; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
 
 
@@ -139,8 +145,23 @@ public class SetupActivity extends Activity {
             public void run() {
                 //scheduler.cancel(JOB_ID);
                 Log.d(TAG, "StartupComplete");
-                if (timerCounter >= 6)
+                if (timerCounter >= 3)
                 {
+                    try {
+                        DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+                        ContentValues beta = new ContentValues();
+                        beta.put(DatabaseHelper.beta, receivedBeta);
+                        beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+                        db.insert(DatabaseHelper.betaTable, null, beta);
+                        long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
+                        Log.d(TAG, String.valueOf(test));
+
+                    } catch(SQLException e){
+                        Log.d(TAG, "Error Updating Beta Table");
+                        e.printStackTrace();
+                    }
                     timer.cancel();
                     Log.d(TAG, "Completed");
                     //For Test purposes only
@@ -150,17 +171,36 @@ public class SetupActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "Setup Complete", Toast.LENGTH_LONG).show();
                         }
                     });
-                    findViewById(R.id.station_finish).setVisibility(View.VISIBLE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            findViewById(R.id.setup_finish).setVisibility(View.VISIBLE);
+                        }
+                    });
                     //------//
 
                     timer.cancel();
                     parentTimer.cancel();
                     new CreateTablesOnStartup().execute();
+
                     //create rest of the tables
                     //start the other services
+                    runServices();
+
                 }
                             }
         }, PREDICTION_TIME, 500);
+    }
+
+    private void runServices(){
+        Intent angleCalcServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
+        Intent mobileCalcServiceIntent = new Intent (getApplicationContext(), MobileAlphaCalculationService.class);
+        Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
+        Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
+        startService(angleCalcServiceIntent);
+        startService(mobileCalcServiceIntent);
+        startService(predictionServiceIntent);
+        startService(validationServiceIntent);
     }
 
     private void refreshScreen(){
@@ -239,11 +279,11 @@ public class SetupActivity extends Activity {
         });
     }
 
-    public void onClickFinish(){
+
+    public void onClickFinish(View view) {
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
     }
-
 
 
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {
@@ -274,7 +314,7 @@ public class SetupActivity extends Activity {
             try{
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
                 Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
-                        new String[] {DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.updateTime},
+                        new String[] {DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.updateTime},
                         null, null, null, null, null);
                 long stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
                 if (stationCount == DatabaseHelper.INITIALIZATION_SIZE) {
@@ -283,10 +323,10 @@ public class SetupActivity extends Activity {
                         int i = 0;
                         do {
                             mmsi[i] = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi));
-                            latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.latitude));
+                            latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLatitude));
                             Log.d(TAG, String.valueOf(i) + " " + String.valueOf(latitude[i]));
                             Log.d(TAG, "MMSIs: " + String.valueOf(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi))));
-                            longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.longitude));
+                            longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLongitude));
                             sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
                             cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
                             updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));

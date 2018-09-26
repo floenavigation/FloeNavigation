@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
 
@@ -59,6 +60,7 @@ public class SampleMeasurementActivity extends Activity {
         DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
         AutoCompleteTextView deviceNameTextView = findViewById(R.id.deviceshortname);
         ArrayAdapter<String> adapter = DatabaseHelper.advancedSearchTextView(getApplicationContext());
+        deviceNameTextView.setDropDownBackgroundResource(R.color.backgroundGradStart);
         deviceNameTextView.setAdapter(adapter);
 
         //Broadcast receiver for tablet location
@@ -95,6 +97,9 @@ public class SampleMeasurementActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Data Sample Confirmed", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "Data Sample Confirmed");
                 populateDatabaseTable();
+
+                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainActivityIntent);
             }
         });
     }

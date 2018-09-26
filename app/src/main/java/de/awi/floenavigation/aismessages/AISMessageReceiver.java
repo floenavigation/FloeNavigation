@@ -58,8 +58,6 @@ public class AISMessageReceiver implements Runnable {
 
             client.connect(dstAddress, dstPort);
 
-
-
             bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             /*Intent serviceIntent = new Intent(context, AISDecodingService.class);
             context.startService(serviceIntent);*/
@@ -84,11 +82,13 @@ public class AISMessageReceiver implements Runnable {
                     this.context.sendBroadcast(intent);*/
                     //Log.d(TAG, packet);
 
-                    /*if(mDisconnectFlag){
-                        //client.disconnect();
-                        //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
-                        break;
-                    }*/
+                    if(mDisconnectFlag){
+                        if (client.getOutputStream() != null) {
+                            client.disconnect();
+                            //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
+                            break;
+                        }
+                    }
                 }
             } while (isConnected);
 
