@@ -525,4 +525,20 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/setup_finish"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/stationFinishBtn"
+        android:enabled="false"
+        android:visibility="gone"
+        android:onClick="onClickFinish"
+        android:background="@drawable/btn_bg"
+        android:textColor="@color/white"
+        android:layout_gravity="right"
+        android:textSize="15sp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
+
 </LinearLayout>

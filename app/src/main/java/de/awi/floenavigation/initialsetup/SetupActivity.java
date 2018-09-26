@@ -20,6 +20,7 @@ import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.support.design.internal.NavigationMenuItemView;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
 
@@ -148,6 +150,7 @@ public class SetupActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "Setup Complete", Toast.LENGTH_LONG).show();
                         }
                     });
+                    findViewById(R.id.station_finish).setVisibility(View.VISIBLE);
                     //------//
 
                     timer.cancel();
@@ -235,6 +238,12 @@ public class SetupActivity extends Activity {
             }
         });
     }
+
+    public void onClickFinish(){
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        startActivity(mainIntent);
+    }
+
 
 
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {

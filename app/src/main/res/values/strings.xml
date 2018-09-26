@@ -47,6 +47,7 @@
     <string name="calculatedBeta">Beta from Received Lat-Lon</string>
     <string name="betaDifference">Beta Difference</string>
     <string name="updateTime">Update Time</string>
+    <string name="setupFinishBtn">Finish Setup</string>
     <!--  -->
 
 
