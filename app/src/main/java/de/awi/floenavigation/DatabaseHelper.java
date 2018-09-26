@@ -3,6 +3,7 @@ package de.awi.floenavigation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -58,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String stationType = "STATION_TYPE";
     public static final String distance = "DISTANCE";
     public static final String deviceType = "DEVICE_TYPE";
-    public static final String updateTime = "UPDTAE_TIME";
+    public static final String updateTime = "UPDATE_TIME";
     public static final String isPredicted = "IS_POSITION_PREDICTED";
     public static final String isLocationReceived = "IS_LOCATION_RECEIVED";
     public static final String userName = "USERNAME";
@@ -141,6 +142,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertUser(db, "awi", "awi");
 
 
+        //Only for debugging purpose
+        insertDeviceList(db);
 
     }
 
@@ -213,6 +216,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(usersTable, null, defaultUser);
     }
 
+    /******************Only for debugging purpose**************************/
+    private void insertDeviceList(SQLiteDatabase db){
+
+        String[] deviceShortNames = {"2mBT", "3DCAM", "8-CTL", "AC-9", "AGSS"};
+        String[] deviceLongNames = {"2 m Blake Trawl", "3D camera", "8-Channel Temperature Lance",
+                "Absorption and beam attenuation", "Accoustic Geodetic Seafloor Station",};
+
+        for(int index = 1; index < 6; index++) {
+            ContentValues mContentValues = new ContentValues();
+            mContentValues.put(deviceID, index);
+            mContentValues.put(deviceName, deviceLongNames[index]);
+            mContentValues.put(deviceShortName, deviceShortNames[index]);
+            mContentValues.put(deviceType, stationTypes[index]);
+            db.insert(deviceListTable, null, mContentValues);
+        }
+    }
+    /********************************************/
 
     public String searchPassword(String uname, Context context){
         SQLiteOpenHelper dbHelper = getDbInstance(context);
@@ -287,20 +307,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         deviceNames = new ArrayList<String>();
         deviceShortNames = new ArrayList<String>();
 
-        SQLiteOpenHelper dbHelper = getDbInstance(mContext);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor mSampleMeasurementCursor = db.query(sampleMeasurementTable, null,
-                null, null, null, null, null);
-        if (mSampleMeasurementCursor.moveToFirst()){
-            do{
-                deviceIDs.add(mSampleMeasurementCursor.getString(mSampleMeasurementCursor.getColumnIndex(deviceID)));
-                deviceNames.add(mSampleMeasurementCursor.getString(mSampleMeasurementCursor.getColumnIndex(deviceName)));
-                deviceShortNames.add(mSampleMeasurementCursor.getString(mSampleMeasurementCursor.getColumnIndex(deviceShortName)));
-                deviceTypes.add(mSampleMeasurementCursor.getString(mSampleMeasurementCursor.getColumnIndex(deviceType)));
-            }while (mSampleMeasurementCursor.moveToNext());
-
+        try {
+            SQLiteOpenHelper dbHelper = getDbInstance(mContext);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mDeviceListCursor = db.query(deviceListTable, null,
+                    null, null, null, null, null);
+            if (mDeviceListCursor.moveToFirst()) {
+                do {
+                    deviceIDs.add(mDeviceListCursor.getString(mDeviceListCursor.getColumnIndex(deviceID)));
+                    deviceNames.add(mDeviceListCursor.getString(mDeviceListCursor.getColumnIndex(deviceName)));
+                    deviceShortNames.add(mDeviceListCursor.getString(mDeviceListCursor.getColumnIndex(deviceShortName)));
+                    deviceTypes.add(mDeviceListCursor.getString(mDeviceListCursor.getColumnIndex(deviceType)));
+                } while (mDeviceListCursor.moveToNext());
+            }
+            mDeviceListCursor.close();
+        }catch (SQLException e){
+            Log.d(TAG, "Database Unavailable");
+            e.printStackTrace();
         }
-        mSampleMeasurementCursor.close();
     }
 
     public static ArrayAdapter<String> advancedSearchTextView(Context mContext){

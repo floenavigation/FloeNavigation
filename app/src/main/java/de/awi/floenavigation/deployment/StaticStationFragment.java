@@ -144,7 +144,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
                     new String[] {String.valueOf(originMMSI)},
                     null, null, null);
             if (fixedStationCursor.getCount() != 1){
-                Log.d(TAG, "Error Reading Origin Latitude Longtidue");
+                Log.d(TAG, "Error Reading Origin Latitude Longitude");
                 return false;
             } else{
                 if(fixedStationCursor.moveToFirst()){
