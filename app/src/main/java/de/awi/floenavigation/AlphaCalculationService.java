@@ -21,9 +21,9 @@ import java.util.TimerTask;
  * <p>
  * TODO: Customize class - update intent actions and extra parameters.
  */
-public class MobileAlphaCalculationService extends IntentService {
+public class AlphaCalculationService extends IntentService {
 
-    private static final String TAG = "MobileAlphaCalculation";
+    private static final String TAG = "AlphaCalculationService";
     private double beta;
     private int originMMSI;
     private int stationMMSI;
@@ -42,8 +42,8 @@ public class MobileAlphaCalculationService extends IntentService {
     private static final int TIMER_DELAY = 0;
 
 
-    public MobileAlphaCalculationService() {
-        super("MobileAlphaCalculationService");
+    public AlphaCalculationService() {
+        super("AlphaCalculationService");
     }
 
     @Override
@@ -68,6 +68,7 @@ public class MobileAlphaCalculationService extends IntentService {
                                 stationY = distance * Math.sin(Math.toRadians(alpha));
                                 ContentValues alphaUpdate = new ContentValues();
                                 alphaUpdate.put(DatabaseHelper.alpha, alpha);
+                                alphaUpdate.put(DatabaseHelper.distance, distance);
                                 alphaUpdate.put(DatabaseHelper.xPosition, stationX);
                                 alphaUpdate.put(DatabaseHelper.yPosition, stationY);
                                 db.update(DatabaseHelper.mobileStationTable, alphaUpdate, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(stationMMSI)});

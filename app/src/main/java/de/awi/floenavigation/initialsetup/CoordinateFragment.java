@@ -76,6 +76,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
+        stationName = getArguments().getString(DatabaseHelper.stationName);
        return layout;
     }
 
@@ -156,7 +157,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
                 int locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
                 //Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
-                if(locationReceived == 1) {
+                if(locationReceived == DatabaseHelper.IS_LOCATION_RECEIVED) {
                     success = true;
                     Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();
                 }

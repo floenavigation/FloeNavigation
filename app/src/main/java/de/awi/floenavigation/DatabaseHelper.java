@@ -26,6 +26,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int INITIALIZATION_SIZE = 2;
     public static final int NUM_OF_BASE_STATIONS = 2;
     public static final int NUM_OF_DEVICES = 1234;
+    public static final int IS_LOCATION_RECEIVED_INITIAL_VALUE = 0;
+    public static final int IS_LOCATION_RECEIVED = 1;
+    public static final double ORIGIN_DISTANCE = 0.0;
 
     //Database Tables Names
     public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
@@ -74,6 +77,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final long station1InitialY = 0;
     public static final long station2InitialX = 500;
     public static final long station2InitialY = 0;
+    public static final double station1Alpha = 0.0;
+    public static final double station2Alpha = 0.0;
 
     public static List<String> deviceNames;
     public static List<String> deviceShortNames;
@@ -112,6 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 recvdLatitude + " REAL, " +
                 recvdLongitude + " REAL, " +
                 alpha + " REAL, " +
+                distance + " REAL, " +
                 xPosition + " REAL, " +
                 yPosition + " REAL, " +
                 stationType + " TEXT, " +
@@ -162,6 +168,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     latitude + " REAL, " +
                     longitude + " REAL, " +
                     alpha + " REAL, " +
+                    distance + " REAL, " +
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +
                     updateTime + " TEXT, " +

@@ -67,7 +67,6 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         EditText aisStationName = view.findViewById(R.id.ais_station_name);
         EditText mmsi = view.findViewById(R.id.mmsi_field);
 
-
         String stationName = aisStationName.getText().toString();
         int mmsiNumber = Integer.parseInt(mmsi.getText().toString());
 
@@ -80,6 +79,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         CoordinateFragment coordinateFragment = new CoordinateFragment();
         Bundle argument = new Bundle();
         argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
+        argument.putString(DatabaseHelper.stationName, stationName);
         coordinateFragment.setArguments(argument);
         FragmentChangeListener fc = (FragmentChangeListener)getActivity();
         fc.replaceFragment(coordinateFragment);
@@ -97,13 +97,17 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
             ContentValues stationData = new ContentValues();
             stationData.put(DatabaseHelper.mmsi, MMSI);
             stationData.put(DatabaseHelper.stationName, AISStationName);
-            stationData.put(DatabaseHelper.isLocationReceived, 0);
+            stationData.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
             if(stationCount == 0){
                 stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station1InitialX);
                 stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station1InitialY);
+                stationData.put(DatabaseHelper.alpha, DatabaseHelper.station1Alpha);
+                stationData.put(DatabaseHelper.distance, DatabaseHelper.ORIGIN_DISTANCE);
             } else if(stationCount == 1){
-                stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station2InitialX);
+                //stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station2InitialX);
                 stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station2InitialY);
+                stationData.put(DatabaseHelper.alpha, DatabaseHelper.station2Alpha);
+
             } else{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "StationCount Greater than 2");

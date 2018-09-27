@@ -109,6 +109,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             fixedStation.put(DatabaseHelper.mmsi, mmsi);
             fixedStation.put(DatabaseHelper.stationName, stationName);
             fixedStation.put(DatabaseHelper.stationType, stationType);
+            fixedStation.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
             db.insert(DatabaseHelper.stationListTable, null, station);
             db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
 

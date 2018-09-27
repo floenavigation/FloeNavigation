@@ -48,7 +48,7 @@
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".MobileAlphaCalculationService"
+            android:name=".AlphaCalculationService"
             android:enabled="true"
             android:exported="false" />
         <service

@@ -1,6 +1,7 @@
 package de.awi.floenavigation.deployment;
 
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.MainActivity;
+import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
 import de.awi.floenavigation.aismessages.AISDecodingService;
 
@@ -32,6 +34,17 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private static final String changeText = "AIS Packet Received from the new Station";
     private int MMSINumber;
     private final Handler handler = new Handler();
+    private int originMMSI;
+    private double beta;
+    private double originLatitude;
+    private double originLongitude;
+    private double stationLatitude;
+    private double stationLongitude;
+    private double distance;
+    private double stationX;
+    private double stationY;
+    private double theta;
+    private double alpha;
     private static final int checkInterval = 1000;
 
 
@@ -53,13 +66,34 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         handler.post(new Runnable() {
             @Override
             public void run() {
-
-                if(checkForAISPacket()){
-                    Log.d(TAG, "AIS Packet Received");
-                    packetReceived();
-                } else{
-                    Log.d(TAG, "Waiting for AIS Packet");
-                    handler.postDelayed(this, checkInterval);
+                try {
+                    SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
+                    SQLiteDatabase db = dbHelper.getReadableDatabase();
+                    if (checkForAISPacket(db)) {
+                        Log.d(TAG, "AIS Packet Received");
+                        if (readParamsFromDatabase(db)) {
+                            theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, stationLatitude, stationLongitude);
+                            alpha = Math.abs(theta - beta);
+                            stationX = distance * Math.cos(Math.toRadians(alpha));
+                            stationY = distance * Math.sin(Math.toRadians(alpha));
+                            ContentValues stationUpdate = new ContentValues();
+                            stationUpdate.put(DatabaseHelper.alpha, alpha);
+                            stationUpdate.put(DatabaseHelper.distance, distance);
+                            stationUpdate.put(DatabaseHelper.xPosition, stationX);
+                            stationUpdate.put(DatabaseHelper.yPosition, stationY);
+                            db.update(DatabaseHelper.fixedStationTable, stationUpdate,
+                                    DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(MMSINumber)});
+                            packetReceived();
+                        } else{
+                            Log.d(TAG, "Error Reading from Database");
+                        }
+                    } else {
+                        Log.d(TAG, "Waiting for AIS Packet");
+                        handler.postDelayed(this, checkInterval);
+                    }
+                } catch (SQLiteException e){
+                    e.printStackTrace();
+                    Log.d(TAG, "Database Error");
                 }
             }
         });
@@ -96,20 +130,21 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
      * @return True if packet is received.
      */
 
-    private boolean checkForAISPacket(){
+    private boolean checkForAISPacket(SQLiteDatabase db){
         boolean success = false;
         int locationReceived;
         try{
-            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+
             Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
-                    new String[]{DatabaseHelper.isLocationReceived},
+                    new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.isLocationReceived},
                     DatabaseHelper.mmsi + " = ? AND (" + DatabaseHelper.packetType + " = ? OR " + DatabaseHelper.packetType + " = ? )",
                     new String[] {Integer.toString(MMSINumber), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSA_TYPE_1), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSB)},
                     null, null, null);
             if(cursor.moveToFirst()){
                 locationReceived = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.isLocationReceived));
-                if(locationReceived == 1) {
+                if(locationReceived == DatabaseHelper.IS_LOCATION_RECEIVED) {
+                    stationLatitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.latitude));
+                    stationLongitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
                     success = true;
                     //Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Packet Recieved from AIS Station");
@@ -128,6 +163,59 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         Toast.makeText(getContext(), "Deployment Complete", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(intent);
+    }
+
+    private boolean readParamsFromDatabase(SQLiteDatabase db){
+        try {
+            Cursor baseStationCursor = db.query(DatabaseHelper.baseStationTable,
+                    new String[] {DatabaseHelper.mmsi},
+                    null, null,
+                    null, null, null);
+            if (baseStationCursor.getCount() != DatabaseHelper.INITIALIZATION_SIZE){
+                Log.d(TAG, "Error Reading from BaseStation Table");
+                return false;
+            } else{
+                if(baseStationCursor.moveToFirst()){
+                    originMMSI = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
+                }
+            }
+            Cursor fixedStationCursor = db.query(DatabaseHelper.fixedStationTable,
+                    new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude},
+                    DatabaseHelper.mmsi +" = ?",
+                    new String[] {String.valueOf(originMMSI)},
+                    null, null, null);
+            if (fixedStationCursor.getCount() != 1){
+                Log.d(TAG, "Error Reading Origin Latitude Longtidue");
+                return false;
+            } else{
+                if(fixedStationCursor.moveToFirst()){
+                    originLatitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.latitude));
+                    originLongitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.longitude));
+                }
+            }
+            Cursor betaCursor = db.query(DatabaseHelper.betaTable,
+                    new String[]{DatabaseHelper.beta, DatabaseHelper.updateTime},
+                    null, null,
+                    null, null, null);
+
+            if (betaCursor.getCount() == 1) {
+                if (betaCursor.moveToFirst()) {
+                    beta = betaCursor.getDouble(betaCursor.getColumnIndex(DatabaseHelper.beta));
+                }
+
+            } else {
+                Log.d(TAG, "Error in Beta Table");
+                return false;
+            }
+            betaCursor.close();
+            baseStationCursor.close();
+            fixedStationCursor.close();
+            return true;
+        } catch (SQLiteException e){
+            e.printStackTrace();
+            Log.d(TAG, "Error reading Database");
+            return false;
+        }
     }
 
 }

@@ -1,15 +1,8 @@
 package de.awi.floenavigation.initialsetup;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -20,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
-import android.support.design.internal.NavigationMenuItemView;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,10 +22,10 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.awi.floenavigation.AlphaCalculationService;
 import de.awi.floenavigation.AngleCalculationService;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.MainActivity;
-import de.awi.floenavigation.MobileAlphaCalculationService;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.PredictionService;
 import de.awi.floenavigation.R;
@@ -64,6 +56,7 @@ public class SetupActivity extends Activity {
     private double predictedBeta = 0.0;
     private double receivedBeta = 0.0;
     private double betaDifference = 0.0;
+    private double xAxisDistance = 0.0;
 
 
 
@@ -79,7 +72,8 @@ public class SetupActivity extends Activity {
         receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex],
                 stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
         refreshScreen();
-        findViewById(R.id.first_station_predicted_Latitude).setEnabled(false);
+
+        /*findViewById(R.id.first_station_predicted_Latitude).setEnabled(false);
         findViewById(R.id.first_station_predicted_Longitude).setEnabled(false);
         findViewById(R.id.first_station_received_Latitude).setEnabled(false);
         findViewById(R.id.first_station_received_Longitude).setEnabled(false);
@@ -95,7 +89,12 @@ public class SetupActivity extends Activity {
         findViewById(R.id.second_station_updateTime).setEnabled(false);
         findViewById(R.id.receivedBeta).setEnabled(false);
         findViewById(R.id.calculatedBeta).setEnabled(false);
-        findViewById(R.id.betaDifference).setEnabled(false);
+        findViewById(R.id.betaDifference).setEnabled(false);*/
+
+        xAxisDistance = NavigationFunctions.calculateDifference(stationLatitude[DatabaseHelper.firstStationIndex], stationLongitude[DatabaseHelper.firstStationIndex],
+                stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
+        new InsertXAxisDistance().execute();
+
 
 
        /*
@@ -194,11 +193,11 @@ public class SetupActivity extends Activity {
 
     private void runServices(){
         Intent angleCalcServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
-        Intent mobileCalcServiceIntent = new Intent (getApplicationContext(), MobileAlphaCalculationService.class);
+        Intent alphaCalcServiceIntent = new Intent (getApplicationContext(), AlphaCalculationService.class);
         Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
         Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
         startService(angleCalcServiceIntent);
-        startService(mobileCalcServiceIntent);
+        startService(alphaCalcServiceIntent);
         startService(predictionServiceIntent);
         startService(validationServiceIntent);
     }
@@ -350,7 +349,7 @@ public class SetupActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result){
-                Log.d(TAG, "Database Unavailable");
+                Log.d(TAG, "ReadParamsFromDB Async Task: Database Unavailable");
             } else{
                 stationMMSI = mmsi;
                 stationLatitude = latitude;
@@ -380,7 +379,41 @@ public class SetupActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result){
-                Log.d(TAG, "Database Error");
+                Log.d(TAG, "CreateTablesOnStartup Async Task: Database Error");
+            }
+        }
+    }
+
+    private class InsertXAxisDistance extends AsyncTask<Void,Void,Boolean> {
+
+        @Override
+        protected void onPreExecute(){
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                ContentValues stationData = new ContentValues();
+                stationData.put(DatabaseHelper.distance, xAxisDistance);
+                stationData.put(DatabaseHelper.xPosition, xAxisDistance);
+                db.update(DatabaseHelper.fixedStationTable, stationData,
+                        DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(stationMMSI[DatabaseHelper.secondStationIndex])});
+                return true;
+            } catch (SQLiteException e){
+                e.printStackTrace();
+                Log.d(TAG, "Error Updating Distance in Fixed Station Table");
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result){
+                Log.d(TAG, "InsertXAxisDistance Async Task: Database Error");
             }
         }
     }
