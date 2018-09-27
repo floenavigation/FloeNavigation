@@ -22,7 +22,7 @@ public class PredictionService extends IntentService {
 
     private final static String TAG = "PREDICTION_SERVICE: ";
     private final Handler mPredictionHandler;
-    private final int PREDICTION_TIME = 10000;
+    private final int PREDICTION_TIME = 10 * 1000;
 
     public PredictionService() {
         super("PredictionService");

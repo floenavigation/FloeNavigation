@@ -25,10 +25,12 @@ public class ValidationService extends IntentService {
     private static final int ERROR_THRESHOLD_VALUE = 10;
     private static final int PREDICTION_ACCURACY_THRESHOLD_VALUE = 5;
     private static final int VALIDATION_TIME = 3 * 60 * 1000;
+    private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
 
     public ValidationService() {
         super("ValidationService");
         this.mValidationHandler = new Handler();
+        baseStationsRetrievalfromDB();
     }
 
     @Override
@@ -64,6 +66,13 @@ public class ValidationService extends IntentService {
 
                                 if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
                                     //To be decided
+                                    if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
+                                        deleteEntryfromStationListTableinDB(mmsi, db);
+                                    }else{
+                                        deleteEntryfromStationListTableinDB(mmsi, db);
+                                        deleteEntryfromFixedStationTableinDB(mmsi, db);
+                                    }
+
                                 }
 
                                 evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
@@ -90,6 +99,45 @@ public class ValidationService extends IntentService {
 
             mValidationHandler.postDelayed(validationRunnable, VALIDATION_TIME);
         }
+    }
+
+    private void deleteEntryfromStationListTableinDB(int mmsiToBeRemoved, SQLiteDatabase db){
+        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiToBeRemoved)});
+    }
+
+    private void deleteEntryfromFixedStationTableinDB(int mmsiToBeRemoved, SQLiteDatabase db){
+        db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiToBeRemoved)});
+    }
+
+    private void baseStationsRetrievalfromDB(){
+
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
+                    null, null, null, null, null);
+
+            if (mBaseStnCursor.getCount() == 1) {
+                int index = 0;
+
+                if (mBaseStnCursor.moveToFirst()) {
+                    do {
+                        baseStnMMSI[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                        index++;
+                    } while (mBaseStnCursor.moveToNext());
+                }else {
+                    Log.d(TAG, "Base stn cursor error");
+                }
+
+            } else {
+                Log.d(TAG, "Error reading from base stn table");
+            }
+        }catch (SQLException e){
+
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
+
     }
 
 }

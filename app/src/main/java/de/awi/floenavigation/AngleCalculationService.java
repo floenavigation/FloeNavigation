@@ -28,9 +28,12 @@ public class AngleCalculationService extends IntentService {
     private static final int INITIALIZATION_SIZE = 2;
     private double[] stationLatitude;
     private double[] stationLongitude;
+    private double alpha;
+    private double[] beta;
     private final Handler mHandler;
     private int[] mmsi;
-    private static final int CALCULATION_TIME = 1000;
+    private int mmsiInDBTable;
+    private static final int CALCULATION_TIME = 10 * 1000;
     private Cursor mBaseStnCursor, mFixedStnCursor, mBetaCursor;
 
 
@@ -39,8 +42,6 @@ public class AngleCalculationService extends IntentService {
         super("AngleCalculationService");
 
         this.mHandler = new Handler();
-        stationLatitude = new double[INITIALIZATION_SIZE];
-        stationLongitude = new double[INITIALIZATION_SIZE];
         mmsi = new int[INITIALIZATION_SIZE];
     }
 
@@ -71,7 +72,7 @@ public class AngleCalculationService extends IntentService {
                                 mBaseStnCursor.close();
 
                                 betaAngleCalculation(db);
-                                alphaAngleCalculation(db);
+                                //alphaAngleCalculation(db);
 
                             }
                         }
@@ -92,28 +93,63 @@ public class AngleCalculationService extends IntentService {
     private void betaAngleCalculation(SQLiteDatabase db){
         //Beta Angle Calculation
         mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
-                new String[]{DatabaseHelper.latitude, DatabaseHelper.longitude}, DatabaseHelper.mmsi + " = ? OR " + DatabaseHelper.mmsi + " = ?",
-                new String[]{Integer.toString(mmsi[0]), Integer.toString(mmsi[1])},
-                null, null, null);
+                new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.alpha}, null,
+                null, null, null, null);
+        long numOfStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.fixedStationTable);
+        stationLatitude = new double[(int) numOfStations];
+        stationLongitude = new double[(int) numOfStations];
+        beta = new double[(int) numOfStations - 1];
         if (mFixedStnCursor.moveToFirst()) {
-            int index = 0;
+            int index = 0, betaIndex = 0;
             do {
-                stationLatitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
-                stationLongitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                mmsiInDBTable = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                if (mmsiInDBTable == mmsi[DatabaseHelper.firstStationIndex]){
+                    stationLatitude[DatabaseHelper.firstStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                    stationLongitude[DatabaseHelper.firstStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                }else if (mmsiInDBTable == mmsi[DatabaseHelper.secondStationIndex]){
+                    stationLatitude[DatabaseHelper.secondStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                    stationLongitude[DatabaseHelper.secondStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                    beta[betaIndex] = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], stationLatitude[1], stationLongitude[1]);
+                    Log.d(TAG, "Lat1: " + stationLatitude[0] + " Lon1: " + stationLongitude[0]);
+                    Log.d(TAG, "Lat2: " + stationLatitude[1] + " Lon2: " + stationLongitude[1]);
+                    Log.d(TAG, "Beta: " + String.valueOf(beta));
+                    betaIndex++;
+                }else {
+                    stationLatitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                    stationLongitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                    alpha = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.alpha));
+                    double theta = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], stationLatitude[index], stationLongitude[index]);
+                    beta[betaIndex] = theta - alpha;
+                    betaIndex++;
+                }
                 index++;
             } while (mFixedStnCursor.moveToNext());
-            mFixedStnCursor.close();
 
-            double beta = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], stationLatitude[1], stationLongitude[1]);
-            Log.d(TAG, "Lat1: " + stationLatitude[0] + " Lon1: " + stationLongitude[0]);
-            Log.d(TAG, "Lat2: " + stationLatitude[1] + " Lon2: " + stationLongitude[1]);
-            Log.d(TAG, "Beta: " + String.valueOf(beta));
-            ContentValues mContentValues = new ContentValues();
-            mContentValues.put(DatabaseHelper.beta, beta);
-            mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
-            db.update(DatabaseHelper.betaTable, mContentValues, null, null);
+            double avgBetaValue = averageBetaCalculation(beta);
+            updateDataintoDatabase(db, avgBetaValue);
+
             mFixedStnCursor.close();
         }
+    }
+
+    private double averageBetaCalculation(double[] beta){
+
+        double avg_beta;
+        double sum = 0;
+
+        for (int index = 0; index < beta.length; index++){
+            sum += beta[index];
+        }
+        avg_beta = sum / beta.length;
+
+        return avg_beta;
+    }
+
+    private void updateDataintoDatabase(SQLiteDatabase db, double beta){
+        ContentValues mContentValues = new ContentValues();
+        mContentValues.put(DatabaseHelper.beta, beta);
+        mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+        db.update(DatabaseHelper.betaTable, mContentValues, null, null);
     }
 
     private void alphaAngleCalculation(SQLiteDatabase db){
