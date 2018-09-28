@@ -110,16 +110,19 @@ public class AngleCalculationService extends IntentService {
                     stationLatitude[DatabaseHelper.secondStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
                     stationLongitude[DatabaseHelper.secondStationIndex] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                     beta[betaIndex] = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], stationLatitude[1], stationLongitude[1]);
-                    Log.d(TAG, "Lat1: " + stationLatitude[0] + " Lon1: " + stationLongitude[0]);
-                    Log.d(TAG, "Lat2: " + stationLatitude[1] + " Lon2: " + stationLongitude[1]);
-                    Log.d(TAG, "Beta: " + String.valueOf(beta));
+                    //Log.d(TAG, "Lat1: " + stationLatitude[0] + " Lon1: " + stationLongitude[0]);
+                    //Log.d(TAG, "Lat2: " + stationLatitude[1] + " Lon2: " + stationLongitude[1]);
+                    Log.d(TAG, "Beta[" + String.valueOf(betaIndex) + "]" + String.valueOf(beta[betaIndex]));
                     betaIndex++;
                 }else {
                     stationLatitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
                     stationLongitude[index] = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                     alpha = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.alpha));
                     double theta = NavigationFunctions.calculateAngleBeta(stationLatitude[0], stationLongitude[0], stationLatitude[index], stationLongitude[index]);
-                    beta[betaIndex] = theta - alpha;
+                    beta[betaIndex] = Math.abs(theta - alpha);
+                    Log.d(TAG, "Lat1: " + stationLatitude[0] + " Lon1: " + stationLongitude[0] + " alpha: " + alpha);
+                    Log.d(TAG, "Lat2: " + stationLatitude[index] + " Lon2: " + stationLongitude[index] + " alpha: " + alpha);
+                    Log.d(TAG, "Beta[" + String.valueOf(betaIndex) + "]" + String.valueOf(beta[betaIndex]));
                     betaIndex++;
                 }
                 index++;
@@ -137,11 +140,12 @@ public class AngleCalculationService extends IntentService {
         double avg_beta;
         double sum = 0;
 
-        for (int index = 0; index < beta.length; index++){
-            sum += beta[index];
+        for (double aBeta : beta) {
+            sum += aBeta;
         }
         avg_beta = sum / beta.length;
 
+        Log.d(TAG, "AvgBeta" + String.valueOf(avg_beta));
         return avg_beta;
     }
 

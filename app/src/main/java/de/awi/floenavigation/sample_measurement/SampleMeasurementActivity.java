@@ -61,6 +61,7 @@ public class SampleMeasurementActivity extends Activity {
         AutoCompleteTextView deviceNameTextView = findViewById(R.id.deviceshortname);
         ArrayAdapter<String> adapter = DatabaseHelper.advancedSearchTextView(getApplicationContext());
         deviceNameTextView.setDropDownBackgroundResource(R.color.backgroundGradStart);
+        deviceNameTextView.setThreshold(1);
         deviceNameTextView.setAdapter(adapter);
 
         //Broadcast receiver for tablet location

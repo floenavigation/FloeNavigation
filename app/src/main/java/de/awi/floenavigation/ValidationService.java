@@ -22,15 +22,12 @@ public class ValidationService extends IntentService {
 
     private final Handler mValidationHandler;
     private static final String TAG = "Validation Service: ";
-    private static final int ERROR_THRESHOLD_VALUE = 10;
-    private static final int PREDICTION_ACCURACY_THRESHOLD_VALUE = 5;
     private static final int VALIDATION_TIME = 3 * 60 * 1000;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
 
     public ValidationService() {
         super("ValidationService");
         this.mValidationHandler = new Handler();
-        baseStationsRetrievalfromDB();
     }
 
     @Override
@@ -44,6 +41,7 @@ public class ValidationService extends IntentService {
                     try{
                         SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
                         SQLiteDatabase db = databaseHelper.getReadableDatabase();
+                        baseStationsRetrievalfromDB(db);
                         Cursor mFixedStnCursor;
                         double fixedStnrecvdLatitude;
                         double fixedStnrecvdLongitude;
@@ -64,7 +62,7 @@ public class ValidationService extends IntentService {
                                 fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                 predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
 
-                                if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
+                                if (predictionAccuracy > DatabaseHelper.PREDICTION_ACCURACY_THRESHOLD_VALUE){
                                     //To be decided
                                     if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
                                         deleteEntryfromStationListTableinDB(mmsi, db);
@@ -73,15 +71,16 @@ public class ValidationService extends IntentService {
                                         deleteEntryfromFixedStationTableinDB(mmsi, db);
                                     }
 
-                                }
+                                }else {
 
-                                evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
-                                Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
-                                if (evaluationDifference > ERROR_THRESHOLD_VALUE){
-                                    ContentValues mContentValues = new ContentValues();
-                                    mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
-                                    Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
-                                    db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(mmsi)});
+                                    evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
+                                    Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
+                                    if (evaluationDifference > DatabaseHelper.ERROR_THRESHOLD_VALUE) {
+                                        ContentValues mContentValues = new ContentValues();
+                                        mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
+                                        Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
+                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                                    }
                                 }
                             } while(mFixedStnCursor.moveToNext());
                             mFixedStnCursor.close();
@@ -109,15 +108,15 @@ public class ValidationService extends IntentService {
         db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiToBeRemoved)});
     }
 
-    private void baseStationsRetrievalfromDB(){
+    private void baseStationsRetrievalfromDB(SQLiteDatabase db){
 
         try {
-            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            //SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
                     null, null, null, null, null);
 
-            if (mBaseStnCursor.getCount() == 1) {
+            if (mBaseStnCursor.getCount() == DatabaseHelper.NUM_OF_BASE_STATIONS) {
                 int index = 0;
 
                 if (mBaseStnCursor.moveToFirst()) {
@@ -132,6 +131,7 @@ public class ValidationService extends IntentService {
             } else {
                 Log.d(TAG, "Error reading from base stn table");
             }
+            mBaseStnCursor.close();
         }catch (SQLException e){
 
             Log.d(TAG, "SQLiteException");

@@ -150,7 +150,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                     new String[] {Integer.toString(MMSINumber), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSA_TYPE_1), Integer.toString(AISDecodingService.POSITION_REPORT_CLASSB)},
                     null, null, null);
             if(cursor.moveToFirst()){
-                stationName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.stationName));
+                //stationName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.stationName));
                 //index = cursor.getColumnIndexOrThrow(DatabaseHelper.latitude);
                 latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.latitude));
 

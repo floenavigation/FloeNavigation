@@ -64,7 +64,9 @@ public class AISMessageReceiver implements Runnable {
 
             do{
 
-                isConnected =  client.isConnected();
+                if (client != null) {
+                    isConnected =  client.isConnected();
+                }
                 while(bufferedReader.read() != -1) {
                     //Log.d(TAG, "ConnectionStatus: " + String.valueOf(client.isConnected()));
                     //Log.d(TAG, "DisconnectFlag Value: " + String.valueOf(mDisconnectFlag));
@@ -83,8 +85,9 @@ public class AISMessageReceiver implements Runnable {
                     //Log.d(TAG, packet);
 
                     if(mDisconnectFlag){
-                        if (client.getOutputStream() != null) {
+                        if (client != null) {
                             client.disconnect();
+                            client = null;
                             //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
                             break;
                         }
@@ -95,6 +98,7 @@ public class AISMessageReceiver implements Runnable {
 
         } catch (IOException e) {
             e.printStackTrace();
+            client = null;
         }
 
     }

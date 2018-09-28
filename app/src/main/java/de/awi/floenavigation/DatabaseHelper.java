@@ -29,6 +29,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int IS_LOCATION_RECEIVED_INITIAL_VALUE = 0;
     public static final int IS_LOCATION_RECEIVED = 1;
     public static final double ORIGIN_DISTANCE = 0.0;
+    public static final int ERROR_THRESHOLD_VALUE = 10;
+    public static final int PREDICTION_ACCURACY_THRESHOLD_VALUE = 5;
 
     //Database Tables Names
     public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
