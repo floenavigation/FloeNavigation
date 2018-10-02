@@ -51,4 +51,9 @@ public class MainActivity extends Activity {
         Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
         startActivity(sampleMeasureIntent);
     }
+
+    public void onClickGridButton(View view) {
+        Intent gridActivityIntent = new Intent(this, GridActivity.class);
+        startActivity(gridActivityIntent);
+    }
 }

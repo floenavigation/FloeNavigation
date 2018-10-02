@@ -58,11 +58,12 @@
         <service
             android:name=".PredictionService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".sample_measurement.SampleMeasurementActivity"
-            android:label="@string/title_activity_sample_measurement"></activity>
+            android:label="@string/title_activity_sample_measurement" />
+        <activity android:name=".GridActivity"></activity>
     </application>
 
 </manifest>
