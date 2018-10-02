@@ -207,6 +207,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             //Create Waypoints Table
             db.execSQL("CREATE TABLE " + waypointsTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    latitude + " REAL, " +
+                    longitude + " REAL, " +
+                    xPosition + " REAL, " +
+                    yPosition + " REAL, " +
+                    updateTime + " TEXT, " +
                     label + " TEXT); ");
 
             //Only for debugging purpose
