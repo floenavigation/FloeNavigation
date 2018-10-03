@@ -67,7 +67,8 @@
         <activity android:name=".ConfigurationActivity" />
         <activity
             android:name=".AdminUserPwdActivity"
-            android:label="@string/title_activity_admin_user_pwd"></activity>
+            android:label="@string/title_activity_admin_user_pwd" />
+        <activity android:name=".RecoveryActivity"></activity>
     </application>
 
 </manifest>

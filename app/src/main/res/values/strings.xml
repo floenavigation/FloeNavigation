@@ -78,4 +78,5 @@
     <string name="new_username">New UserName</string>
     <string name="new_password">New Password</string>
     <string name="operation">Operation</string>
+    <string name="staticstn">STATIC STATION NAME</string>
 </resources>

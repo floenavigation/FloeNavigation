@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
     }
 
     public void onClickRecoveryListener(View view) {
-
+        Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
+        startActivity(recoveryActivityIntent);
     }
 }
