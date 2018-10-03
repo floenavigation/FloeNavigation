@@ -235,7 +235,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private void insertUser(SQLiteDatabase db, String name, String pass){
+    public static void insertUser(SQLiteDatabase db, String name, String pass){
         ContentValues defaultUser = new ContentValues();
         defaultUser.put(userName, name);
         defaultUser.put(password, pass);

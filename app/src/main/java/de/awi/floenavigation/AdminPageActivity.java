@@ -106,4 +106,9 @@ public class AdminPageActivity extends Activity {
         Intent configActivityIntent = new Intent(this, ConfigurationActivity.class);
         startActivity(configActivityIntent);
     }
+
+    public void onClickAdminPrivilegesListener(View view) {
+        Intent adminUserPwdActIntent = new Intent(this, AdminUserPwdActivity.class);
+        startActivity(adminUserPwdActIntent);
+    }
 }

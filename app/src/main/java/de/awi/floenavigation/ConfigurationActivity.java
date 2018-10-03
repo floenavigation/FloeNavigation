@@ -13,7 +13,7 @@ import android.widget.EditText;
 
 public class ConfigurationActivity extends Activity {
 
-    private static final String TAG = "CONFIGURATION_ACTIVITY";
+    private static final String TAG = "ConfigurationActivity";
     private EditText errorThresholdView, predAccThresholdView;
 
     @Override

@@ -64,7 +64,10 @@
             android:name=".sample_measurement.SampleMeasurementActivity"
             android:label="@string/title_activity_sample_measurement" />
         <activity android:name=".GridActivity" />
-        <activity android:name=".ConfigurationActivity"></activity>
+        <activity android:name=".ConfigurationActivity" />
+        <activity
+            android:name=".AdminUserPwdActivity"
+            android:label="@string/title_activity_admin_user_pwd"></activity>
     </application>
 
 </manifest>
