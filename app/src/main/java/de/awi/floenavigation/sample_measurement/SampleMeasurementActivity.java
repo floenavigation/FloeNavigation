@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +50,7 @@ public class SampleMeasurementActivity extends Activity {
     private double xPosition;
     private double yPosition;
     private double theta;
+    private Spinner operation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class SampleMeasurementActivity extends Activity {
 
         //Advanced Search Feature
         DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
+        setSpinnerValues();
         AutoCompleteTextView deviceNameTextView = findViewById(R.id.deviceshortname);
         ArrayAdapter<String> adapter = DatabaseHelper.advancedSearchTextView(getApplicationContext());
         deviceNameTextView.setDropDownBackgroundResource(R.color.backgroundGradStart);
@@ -105,6 +108,13 @@ public class SampleMeasurementActivity extends Activity {
         });
     }
 
+    private void setSpinnerValues(){
+        operation = findViewById(R.id.operationspinner);
+        String[] contents = new String[]{"Sample", "Measurement"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, contents);
+        operation.setAdapter(adapter);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -146,6 +156,7 @@ public class SampleMeasurementActivity extends Activity {
                 mContentValues.put(DatabaseHelper.deviceID, selectedDeviceAttributes.get(deviceIDIndex));
                 mContentValues.put(DatabaseHelper.deviceName, selectedDeviceAttributes.get(deviceFullNameIndex));
                 mContentValues.put(DatabaseHelper.deviceShortName, deviceSelectedName);
+                mContentValues.put(DatabaseHelper.operation, operation.getSelectedItem().toString());
                 mContentValues.put(DatabaseHelper.deviceType, selectedDeviceAttributes.get(deviceTypeIndex));
                 mContentValues.put(DatabaseHelper.latitude, tabletLat);
                 mContentValues.put(DatabaseHelper.longitude, tabletLon);

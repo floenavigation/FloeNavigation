@@ -56,4 +56,8 @@ public class MainActivity extends Activity {
         Intent gridActivityIntent = new Intent(this, GridActivity.class);
         startActivity(gridActivityIntent);
     }
+
+    public void onClickRecoveryListener(View view) {
+
+    }
 }

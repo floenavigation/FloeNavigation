@@ -74,6 +74,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String deviceID = "DEVICE_ID";
     public static final String deviceName = "DEVICE_NAME";
     public static final String deviceShortName = "DEVICE_SHORT_NAME";
+    public static final String operation = "OPERATION";
     public static final String label = "LABEL";
     public static final String parameterName = "PARAMETER_NAME";
     public static final String parameterValue = "PARAMETER_VALUE";
@@ -182,6 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     deviceID + " TEXT," +
                     deviceName + " TEXT, " +
                     deviceShortName + " TEXT, " +
+                    operation + " TEXT, " +
                     deviceType + " TEXT, " +
                     latitude + " REAL, " +
                     longitude + " REAL, " +
