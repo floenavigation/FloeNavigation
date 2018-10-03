@@ -138,12 +138,12 @@ public class GridLineView extends View {
 
             setLineColor(Color.GREEN);
             canvas.drawCircle(width * 10 / numColumns, height * 15 / numRows, 15, paint);
-            canvas.drawCircle(width * coordRowNum / numColumns, height * coordColNum / numRows, 15, paint);
+            canvas.drawCircle(width * 15 / numColumns, height * 15 / numRows, 15, paint);
 
 
             setLineColor(Color.RED);
-            canvas.drawLine(width * 10 / numColumns,height * 15 / numRows,width * coordRowNum / numColumns,
-                    height * coordColNum / numRows, paint);
+            canvas.drawLine(width * 10 / numColumns,height * 15 / numRows,width * 15 / numColumns,
+                    height * 15 / numRows, paint);
 
             setLineColor(Color.BLACK);
             /*
@@ -225,24 +225,16 @@ public class GridLineView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         boolean value = super.onTouchEvent(event);
 
-        switch (event.getAction())
-        {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
 
                 float x = event.getX();
                 float y = event.getY();
 
-                if(mRectSquare.left < x && mRectSquare.right > x)
-                    if(mRectSquare.top < y && mRectSquare.bottom > y){
-                        Log.d("touched", "Rectangle: " + x + "," + y);
-                        //postInvalidate();
-                    }
 
-                return true;
             }
-
         }
-        return value;
+        return true;
     }
 
 

@@ -24,6 +24,9 @@ public class ValidationService extends IntentService {
     private static final String TAG = "Validation Service: ";
     private static final int VALIDATION_TIME = 3 * 60 * 1000;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
+    public static int ERROR_THRESHOLD_VALUE;
+    public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
+
 
     public ValidationService() {
         super("ValidationService");
@@ -42,6 +45,7 @@ public class ValidationService extends IntentService {
                         SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
                         SQLiteDatabase db = databaseHelper.getReadableDatabase();
                         baseStationsRetrievalfromDB(db);
+                        retrieveConfigurationParametersDatafromDB(db);
                         Cursor mFixedStnCursor;
                         double fixedStnrecvdLatitude;
                         double fixedStnrecvdLongitude;
@@ -62,7 +66,7 @@ public class ValidationService extends IntentService {
                                 fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                 predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
 
-                                if (predictionAccuracy > DatabaseHelper.PREDICTION_ACCURACY_THRESHOLD_VALUE){
+                                if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
                                     //To be decided
                                     if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
                                         deleteEntryfromStationListTableinDB(mmsi, db);
@@ -75,7 +79,7 @@ public class ValidationService extends IntentService {
 
                                     evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
                                     Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
-                                    if (evaluationDifference > DatabaseHelper.ERROR_THRESHOLD_VALUE) {
+                                    if (evaluationDifference > ERROR_THRESHOLD_VALUE) {
                                         ContentValues mContentValues = new ContentValues();
                                         mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
                                         Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
@@ -138,6 +142,38 @@ public class ValidationService extends IntentService {
             e.printStackTrace();
         }
 
+    }
+
+    private void retrieveConfigurationParametersDatafromDB(SQLiteDatabase db){
+        try{
+            Cursor configParamCursor = db.query(DatabaseHelper.configParametersTable, null, null,
+                    null, null, null, null);
+            String parameterName = null;
+            int parameterValue = 0;
+
+            if (configParamCursor.moveToFirst()){
+                do{
+                    parameterName = configParamCursor.getString(configParamCursor.getColumnIndex(DatabaseHelper.parameterName));
+                    parameterValue = configParamCursor.getInt(configParamCursor.getColumnIndex(DatabaseHelper.parameterValue));
+
+                    switch (parameterName) {
+                        case DatabaseHelper.error_threshold:
+                            ERROR_THRESHOLD_VALUE = parameterValue;
+                            break;
+                        case DatabaseHelper.prediction_accuracy_threshold:
+                            PREDICTION_ACCURACY_THRESHOLD_VALUE = parameterValue;
+                            break;
+                    }
+                }while (configParamCursor.moveToNext());
+            }else {
+                Log.d(TAG, "Config Parameter table cursor error");
+            }
+            configParamCursor.close();
+        }catch (SQLException e){
+
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
     }
 
 }

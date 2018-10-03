@@ -15,24 +15,31 @@ import android.widget.Toast;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
 public class AdminPageActivity extends Activity {
-    CardView options_1, options_2, options_3;
+    CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption;
     Handler handler = new Handler();
-    Runnable runnable_1 = new Runnable() {
+    Runnable gridConfigRunnable = new Runnable() {
         @Override
         public void run() {
-            options_1.setVisibility(View.VISIBLE);
+            gridConfigOption.setVisibility(View.VISIBLE);
         }
     };
-    Runnable runnable_2 = new Runnable() {
+    Runnable syncRunnable = new Runnable() {
         @Override
         public void run() {
-            options_2.setVisibility(View.VISIBLE);
+            SyncOption.setVisibility(View.VISIBLE);
         }
     };
-    Runnable runnable_3 = new Runnable() {
+    Runnable adminPrivilegesRunnable = new Runnable() {
         @Override
         public void run() {
-            options_3.setVisibility(View.VISIBLE);
+            adminPrivilegesOption.setVisibility(View.VISIBLE);
+        }
+    };
+
+    Runnable configParamsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            configParamsOption.setVisibility(View.VISIBLE);
         }
     };
 
@@ -40,12 +47,14 @@ public class AdminPageActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_page);
-        options_1 = (CardView) findViewById(R.id.cardView_1);
-        handler.postDelayed(runnable_1, 100);
-        options_2 = (CardView) findViewById(R.id.cardView_2);
-        handler.postDelayed(runnable_2, 500);
-        options_3 = (CardView) findViewById(R.id.cardView_3);
-        handler.postDelayed(runnable_3, 1000);
+        gridConfigOption = (CardView) findViewById(R.id.gridconfigcardView);
+        handler.postDelayed(gridConfigRunnable, 100);
+        SyncOption = (CardView) findViewById(R.id.synccardView);
+        handler.postDelayed(syncRunnable, 500);
+        adminPrivilegesOption = (CardView) findViewById(R.id.admincardView);
+        handler.postDelayed(adminPrivilegesRunnable, 1000);
+        configParamsOption = (CardView) findViewById(R.id.configparamcardView);
+        handler.postDelayed(configParamsRunnable, 1500);
 
     }
 
@@ -91,5 +100,10 @@ public class AdminPageActivity extends Activity {
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void onClickConfigurationParams(View view) {
+        Intent configActivityIntent = new Intent(this, ConfigurationActivity.class);
+        startActivity(configActivityIntent);
     }
 }

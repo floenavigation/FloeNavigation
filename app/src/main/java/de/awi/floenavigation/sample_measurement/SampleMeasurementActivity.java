@@ -136,26 +136,30 @@ public class SampleMeasurementActivity extends Activity {
 
     private void populateDatabaseTable(){
 
-        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        if(getOriginCoordinates()) {
-            calculateSampledLocationParameters();
-            ContentValues mContentValues = new ContentValues();
-            mContentValues.put(DatabaseHelper.deviceID, selectedDeviceAttributes.get(deviceIDIndex));
-            mContentValues.put(DatabaseHelper.deviceName, selectedDeviceAttributes.get(deviceFullNameIndex));
-            mContentValues.put(DatabaseHelper.deviceShortName, deviceSelectedName);
-            mContentValues.put(DatabaseHelper.deviceType, selectedDeviceAttributes.get(deviceTypeIndex));
-            mContentValues.put(DatabaseHelper.latitude, tabletLat);
-            mContentValues.put(DatabaseHelper.longitude, tabletLon);
-            mContentValues.put(DatabaseHelper.xPosition, xPosition);
-            mContentValues.put(DatabaseHelper.yPosition, yPosition);
-            mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
-            db.insert(DatabaseHelper.sampleMeasurementTable, null, mContentValues);
-        }else {
-            Log.d(TAG, "Error Inserting new data");
+            if (getOriginCoordinates()) {
+                calculateSampledLocationParameters();
+                ContentValues mContentValues = new ContentValues();
+                mContentValues.put(DatabaseHelper.deviceID, selectedDeviceAttributes.get(deviceIDIndex));
+                mContentValues.put(DatabaseHelper.deviceName, selectedDeviceAttributes.get(deviceFullNameIndex));
+                mContentValues.put(DatabaseHelper.deviceShortName, deviceSelectedName);
+                mContentValues.put(DatabaseHelper.deviceType, selectedDeviceAttributes.get(deviceTypeIndex));
+                mContentValues.put(DatabaseHelper.latitude, tabletLat);
+                mContentValues.put(DatabaseHelper.longitude, tabletLon);
+                mContentValues.put(DatabaseHelper.xPosition, xPosition);
+                mContentValues.put(DatabaseHelper.yPosition, yPosition);
+                mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+                db.insert(DatabaseHelper.sampleMeasurementTable, null, mContentValues);
+            } else {
+                Log.d(TAG, "Error Inserting new data");
+            }
+        }catch(SQLiteException e) {
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
         }
-
     }
 
     private void calculateSampledLocationParameters(){

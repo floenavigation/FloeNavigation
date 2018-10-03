@@ -17,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "FloeNavigation";
     private static final int DB_VERSION = 1;
-    private static final String TAG = "DatabaseHelpler";
+    private static final String TAG = "DatabaseHelper";
 
     private static DatabaseHelper dbInstance;
 
@@ -29,8 +29,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int IS_LOCATION_RECEIVED_INITIAL_VALUE = 0;
     public static final int IS_LOCATION_RECEIVED = 1;
     public static final double ORIGIN_DISTANCE = 0.0;
-    public static final int ERROR_THRESHOLD_VALUE = 10;
-    public static final int PREDICTION_ACCURACY_THRESHOLD_VALUE = 5;
+    public static final String error_threshold = "ERROR_THRESHOLD";
+    public static final String prediction_accuracy_threshold = "PREDICTION_ACCURACY_THRESHOLD";
+
 
     //Database Tables Names
     public static final String fixedStationTable = "AIS_FIXED_STATION_POSITION";
@@ -40,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String sampleMeasurementTable = "SAMPLE_MEASUREMENT";
     public static final String deviceListTable = "DEVICE_LIST";
     public static final String waypointsTable = "WAYPOINTS";
+    public static final String configParametersTable = "CONFIGURATION_PARAMETERS";
     public static final String baseStationTable = "BASE_STATIONS";
     public static final String betaTable = "BETA";
     public static final String staticStationListTable = "STATION_LIST";
@@ -73,6 +75,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String deviceName = "DEVICE_NAME";
     public static final String deviceShortName = "DEVICE_SHORT_NAME";
     public static final String label = "LABEL";
+    public static final String parameterName = "PARAMETER_NAME";
+    public static final String parameterValue = "PARAMETER_VALUE";
 
     //Initial Position of Setup Points in Custom Coordinate System
     public static final long station1InitialX = 0;
@@ -149,9 +153,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         insertUser(db, "awi", "awi");
 
-
-
-
     }
 
     @Override
@@ -214,8 +215,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     updateTime + " TEXT, " +
                     label + " TEXT); ");
 
+            //Create Configuration Parameters Table
+            db.execSQL("CREATE TABLE " + configParametersTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    parameterName + " TEXT, " +
+                    parameterValue + " INTEGER); ");
+
             //Only for debugging purpose
             insertDeviceList(db);
+
+            //Default config params
+            insertDefaultConfigParams(db, error_threshold, 10);
+            insertDefaultConfigParams(db, prediction_accuracy_threshold, 3);
 
             return  true;
         } catch(SQLiteException e){
@@ -230,6 +240,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         defaultUser.put(userName, name);
         defaultUser.put(password, pass);
         db.insert(usersTable, null, defaultUser);
+    }
+
+    private static void insertDefaultConfigParams(SQLiteDatabase db, String name, int value){
+        ContentValues defaultConfigParam = new ContentValues();
+        defaultConfigParam.put(parameterName, name);
+        defaultConfigParam.put(parameterValue, value);
+        db.insert(configParametersTable, null, defaultConfigParam);
     }
 
     /******************Only for debugging purpose**************************/

@@ -63,7 +63,8 @@
         <activity
             android:name=".sample_measurement.SampleMeasurementActivity"
             android:label="@string/title_activity_sample_measurement" />
-        <activity android:name=".GridActivity"></activity>
+        <activity android:name=".GridActivity" />
+        <activity android:name=".ConfigurationActivity"></activity>
     </application>
 
 </manifest>

@@ -5,116 +5,163 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AdminPageActivity"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="10dp"
     android:animateLayoutChanges="true"
     android:background="@drawable/background_bg">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView_1"
-        android:visibility="gone"
-        android:layout_width="450dp"
-        android:layout_height="120dp"
-        android:layout_margin="50dp"
-        app:cardCornerRadius="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="onClickGridConfiguration">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginLeft="70dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" >
+        <android.support.v7.widget.CardView
+            android:id="@+id/gridconfigcardView"
+            android:visibility="gone"
+            android:layout_width="450dp"
+            android:layout_height="120dp"
+            android:layout_margin="50dp"
+            app:cardCornerRadius="30dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="onClickGridConfiguration">
 
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginRight="25dp"
-                android:src="@drawable/ic_settings_input_component_black_24dp"
-                android:layout_marginEnd="25dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="70dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" >
 
-            <TextView
-                android:textSize="20sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/grid_initial_configuration"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginRight="25dp"
+                    android:src="@drawable/ic_settings_input_component_black_24dp"
+                    android:layout_marginEnd="25dp" />
 
-    </android.support.v7.widget.CardView>
+                <TextView
+                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grid_initial_configuration"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView_2"
-        android:visibility="gone"
-        android:layout_width="450dp"
-        android:layout_height="120dp"
-        android:layout_margin="50dp"
-        app:cardCornerRadius="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="onClickListener">
+        </android.support.v7.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginLeft="70dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" >
+        <android.support.v7.widget.CardView
+            android:id="@+id/synccardView"
+            android:visibility="gone"
+            android:layout_width="450dp"
+            android:layout_height="120dp"
+            android:layout_margin="50dp"
+            app:cardCornerRadius="30dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="onClickListener">
 
-            <ImageView
-                android:id="@+id/icon_sync"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginRight="25dp"
-                android:src="@drawable/ic_sync_black_24dp"
-                android:layout_marginEnd="25dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="70dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" >
 
-            <TextView
-                android:textSize="20sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/synchronization"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/icon_sync"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginRight="25dp"
+                    android:src="@drawable/ic_sync_black_24dp"
+                    android:layout_marginEnd="25dp" />
 
-    </android.support.v7.widget.CardView>
+                <TextView
+                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/synchronization"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView_3"
-        android:visibility="gone"
-        android:layout_width="450dp"
-        android:layout_height="120dp"
-        android:layout_margin="50dp"
-        app:cardCornerRadius="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="onClickListener">
+        </android.support.v7.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginLeft="70dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" >
+        <android.support.v7.widget.CardView
+            android:id="@+id/admincardView"
+            android:visibility="gone"
+            android:layout_width="450dp"
+            android:layout_height="120dp"
+            android:layout_margin="50dp"
+            app:cardCornerRadius="30dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="onClickListener">
 
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginRight="25dp"
-                android:src="@drawable/ic_people_black_24dp"
-                android:layout_marginEnd="25dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="70dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" >
 
-            <TextView
-                android:textSize="20sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/administrator_privileges"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginRight="25dp"
+                    android:src="@drawable/ic_people_black_24dp"
+                    android:layout_marginEnd="25dp" />
 
-    </android.support.v7.widget.CardView>
+                <TextView
+                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/administrator_privileges"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/configparamcardView"
+            android:visibility="gone"
+            android:layout_width="450dp"
+            android:layout_height="120dp"
+            android:layout_margin="50dp"
+            app:cardCornerRadius="30dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="onClickConfigurationParams">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="70dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" >
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginRight="25dp"
+                    android:src="@drawable/ic_settings_black_24dp"
+                    android:layout_marginEnd="25dp" />
+
+                <TextView
+                    android:textSize="20sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/configuration"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
 
 
 </LinearLayout>
