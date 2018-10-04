@@ -38,7 +38,7 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
         if (savedInstanceState != null){
             configSetupStep = savedInstanceState.getBoolean("SetupStep");
         }
-        checkPermission();
+
         if (!configSetupStep) {
             configSetupStep = true;
             MMSIFragment mmsiFragment = new MMSIFragment();
@@ -50,32 +50,7 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
 
     }
 
-    private void checkPermission(){
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                ActivityCompat.requestPermissions(this,
-                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.INTERNET},
-                        CoordinateFragment.GPS_REQUEST_CODE);
-            }
-            return;
-        }
-        Intent intent = new Intent(this, GPS_Service.class);
-        startService(intent);
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        switch (requestCode){
-            case CoordinateFragment.GPS_REQUEST_CODE:
-                checkPermission();
-                break;
-            default:
-                break;
-        }
-    }
 
     @Override
     public void replaceFragment(Fragment fragment){
@@ -105,10 +80,5 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
         }
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        stopService(new Intent(this, GPS_Service.class));
-    }
 
 }

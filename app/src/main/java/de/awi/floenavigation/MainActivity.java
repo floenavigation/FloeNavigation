@@ -1,17 +1,26 @@
 package de.awi.floenavigation;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import de.awi.floenavigation.deployment.DeploymentActivity;
+import de.awi.floenavigation.initialsetup.CoordinateFragment;
 import de.awi.floenavigation.network.NetworkService;
 import de.awi.floenavigation.sample_measurement.SampleMeasurementActivity;
+import de.awi.floenavigation.waypoint.WaypointActivity;
 
 public class MainActivity extends Activity {
 
     private static boolean networkSetup = false;
+    private static boolean gpssetup = false;
+    public static final int GPS_REQUEST_CODE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +33,39 @@ public class MainActivity extends Activity {
             Intent networkServiceIntent = new Intent(this, NetworkService.class);
             startService(networkServiceIntent);
             networkSetup = true;
+        }
+
+        //Start GPS Service
+        if (!gpssetup) {
+            checkPermission();
+            gpssetup = true;
+        }
+    }
+
+    private void checkPermission(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                ActivityCompat.requestPermissions(this,
+                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.INTERNET},
+                                GPS_REQUEST_CODE);
+            }
+            return;
+        }
+        Intent intent = new Intent(this, GPS_Service.class);
+        startService(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        switch (requestCode){
+            case GPS_REQUEST_CODE:
+                checkPermission();
+                break;
+            default:
+                break;
         }
     }
 
@@ -60,5 +102,10 @@ public class MainActivity extends Activity {
     public void onClickRecoveryListener(View view) {
         Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
         startActivity(recoveryActivityIntent);
+    }
+
+    public void onClickWaypointBtn(View view) {
+        Intent waypointIntent = new Intent(this, WaypointActivity.class);
+        startActivity(waypointIntent);
     }
 }

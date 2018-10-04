@@ -47,7 +47,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         // Required empty public constructor
     }
 
-    public static final int GPS_REQUEST_CODE = 10;
+
     private int MMSINumber;
     private double latitude;
     private double longitude;

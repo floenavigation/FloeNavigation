@@ -83,6 +83,13 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         lonView.setText(String.valueOf(tabletLon));
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
+    }
+
     public void onClick(View v){
 
         switch (v.getId()){
@@ -109,7 +116,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
                 createLabel();
                 if(insertInDatabase(db)){
                     Log.d(TAG, "Waypoint Inserted");
-                    ProgressBar progress = findViewById(R.id.staticStationProgress);
+                    ProgressBar progress = findViewById(R.id.waypointProgress);
                     progress.stopNestedScroll();
                     progress.setVisibility(View.GONE);
                     findViewById(R.id.waypoint_finish).setClickable(true);
@@ -136,6 +143,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         waypoint.put(DatabaseHelper.yPosition, yPosition);
         waypoint.put(DatabaseHelper.updateTime, time);
         waypoint.put(DatabaseHelper.label, waypointLabel);
+        Log.d(TAG, waypointLabel);
         long result = db.insert(DatabaseHelper.waypointsTable, null, waypoint);
         if(result != -1){
             Log.d(TAG, "Waypoint Inserted Successfully");

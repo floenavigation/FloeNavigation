@@ -69,6 +69,7 @@
             android:name=".AdminUserPwdActivity"
             android:label="@string/title_activity_admin_user_pwd" />
         <activity android:name=".RecoveryActivity"></activity>
+        <activity android:name=".waypoint.WaypointActivity" />
     </application>
 
 </manifest>
