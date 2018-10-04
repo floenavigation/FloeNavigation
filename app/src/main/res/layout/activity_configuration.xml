@@ -33,6 +33,7 @@
 
             <EditText
                 android:id="@+id/error_threshold_id"
+                android:textColor="@color/white"
                 android:layout_width="500dp"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -56,6 +57,7 @@
 
             <EditText
                 android:id="@+id/prediction_accuracy_threshold_id"
+                android:textColor="@color/white"
                 android:layout_width="500dp"
                 android:layout_height="wrap_content" />
         </LinearLayout>

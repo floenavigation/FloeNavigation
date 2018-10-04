@@ -33,7 +33,7 @@
 
             <EditText
                 android:id="@+id/newusername_id"
-                android:inputType="textVisiblePassword|textNoSuggestions"
+                android:textColor="@color/white"
                 android:layout_width="500dp"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -57,6 +57,7 @@
 
             <EditText
                 android:id="@+id/newpassword_id"
+                android:textColor="@color/white"
                 android:layout_width="500dp"
                 android:inputType="textPassword"
                 android:layout_height="wrap_content" />

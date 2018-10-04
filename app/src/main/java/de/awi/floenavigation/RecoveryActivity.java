@@ -67,6 +67,8 @@ public class RecoveryActivity extends Activity {
                 String staticStnName = devicesOptionSelectedView.getText().toString();
                 db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{staticStnName});
             }
+            Toast.makeText(getApplicationContext(), "Device Recovered", Toast.LENGTH_LONG).show();
+
         }catch(SQLiteException e) {
             Log.d(TAG, "Database Error");
             e.printStackTrace();

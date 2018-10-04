@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class ConfigurationActivity extends Activity {
 
@@ -35,6 +36,8 @@ public class ConfigurationActivity extends Activity {
 
             updateDatabaseTable(db, DatabaseHelper.error_threshold, errorThresholdValue);
             updateDatabaseTable(db, DatabaseHelper.prediction_accuracy_threshold, predAccThresholdValue);
+            Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_LONG).show();
+
 
         } catch(SQLiteException e){
             Log.d(TAG, "Database Error");

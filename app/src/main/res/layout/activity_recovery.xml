@@ -73,6 +73,7 @@
             <EditText
                 android:id="@+id/devicesOptionSelectedValue_id"
                 android:layout_width="500dp"
+                android:textColor="@color/white"
                 android:layout_height="wrap_content" />
         </LinearLayout>
 

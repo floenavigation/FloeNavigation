@@ -30,8 +30,10 @@
             android:layout_height="wrap_content" />
         <Spinner
             android:id="@+id/operationspinner"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:popupBackground="@color/white"
             android:spinnerMode="dropdown"/>
     </LinearLayout>
 
@@ -55,9 +57,8 @@
             android:layout_height="wrap_content" />
         <AutoCompleteTextView
             android:id="@+id/deviceshortname"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
             android:layout_width="500dp"
+            android:textColor="@color/white"
             android:layout_height="wrap_content" />
     </LinearLayout>
 

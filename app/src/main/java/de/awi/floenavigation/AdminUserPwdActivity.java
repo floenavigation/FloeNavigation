@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class AdminUserPwdActivity extends Activity {
 
@@ -33,6 +34,7 @@ public class AdminUserPwdActivity extends Activity {
             String newPassword = newpwdView.getText().toString();
 
             DatabaseHelper.insertUser(db, newUserName, newPassword);
+            Toast.makeText(getApplicationContext(), "New User Credentials Saved", Toast.LENGTH_LONG).show();
 
         } catch(SQLiteException e){
             Log.d(TAG, "Database Error");
