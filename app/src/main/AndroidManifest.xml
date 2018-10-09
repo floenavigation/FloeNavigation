@@ -21,12 +21,43 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".LoginPage" />
-        <activity android:name=".AdminPageActivity" />
-        <activity android:name=".initialsetup.GridSetupActivity" />
-        <activity android:name=".deployment.DeploymentActivity" />
-        <activity android:name=".initialsetup.SetupActivity" />
+        <activity android:name=".MainActivity"
+            android:label="@string/label_activity_main_activity"/>
+
+        <activity android:name=".LoginPage"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/label_activity_login_page">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
+        <activity android:name=".AdminPageActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/label_activity_admin_page">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
+        <activity android:name=".initialsetup.GridSetupActivity"
+            android:parentActivityName=".AdminPageActivity"
+            android:label="@string/label_activity_grid_setup">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AdminPageActivity"/>
+        </activity>
+
+        <activity android:name=".deployment.DeploymentActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/label_activity_deployment">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
+        <activity android:name=".initialsetup.SetupActivity"
+            android:label="@string/label_activity_setup"/>
 
         <service
             android:name=".initialsetup.SetupJobService"
@@ -62,14 +93,48 @@
 
         <activity
             android:name=".sample_measurement.SampleMeasurementActivity"
-            android:label="@string/title_activity_sample_measurement" />
+            android:label="@string/label_activity_sample_measurement"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
         <activity android:name=".GridActivity" />
-        <activity android:name=".ConfigurationActivity" />
+
+        <activity android:name=".ConfigurationActivity"
+            android:parentActivityName=".AdminPageActivity"
+            android:label="@string/label_activity_configuration">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AdminPageActivity"/>
+        </activity>
+
         <activity
             android:name=".AdminUserPwdActivity"
-            android:label="@string/title_activity_admin_user_pwd" />
-        <activity android:name=".RecoveryActivity"></activity>
-        <activity android:name=".waypoint.WaypointActivity" />
+            android:label="@string/label_activity_admin_user_pwd"
+            android:parentActivityName=".AdminPageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AdminPageActivity"/>
+        </activity>
+
+        <activity android:name=".RecoveryActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/label_activity_recovery">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
+        <activity android:name=".waypoint.WaypointActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/label_activity_waypoint">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
     </application>
 
 </manifest>

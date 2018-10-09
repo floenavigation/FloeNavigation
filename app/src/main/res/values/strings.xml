@@ -10,6 +10,19 @@
     <string name="gridButton">Grid</string>
     <string name="adminButton">Administration</string>
 
+    <!--Activity Labels -->
+    <string name="label_activity_admin_user_pwd">Add Admin User</string>
+    <string name="label_activity_sample_measurement">Add Sample/Measurement</string>
+    <string name="label_activity_main_activity">Sea Ice Navigation System</string>
+    <string name="label_activity_login_page">Administrator Login</string>
+    <string name="label_activity_admin_page">Administration</string>
+    <string name="label_activity_grid_setup">Coordinate System Setup</string>
+    <string name="label_activity_deployment">Deploy New Station</string>
+    <string name="label_activity_setup">Coordinate System Setup</string>
+    <string name="label_activity_configuration">Parameters Configuration</string>
+    <string name="label_activity_recovery">Recover Station</string>
+    <string name="label_activity_waypoint">Add New Waypoint</string>
+
     <!--Login Screen -->
     <string name="login">Login</string>
     <string name="login_btn">Login</string>
@@ -20,6 +33,7 @@
     <string name="grid_initial_configuration">Grid Initial Configuration</string>
     <string name="synchronization">Synchronization</string>
     <string name="administrator_privileges">Administrator Privileges</string>
+    <string name="viewParamsBtn">View Parameter List</string>
 
     <!--Setup Screens -->
     <string name="setup">Device Setup</string>
@@ -71,9 +85,14 @@
     <string name="waypointFinishBtn">Finish</string>
     <string name="waypointWaitingMsg">Inserting new Waypoint. Do not close the App</string>
 
+    <!--Waypoint Screens -->
+    <string name="validationFailedMsg">Validation Failed %1$d Times for %2$s Station</string>
+    <string name="stationRemovedMsg">The Station has been removed</string>
+    <string name="dialogOK">OK</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_sample_measurement">SampleMeasurementActivity</string>
+
     <string name="configuration">Configuration</string>
     <string name="error_threshold">ERROR_THRESHOLD</string>
     <string name="prediction_accuracy_threshold">PREDICTION_ACCURACY_THRESHOLD</string>
@@ -81,9 +100,13 @@
     <string name="device_id">Device ID:</string>
     <string name="device_full_name">Device Full Name:</string>
     <string name="device_type">Device Type:</string>
-    <string name="title_activity_admin_user_pwd">AdminUserPwdActivity</string>
+
     <string name="new_username">New UserName</string>
     <string name="new_password">New Password</string>
     <string name="operation">Operation</string>
     <string name="staticstn">STATIC STATION NAME</string>
+
+    <!--Menu Titles -->
+    <string name="latLonChangeFormat"> Change Lat/Lon Format</string>
+
 </resources>

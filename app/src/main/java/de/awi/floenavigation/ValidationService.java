@@ -1,15 +1,24 @@
 package de.awi.floenavigation;
 
+import android.app.Dialog;
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 
 /**
@@ -27,10 +36,24 @@ public class ValidationService extends IntentService {
     public static int ERROR_THRESHOLD_VALUE;
     public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
 
+    private Handler uiHandler;
+    private Dialog alertDialog;
+    Button dialogOkBtn;
+    ImageView dialogIcon;
+    TextView validationFailedMsg, stationRemovedMsg;
+
 
     public ValidationService() {
         super("ValidationService");
         this.mValidationHandler = new Handler();
+        uiHandler = new Handler();
+
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        alertDialog = new Dialog(getApplicationContext());
     }
 
     @Override
@@ -54,8 +77,9 @@ public class ValidationService extends IntentService {
                         double evaluationDifference;
                         int predictionAccuracy;
                         int mmsi;
+                        String stationName;
 
-                        mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
+                        mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
                                 DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy},null, null, null, null, null);
                         if (mFixedStnCursor.moveToFirst()){
                             do{
@@ -65,8 +89,17 @@ public class ValidationService extends IntentService {
                                 fixedStnLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
                                 fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                 predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-
+                                stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
                                 if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
+
+                                    final int numOfFaildPredictions = predictionAccuracy;
+                                    final String name = stationName;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialogBoxDisplay(numOfFaildPredictions, name);
+                                        }
+                                    });
                                     //To be decided
                                     if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
                                         deleteEntryfromStationListTableinDB(mmsi, db);
@@ -102,6 +135,38 @@ public class ValidationService extends IntentService {
 
             mValidationHandler.postDelayed(validationRunnable, VALIDATION_TIME);
         }
+    }
+
+    private void dialogBoxDisplay(int failedAttempts, String name) {
+        String validationMsg = getResources().getString(R.string.validationFailedMsg, failedAttempts, name);
+
+
+        alertDialog.setContentView(R.layout.dialog_validation_failed);
+        dialogIcon = alertDialog.findViewById(R.id.dialogIcon);
+        validationFailedMsg = alertDialog.findViewById(R.id.validationFailed);
+        stationRemovedMsg = alertDialog.findViewById(R.id.stationRemoved);
+        dialogOkBtn = alertDialog.findViewById(R.id.validationDialogOkBtn);
+
+        dialogOkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.setOnDismissListener(new Dialog.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.show();
+    }
+
+    private void runOnUiThread(Runnable runnable){
+        uiHandler.post(runnable);
     }
 
     private void deleteEntryfromStationListTableinDB(int mmsiToBeRemoved, SQLiteDatabase db){

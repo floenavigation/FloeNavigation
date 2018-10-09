@@ -29,5 +29,10 @@
     <color name="setupScreenGradientStop">#E3F2FD</color>
     <color name="darkGray">#212121</color>
 
+    <!--Validation Dialog Box-->
+    <color name="transparent">#00000000</color>
+    <color name="transparentBlack">#66000000</color>
+    <color name="black">#000000</color>
+
 
 </resources>
