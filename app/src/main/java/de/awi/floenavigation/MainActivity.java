@@ -4,11 +4,16 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
+import android.widget.Toast;
 
 import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.initialsetup.CoordinateFragment;
@@ -21,6 +26,7 @@ public class MainActivity extends Activity {
     private static boolean networkSetup = false;
     private static boolean gpssetup = false;
     public static final int GPS_REQUEST_CODE = 10;
+    private static long numOfBaseStations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,11 @@ public class MainActivity extends Activity {
             checkPermission();
             gpssetup = true;
         }
+
+        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+
     }
 
     private void checkPermission(){
@@ -80,8 +91,12 @@ public class MainActivity extends Activity {
     }
 
     public void onClickDeploymentBtn(View view){
-        Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
-        startActivity(deploymentIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
+            startActivity(deploymentIntent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickAdminBtn(View view){
@@ -90,22 +105,38 @@ public class MainActivity extends Activity {
     }
 
     public void onClickSampleMeasureBtn(View view) {
-        Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
-        startActivity(sampleMeasureIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
+            startActivity(sampleMeasureIntent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickGridButton(View view) {
-        Intent gridActivityIntent = new Intent(this, GridActivity.class);
-        startActivity(gridActivityIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            Intent gridActivityIntent = new Intent(this, GridActivity.class);
+            startActivity(gridActivityIntent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickRecoveryListener(View view) {
-        Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
-        startActivity(recoveryActivityIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
+            startActivity(recoveryActivityIntent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onClickWaypointBtn(View view) {
-        Intent waypointIntent = new Intent(this, WaypointActivity.class);
-        startActivity(waypointIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            Intent waypointIntent = new Intent(this, WaypointActivity.class);
+            startActivity(waypointIntent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+        }
     }
 }

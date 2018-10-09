@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,10 +29,13 @@ import de.awi.floenavigation.R;
 public class MMSIFragment extends Fragment implements View.OnClickListener{
 
 
+    private static final int VALID_MMSI_LENGTH = 9;
     private SQLiteDatabase db;
     private long stationCount;
     private static final String TAG = "MMSI Fragment";
     private SQLiteOpenHelper dbHelper;
+    private EditText aisStationName;
+    private EditText mmsi;
 
 
     public MMSIFragment() {
@@ -49,6 +54,8 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         dbHelper = DatabaseHelper.getDbInstance(getActivity());
         db = dbHelper.getReadableDatabase();
         stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
+        Log.d(TAG, "StationCount: " + String.valueOf(stationCount));
+
         return layout;
     }
 
@@ -63,27 +70,40 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
 
 
     public void onClickConfirm(){
+
+        //mmsi.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         View view = getView();
-        EditText aisStationName = view.findViewById(R.id.ais_station_name);
-        EditText mmsi = view.findViewById(R.id.mmsi_field);
+        aisStationName = view.findViewById(R.id.ais_station_name);
+        mmsi = view.findViewById(R.id.mmsi_field);
 
         String stationName = aisStationName.getText().toString();
-        int mmsiNumber = Integer.parseInt(mmsi.getText().toString());
+        if (validateMMSINumber(mmsi)) {
 
-        insertStation(stationName, mmsiNumber);
-        //if(stationCount == 0) {
+            int mmsiNumber = Integer.parseInt(mmsi.getText().toString());
+            insertStation(stationName, mmsiNumber);
+            //if(stationCount == 0) {
             /*AISMessageReceiver aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress, GridSetupActivity.dstPort, getActivity().getApplicationContext());
             Thread aisMessageReceiver = new Thread(aisMessage);
             aisMessageReceiver.start();*/
-        //}
-        CoordinateFragment coordinateFragment = new CoordinateFragment();
-        Bundle argument = new Bundle();
-        argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
-        argument.putString(DatabaseHelper.stationName, stationName);
-        coordinateFragment.setArguments(argument);
-        FragmentChangeListener fc = (FragmentChangeListener)getActivity();
-        fc.replaceFragment(coordinateFragment);
+            //}
+            CoordinateFragment coordinateFragment = new CoordinateFragment();
+            Bundle argument = new Bundle();
+            argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
+            argument.putString(DatabaseHelper.stationName, stationName);
+            coordinateFragment.setArguments(argument);
+            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+            if (fc != null) {
+                fc.replaceFragment(coordinateFragment);
+            }
+        }else {
+            Toast.makeText(getActivity(), "MMSI Number does not match the requirements", Toast.LENGTH_LONG).show();
+        }
     }
+
+    private boolean validateMMSINumber(EditText mmsi) {
+        return mmsi.getText().length() == VALID_MMSI_LENGTH && !TextUtils.isEmpty(mmsi.getText().toString()) && TextUtils.isDigitsOnly(mmsi.getText().toString());
+    }
+
 
     private void insertStation(String AISStationName, int MMSI){
         //DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());

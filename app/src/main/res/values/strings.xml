@@ -108,5 +108,6 @@
 
     <!--Menu Titles -->
     <string name="latLonChangeFormat"> Change Lat/Lon Format</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

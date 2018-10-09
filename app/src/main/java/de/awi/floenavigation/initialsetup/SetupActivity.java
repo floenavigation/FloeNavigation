@@ -11,12 +11,15 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -57,8 +60,9 @@ public class SetupActivity extends Activity {
     private double receivedBeta = 0.0;
     private double betaDifference = 0.0;
     private double xAxisDistance = 0.0;
-
-
+    private int timerIndex = 0;
+    private ProgressBar timerProgress;
+    private int timerPercentage;
 
 
     @Override
@@ -66,6 +70,11 @@ public class SetupActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_setup);
+
+        timerProgress = findViewById(R.id.progressBar);
+        timerProgress.setEnabled(true);
+        timerPercentage = 0;
+
 
         //Populate Screen with Initial Values from DB
         new ReadParamsFromDB().execute();
@@ -117,6 +126,8 @@ public class SetupActivity extends Activity {
             public void run() {
                 Log.d(TAG, "Predicting New Values");
                 timerCounter++;
+
+
                 new ReadParamsFromDB().execute();
                 for(int i = 0; i < DatabaseHelper.INITIALIZATION_SIZE; i++){
                     double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
@@ -134,7 +145,10 @@ public class SetupActivity extends Activity {
                 //Log.d(TAG, "Beta: " + String.valueOf(receivedBeta));
                 betaDifference = Math.abs(predictedBeta - receivedBeta);
                 //calculateDifference();
+
                 refreshScreen();
+
+
             }
         }, 0, PREDICATION_TIME_PERIOD);
 
@@ -174,6 +188,8 @@ public class SetupActivity extends Activity {
                         @Override
                         public void run() {
                             findViewById(R.id.setup_finish).setVisibility(View.VISIBLE);
+                            timerProgress.setVisibility(View.GONE);
+                            findViewById(R.id.progressBarText).setVisibility(View.GONE);
                         }
                     });
                     //------//
@@ -220,9 +236,18 @@ public class SetupActivity extends Activity {
         final EditText calculatedBeta = findViewById(R.id.calculatedBeta);
         final EditText rcvBeta = findViewById(R.id.receivedBeta);
         final EditText betaDiff = findViewById(R.id.betaDifference);
+        final TextView progressBarValue = findViewById(R.id.progressBarText);
+
+
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                progressBarValue.setText(String.format("%s%%", String.valueOf(timerPercentage)));
+                //Progress Bar Value update
+                timerIndex++;
+                timerPercentage = (int)timerIndex * 100 / (PREDICTION_TIME / PREDICATION_TIME_PERIOD);
+                progressBarValue.setEnabled(true);
                 ais1MMSI.setEnabled(true);
                 ais1UpdateTime.setEnabled(true);
                 ais1Difference.setEnabled(true);
@@ -277,6 +302,7 @@ public class SetupActivity extends Activity {
             }
         });
     }
+
 
 
     public void onClickFinish(View view) {

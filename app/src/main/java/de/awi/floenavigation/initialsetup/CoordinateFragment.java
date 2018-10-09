@@ -17,12 +17,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +63,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private boolean isConfigDone;
     private long countAIS;
     private static final int checkInterval = 1000;
-
+    private int autoCancelTimer = 0;
+    private final static int MAX_TIMER = 300; //5 mins timer
 
 
     @Override
@@ -69,15 +72,24 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_coordinate, container, false);
-        Button confirmButton = layout.findViewById(R.id.confirm_Coordinates);
-        confirmButton.setOnClickListener(this);
+        Button confirmButtonCoordinates = layout.findViewById(R.id.confirm_Coordinates);
+        confirmButtonCoordinates.setOnClickListener(this);
+        Button progressCancelButton = layout.findViewById(R.id.progressCancelBtn);
+        progressCancelButton.setOnClickListener(this);
         //configureTabLocation();
         if (savedInstanceState != null){
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
         }
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
         stationName = getArguments().getString(DatabaseHelper.stationName);
+
        return layout;
+    }
+
+    private void callMMSIFragment(){
+        MMSIFragment mmsiFragment = new MMSIFragment();
+        FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+        fc.replaceFragment(mmsiFragment);
     }
 
     @Override
@@ -99,7 +111,15 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                     } else {
                         //Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "Waiting for AIS Packet");
+                        autoCancelTimer++;
                         handler.postDelayed(this, checkInterval);
+
+                        if (autoCancelTimer >= MAX_TIMER){
+                            removeMMSIfromDBTable();
+                            callMMSIFragment();
+                            Toast.makeText(getActivity(), "No relevant packets received", Toast.LENGTH_LONG).show();
+                            handler.removeCallbacks(this);
+                        }
                     }
                 }
             });
@@ -121,6 +141,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
+
 
     @Override
     public void onPause(){
@@ -144,6 +165,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());;
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             countAIS = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
+            Log.d(TAG, "countAIS:" + String.valueOf(countAIS));
             Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
                     new String[]{DatabaseHelper.stationName, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.isLocationReceived},
                     DatabaseHelper.mmsi + " = ? AND (" + DatabaseHelper.packetType + " = ? OR " + DatabaseHelper.packetType + " = ? )",
@@ -173,28 +195,43 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
 
     private void changeLayout(){
         View v = getView();
-        LinearLayout waitingLayout = v.findViewById(R.id.waitingView);
-        waitingLayout.setVisibility(View.GONE);
-        LinearLayout coordinateLayout = v.findViewById(R.id.coordinateView);
-        coordinateLayout.setVisibility(View.VISIBLE);
-        v.findViewById(R.id.ais_station).setEnabled(false);
-        v.findViewById(R.id.ais_station_latitude).setEnabled(false);
-        v.findViewById(R.id.ais_station_longitude).setEnabled(false);
-        v.findViewById(R.id.tablet_latitude).setEnabled(false);
-        v.findViewById(R.id.tablet_longitude).setEnabled(false);
-        if(countAIS == 2){
-            Button confirmButton = v.findViewById(R.id.confirm_Coordinates);
-            confirmButton.setText(R.string.startSetup);
+        LinearLayout waitingLayout = null;
+        if (v != null) {
+            waitingLayout = v.findViewById(R.id.waitingView);
+            waitingLayout.setVisibility(View.GONE);
+            LinearLayout coordinateLayout = v.findViewById(R.id.coordinateView);
+            coordinateLayout.setVisibility(View.VISIBLE);
+            v.findViewById(R.id.ais_station).setEnabled(false);
+            v.findViewById(R.id.ais_station_latitude).setEnabled(false);
+            v.findViewById(R.id.ais_station_longitude).setEnabled(false);
+            v.findViewById(R.id.tablet_latitude).setEnabled(false);
+            v.findViewById(R.id.tablet_longitude).setEnabled(false);
+            if(countAIS == 2){
+                Button confirmButton = v.findViewById(R.id.confirm_Coordinates);
+                confirmButton.setText(R.string.startSetup);
+            }
+        }else {
+            Log.d(TAG, "view is null");
         }
+
     }
 
     private void populateTabLocation(){
         View v = getView();
-        final TextView tabLat = v.findViewById(R.id.tablet_latitude);
-        final TextView tabLon = v.findViewById(R.id.tablet_longitude);
-        final TextView aisLat = v.findViewById(R.id.ais_station_latitude);
-        final TextView aisLon = v.findViewById(R.id.ais_station_longitude);
-        final TextView aisName = v.findViewById(R.id.ais_station);
+        TextView tabLat = null;
+        TextView tabLon = null;
+        TextView aisLat = null;
+        TextView aisLon = null;
+        TextView aisName = null;
+        if (v != null) {
+            tabLat = v.findViewById(R.id.tablet_latitude);
+            tabLon = v.findViewById(R.id.tablet_longitude);
+            aisLat = v.findViewById(R.id.ais_station_latitude);
+            aisLon = v.findViewById(R.id.ais_station_longitude);
+            aisName = v.findViewById(R.id.ais_station);
+        }else {
+            Log.d(TAG, "view is null");
+        }
 
         if (tabletLat == null || tabletLat.isEmpty()){
             try {
@@ -227,40 +264,68 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 e.printStackTrace();
             }
         }
-        tabLat.setEnabled(true);
-        tabLat.setText(tabletLat);
+        if (tabLat != null) {
+            tabLat.setEnabled(true);
+            tabLat.setText(tabletLat);
+            tabLat.setEnabled(false);
+        }
 
-        tabLat.setEnabled(false);
-        tabLon.setEnabled(true);
-        tabLon.setText(tabletLon);
-        tabLon.setEnabled(false);
-        aisName.setEnabled(true);
-        aisName.setText(stationName);
-        aisName.setEnabled(false);
-        aisLat.setEnabled(true);
-        aisLat.setText(String.valueOf(latitude));
-        aisLat.setEnabled(false);
-        aisLon.setEnabled(true);
-        aisLon.setText(String.valueOf(longitude));
-        aisLon.setEnabled(false);
 
+        if (tabLon != null) {
+            tabLon.setEnabled(true);
+            tabLon.setText(tabletLon);
+            tabLon.setEnabled(false);
+        }
+
+        if (aisName != null) {
+            aisName.setEnabled(true);
+            aisName.setText(stationName);
+            aisName.setEnabled(false);
+        }
+
+        if (aisLat != null) {
+            aisLat.setEnabled(true);
+            aisLat.setText(String.valueOf(latitude));
+            aisLat.setEnabled(false);
+        }
+
+        if (aisLon != null) {
+            aisLon.setEnabled(true);
+            aisLon.setText(String.valueOf(longitude));
+            aisLon.setEnabled(false);
+        }
 
     }
 
     @Override
     public void onClick(View v){
         switch (v.getId()){
+            case R.id.progressCancelBtn:
+                removeMMSIfromDBTable();
+                callMMSIFragment();
+                break;
             case R.id.confirm_Coordinates:
                 onClickBtn();
                 break;
         }
     }
 
+
+
+    private void removeMMSIfromDBTable() {
+        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        db.delete(DatabaseHelper.baseStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSINumber)});
+        db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSINumber)});
+        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSINumber)});
+        Log.d(TAG, "Deleted MMSI from db tables");
+
+    }
+
     private void onClickBtn(){
         if(countAIS < 2) {
-            MMSIFragment mmsiFragment = new MMSIFragment();
-            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
-            fc.replaceFragment(mmsiFragment);
+            callMMSIFragment();
         } else{
             Intent intent = new Intent(getActivity(), SetupActivity.class);
             startActivity(intent);
