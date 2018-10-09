@@ -51,4 +51,7 @@ public class ConfigurationActivity extends Activity {
         configParamsContents.put(DatabaseHelper.parameterValue, inputValue);
         db.update(DatabaseHelper.configParametersTable, configParamsContents, null, null);
     }
+
+    public void onClickViewConfigurationParams(View view) {
+    }
 }

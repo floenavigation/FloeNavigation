@@ -21,43 +21,44 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:label="@string/label_activity_main_activity"/>
-
-        <activity android:name=".LoginPage"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/label_activity_login_page">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/label_activity_main_activity" />
+        <activity
+            android:name=".LoginPage"
+            android:label="@string/label_activity_login_page"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".AdminPageActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/label_activity_admin_page">
+        <activity
+            android:name=".AdminPageActivity"
+            android:label="@string/label_activity_admin_page"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".initialsetup.GridSetupActivity"
-            android:parentActivityName=".AdminPageActivity"
-            android:label="@string/label_activity_grid_setup">
+        <activity
+            android:name=".initialsetup.GridSetupActivity"
+            android:label="@string/label_activity_grid_setup"
+            android:parentActivityName=".AdminPageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity"/>
+                android:value=".AdminPageActivity" />
         </activity>
-
-        <activity android:name=".deployment.DeploymentActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/label_activity_deployment">
+        <activity
+            android:name=".deployment.DeploymentActivity"
+            android:label="@string/label_activity_deployment"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".initialsetup.SetupActivity"
-            android:label="@string/label_activity_setup"/>
+        <activity
+            android:name=".initialsetup.SetupActivity"
+            android:label="@string/label_activity_setup" />
 
         <service
             android:name=".initialsetup.SetupJobService"
@@ -97,44 +98,44 @@
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
-
         <activity android:name=".GridActivity" />
-
-        <activity android:name=".ConfigurationActivity"
-            android:parentActivityName=".AdminPageActivity"
-            android:label="@string/label_activity_configuration">
+        <activity
+            android:name=".ConfigurationActivity"
+            android:label="@string/label_activity_configuration"
+            android:parentActivityName=".AdminPageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity"/>
+                android:value=".AdminPageActivity" />
         </activity>
-
         <activity
             android:name=".AdminUserPwdActivity"
             android:label="@string/label_activity_admin_user_pwd"
             android:parentActivityName=".AdminPageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity"/>
+                android:value=".AdminPageActivity" />
         </activity>
-
-        <activity android:name=".RecoveryActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/label_activity_recovery">
+        <activity
+            android:name=".RecoveryActivity"
+            android:label="@string/label_activity_recovery"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".waypoint.WaypointActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/label_activity_waypoint">
+        <activity
+            android:name=".waypoint.WaypointActivity"
+            android:label="@string/label_activity_waypoint"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
         </activity>
 
+        <activity android:name=".DialogActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
     </application>
 
 </manifest>

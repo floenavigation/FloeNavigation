@@ -1,5 +1,6 @@
 package de.awi.floenavigation.waypoint;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -13,6 +14,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -47,11 +50,15 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private double theta;
     private String waypointLabel;
     private String time;
+    private boolean changeFormat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         findViewById(R.id.waypoint_confirm).setOnClickListener(this);
         findViewById(R.id.waypoint_finish).setOnClickListener(this);
@@ -78,9 +85,34 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
         TextView latView = findViewById(R.id.waypointTabletLat);
         TextView lonView = findViewById(R.id.waypointTabletLon);
+        if(changeFormat){
+            String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
+            latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+            lonView.setText(formattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+        } else {
+            latView.setText(String.valueOf(tabletLat));
+            lonView.setText(String.valueOf(tabletLon));
+        }
+    }
 
-        latView.setText(String.valueOf(tabletLat));
-        lonView.setText(String.valueOf(tabletLon));
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.changeLatLonFormat:
+                changeFormat = !changeFormat;
+                populateTabLocation();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+
+        }
     }
 
     @Override

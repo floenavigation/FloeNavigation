@@ -67,6 +67,14 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
         savedInstanceState.putBoolean("SetupStep", configSetupStep);
     }
 
+    public void showUpButton(){
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public void hideUpButton(){
+        getActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
     @Override
     public void onBackPressed(){
         Fragment frag = this.getSupportFragmentManager().findFragmentById(R.id.frag_container);

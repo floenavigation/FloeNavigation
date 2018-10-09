@@ -3,6 +3,7 @@ package de.awi.floenavigation;
 import android.app.Dialog;
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -31,7 +32,7 @@ public class ValidationService extends IntentService {
 
     private final Handler mValidationHandler;
     private static final String TAG = "Validation Service: ";
-    private static final int VALIDATION_TIME = 3 * 60 * 1000;
+    private static final int VALIDATION_TIME = 1 * 30 * 1000;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
     public static int ERROR_THRESHOLD_VALUE;
     public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
@@ -41,19 +42,21 @@ public class ValidationService extends IntentService {
     Button dialogOkBtn;
     ImageView dialogIcon;
     TextView validationFailedMsg, stationRemovedMsg;
+    //private Context appContext;
 
 
     public ValidationService() {
         super("ValidationService");
         this.mValidationHandler = new Handler();
         uiHandler = new Handler();
+        //appContext = con;
 
     }
 
     @Override
     public void onCreate(){
         super.onCreate();
-        alertDialog = new Dialog(getApplicationContext());
+        //alertDialog = new Dialog(this);
     }
 
     @Override
@@ -92,14 +95,14 @@ public class ValidationService extends IntentService {
                                 stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
                                 if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
 
-                                    final int numOfFaildPredictions = predictionAccuracy;
+                                    /*final int numOfFaildPredictions = predictionAccuracy;
                                     final String name = stationName;
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             dialogBoxDisplay(numOfFaildPredictions, name);
                                         }
-                                    });
+                                    });*/
                                     //To be decided
                                     if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
                                         deleteEntryfromStationListTableinDB(mmsi, db);
@@ -109,6 +112,14 @@ public class ValidationService extends IntentService {
                                     }
 
                                 }else {
+                                    final int numOfFaildPredictions = predictionAccuracy;
+                                    final String name = stationName;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialogBoxDisplay(numOfFaildPredictions, name);
+                                        }
+                                    });
 
                                     evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
                                     Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
@@ -139,9 +150,18 @@ public class ValidationService extends IntentService {
 
     private void dialogBoxDisplay(int failedAttempts, String name) {
         String validationMsg = getResources().getString(R.string.validationFailedMsg, failedAttempts, name);
+        String popupMsg = validationMsg + "\n" + getResources().getString(R.string.stationRemovedMsg);
+        String title = "Validation Failed";
+        Intent dialogIntent = new Intent(this, DialogActivity.class);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
+        dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
+        //dialogIntent.putExtras(dialogParams);
+        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(dialogIntent);
 
 
-        alertDialog.setContentView(R.layout.dialog_validation_failed);
+        /*alertDialog.setContentView(R.layout.dialog_validation_failed);
         dialogIcon = alertDialog.findViewById(R.id.dialogIcon);
         validationFailedMsg = alertDialog.findViewById(R.id.validationFailed);
         stationRemovedMsg = alertDialog.findViewById(R.id.stationRemoved);
@@ -162,7 +182,7 @@ public class ValidationService extends IntentService {
         });
 
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        alertDialog.show();
+        alertDialog.show();*/
     }
 
     private void runOnUiThread(Runnable runnable){

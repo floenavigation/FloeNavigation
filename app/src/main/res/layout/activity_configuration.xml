@@ -62,18 +62,38 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/confirm_Button_config"
-            android:layout_width="200dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_margin="5dp"
-            android:layout_weight="2"
-            android:onClick="onClickConfigurationParamsconfirm"
-            android:text="@string/confirmBtn"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="30sp" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/view_Params_Button_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_margin="5dp"
+                android:layout_weight="2"
+                android:onClick="onClickViewConfigurationParams"
+                android:text="@string/viewParamsBtn"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="30sp" />
+
+            <Button
+                android:id="@+id/confirm_Button_config"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_margin="5dp"
+                android:layout_weight="2"
+                android:onClick="onClickConfigurationParamsconfirm"
+                android:text="@string/confirmBtn"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="30sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

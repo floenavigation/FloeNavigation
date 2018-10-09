@@ -11,10 +11,11 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -42,6 +43,8 @@ public class SetupActivity extends Activity {
     private static final int PREDICTION_TIME = 20 * 1000; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
 
+    private static final String toastMsg = "Please wait while Coordinate System is being Setup";
+
 
     Timer parentTimer = new Timer();
     Timer timer = new Timer();
@@ -60,6 +63,7 @@ public class SetupActivity extends Activity {
     private double receivedBeta = 0.0;
     private double betaDifference = 0.0;
     private double xAxisDistance = 0.0;
+    private boolean changeFormat = false;
     private int timerIndex = 0;
     private ProgressBar timerProgress;
     private int timerPercentage;
@@ -133,9 +137,10 @@ public class SetupActivity extends Activity {
                     double[] predictedCoordinates = NavigationFunctions.calculateNewPosition(stationLatitude[i], stationLongitude[i], stationSOG[i], stationCOG[i]);
                     //Log.d(TAG, "StationLatitude: " + String.valueOf(i) + " " + String.valueOf(stationLatitude[i]));
                     //Log.d(TAG, "StationLongitude: " + String.valueOf(i) + " " + String.valueOf(stationLongitude[i]));
-                    predictedLatitude[i] = predictedCoordinates[0];
-                    predictedLongitude[i] = predictedCoordinates[1];
+                    predictedLatitude[i] = predictedCoordinates[DatabaseHelper.LATITUDE_INDEX];
+                    predictedLongitude[i] = predictedCoordinates[DatabaseHelper.LONGITUDE_INDEX];
                     distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
+
                 }
 
                 predictedBeta = NavigationFunctions.calculateAngleBeta(predictedLatitude[DatabaseHelper.firstStationIndex], predictedLongitude[DatabaseHelper.firstStationIndex], predictedLatitude[DatabaseHelper.secondStationIndex], predictedLongitude[DatabaseHelper.secondStationIndex]);
@@ -268,17 +273,45 @@ public class SetupActivity extends Activity {
                 ais1MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.firstStationIndex]));
                 ais1UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.firstStationIndex]));
                 ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
-                ais1PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.firstStationIndex]));
-                ais1PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.firstStationIndex]));
-                ais1RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]));
-                ais1RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+
+                if(changeFormat){
+                    String[] ais1FormattedPredictedCoordinates = NavigationFunctions.locationInDegrees(predictedLatitude[DatabaseHelper.firstStationIndex],
+                                                                predictedLongitude[DatabaseHelper.firstStationIndex]);
+                    ais1PrdLatitude.setText(ais1FormattedPredictedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+                    ais1PrdLongitude.setText(ais1FormattedPredictedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+
+                    String[] ais1FormattedReceivedCoordinates = NavigationFunctions.locationInDegrees(stationLatitude[DatabaseHelper.firstStationIndex],
+                                                                stationLongitude[DatabaseHelper.firstStationIndex]);
+                    ais1RcvLatitude.setText(ais1FormattedReceivedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+                    ais1RcvLongitude.setText(ais1FormattedReceivedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+                } else {
+                    ais1PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.firstStationIndex]));
+                    ais1PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.firstStationIndex]));
+                    ais1RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]));
+                    ais1RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+                }
+
                 ais2MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.secondStationIndex]));
                 ais2UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.secondStationIndex]));
                 ais2Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.secondStationIndex]));
-                ais2PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.secondStationIndex]));
-                ais2PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex]));
-                ais2RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]));
-                ais2RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+
+                if(changeFormat){
+                    String[] ais2FormattedPredictedCoordinates = NavigationFunctions.locationInDegrees(predictedLatitude[DatabaseHelper.secondStationIndex],
+                                                    predictedLongitude[DatabaseHelper.secondStationIndex]);
+                    ais2PrdLatitude.setText(ais2FormattedPredictedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+                    ais2PrdLongitude.setText(ais2FormattedPredictedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+
+                    String[] ais2FormattedReceivedCoordinates = NavigationFunctions.locationInDegrees(stationLatitude[DatabaseHelper.secondStationIndex],
+                                                            stationLongitude[DatabaseHelper.secondStationIndex]);
+                    ais2RcvLatitude.setText(ais2FormattedReceivedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+                    ais2RcvLongitude.setText(ais2FormattedReceivedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+                } else {
+                    ais2PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.secondStationIndex]));
+                    ais2PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex]));
+                    ais2RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]));
+                    ais2RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+                }
+
                 calculatedBeta.setText(String.valueOf(predictedBeta));
                 rcvBeta.setText(String.valueOf(receivedBeta));
                 betaDiff.setText(String.valueOf(betaDifference));
@@ -308,6 +341,31 @@ public class SetupActivity extends Activity {
     public void onClickFinish(View view) {
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
+    }
+
+    @Override
+    public void onBackPressed(){
+        Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.changeLatLonFormat:
+                changeFormat = !changeFormat;
+                refreshScreen();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+
+        }
     }
 
 

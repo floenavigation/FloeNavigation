@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -51,6 +53,7 @@ public class SampleMeasurementActivity extends Activity {
     private double yPosition;
     private double theta;
     private Spinner operation;
+    private boolean changeFormat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,13 +127,40 @@ public class SampleMeasurementActivity extends Activity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.changeLatLonFormat:
+                changeFormat = !changeFormat;
+                populateTabLocation();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+
+        }
+    }
+
     private void populateTabLocation(){
 
         TextView latView = findViewById(R.id.tabLat);
         TextView lonView = findViewById(R.id.tabLon);
 
-        latView.setText(String.valueOf(tabletLat));
-        lonView.setText(String.valueOf(tabletLon));
+        if (changeFormat){
+            String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
+            latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+            lonView.setText(formattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+        } else{
+            latView.setText(String.valueOf(tabletLat));
+            lonView.setText(String.valueOf(tabletLon));
+        }
+
     }
 
     private void populateDeviceAttributes(){

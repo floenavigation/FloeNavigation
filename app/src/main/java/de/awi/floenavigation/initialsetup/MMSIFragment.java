@@ -60,6 +60,15 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        GridSetupActivity activity = (GridSetupActivity)getActivity();
+        if(activity != null){
+            activity.showUpButton();
+        }
+    }
+
+    @Override
     public void onClick(View v){
         switch (v.getId()){
             case R.id.confirm_Button:

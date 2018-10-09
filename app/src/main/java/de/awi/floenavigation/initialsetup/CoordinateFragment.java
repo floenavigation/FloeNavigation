@@ -17,19 +17,21 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
 
+import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.aismessages.AISDecodingService;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
@@ -63,6 +65,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private boolean isConfigDone;
     private long countAIS;
     private static final int checkInterval = 1000;
+    private boolean changeFormat = false;
     private int autoCancelTimer = 0;
     private final static int MAX_TIMER = 300; //5 mins timer
 
@@ -82,7 +85,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
         stationName = getArguments().getString(DatabaseHelper.stationName);
-
+        setHasOptionsMenu(true);
        return layout;
     }
 
@@ -90,6 +93,34 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         MMSIFragment mmsiFragment = new MMSIFragment();
         FragmentChangeListener fc = (FragmentChangeListener) getActivity();
         fc.replaceFragment(mmsiFragment);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        GridSetupActivity activity = (GridSetupActivity)getActivity();
+        if(activity != null){
+            activity.hideUpButton();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.changeLatLonFormat:
+                changeFormat = !changeFormat;
+                populateTabLocation();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
     }
 
     @Override
@@ -264,16 +295,26 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 e.printStackTrace();
             }
         }
+        String[] tabletFormattedCoordinates = NavigationFunctions.locationInDegrees(Double.valueOf(tabletLat), Double.valueOf(tabletLon));
+        String[] stationFormattedCoordinates = NavigationFunctions.locationInDegrees(latitude, longitude);
         if (tabLat != null) {
             tabLat.setEnabled(true);
-            tabLat.setText(tabletLat);
+            if(changeFormat){
+                tabLat.setText(tabletFormattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+            } else {
+                tabLat.setText(tabletLat);
+            }
             tabLat.setEnabled(false);
         }
 
 
         if (tabLon != null) {
             tabLon.setEnabled(true);
-            tabLon.setText(tabletLon);
+            if(changeFormat){
+                tabLon.setText(tabletFormattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+            } else {
+                tabLon.setText(tabletLon);
+            }
             tabLon.setEnabled(false);
         }
 
@@ -285,13 +326,21 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
 
         if (aisLat != null) {
             aisLat.setEnabled(true);
-            aisLat.setText(String.valueOf(latitude));
+            if (changeFormat){
+                aisLat.setText(stationFormattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+            } else {
+                aisLat.setText(String.valueOf(latitude));
+            }
             aisLat.setEnabled(false);
         }
 
         if (aisLon != null) {
             aisLon.setEnabled(true);
-            aisLon.setText(String.valueOf(longitude));
+            if (changeFormat){
+                aisLon.setText(stationFormattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+            } else {
+                aisLon.setText(String.valueOf(longitude));
+            }
             aisLon.setEnabled(false);
         }
 

@@ -23,6 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final int firstStationIndex = 0;
     public static final int secondStationIndex = 1;
+    public static final int LATITUDE_INDEX = 0;
+    public static final int LONGITUDE_INDEX = 1;
     public static final int INITIALIZATION_SIZE = 2;
     public static final int NUM_OF_BASE_STATIONS = 2;
     public static final int NUM_OF_DEVICES = 1234;
