@@ -14,7 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EntrySplashScreen">
+        <activity android:name=".EntrySplashScreen"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,11 +25,15 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/label_activity_main_activity" />
+            android:label="@string/label_activity_main_activity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"/>
         <activity
             android:name=".LoginPage"
             android:label="@string/label_activity_login_page"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -35,7 +41,9 @@
         <activity
             android:name=".AdminPageActivity"
             android:label="@string/label_activity_admin_page"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -43,7 +51,9 @@
         <activity
             android:name=".initialsetup.GridSetupActivity"
             android:label="@string/label_activity_grid_setup"
-            android:parentActivityName=".AdminPageActivity">
+            android:parentActivityName=".AdminPageActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".AdminPageActivity" />
@@ -51,14 +61,18 @@
         <activity
             android:name=".deployment.DeploymentActivity"
             android:label="@string/label_activity_deployment"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".initialsetup.SetupActivity"
-            android:label="@string/label_activity_setup" />
+            android:label="@string/label_activity_setup"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"/>
 
         <service
             android:name=".initialsetup.SetupJobService"
@@ -95,16 +109,22 @@
         <activity
             android:name=".sample_measurement.SampleMeasurementActivity"
             android:label="@string/label_activity_sample_measurement"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".GridActivity" />
+        <activity android:name=".GridActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"/>
         <activity
             android:name=".ConfigurationActivity"
             android:label="@string/label_activity_configuration"
-            android:parentActivityName=".AdminPageActivity">
+            android:parentActivityName=".AdminPageActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".AdminPageActivity" />
@@ -112,7 +132,9 @@
         <activity
             android:name=".AdminUserPwdActivity"
             android:label="@string/label_activity_admin_user_pwd"
-            android:parentActivityName=".AdminPageActivity">
+            android:parentActivityName=".AdminPageActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".AdminPageActivity" />
@@ -120,7 +142,9 @@
         <activity
             android:name=".RecoveryActivity"
             android:label="@string/label_activity_recovery"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -128,14 +152,19 @@
         <activity
             android:name=".waypoint.WaypointActivity"
             android:label="@string/label_activity_waypoint"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
 
         <activity android:name=".DialogActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
+        </activity>
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +35,7 @@ import de.awi.floenavigation.aismessages.AISDecodingService;
 public class StationInstallFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "StationInstallFragment";
-
+    private static final int VALID_MMSI_LENGTH = 9;
 
     public StationInstallFragment() {
         // Required empty public constructor
@@ -89,39 +90,48 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         }
     }
 
-    private void insertAISStation(){
-        EditText mmsi_TV = activityView.findViewById(R.id.station_mmsi);
+    private boolean validateMMSINumber(EditText mmsi) {
+        return mmsi.getText().length() == VALID_MMSI_LENGTH && !TextUtils.isEmpty(mmsi.getText().toString()) && TextUtils.isDigitsOnly(mmsi.getText().toString());
+    }
 
-        int mmsi = Integer.parseInt(mmsi_TV.getText().toString());
+    private void insertAISStation(){
+
+        EditText mmsi_TV = activityView.findViewById(R.id.station_mmsi);
         EditText stationName_TV = activityView.findViewById(R.id.station_name);
 
         Spinner stationTypeOption = activityView.findViewById(R.id.stationType);
         String stationType = stationTypeOption.getSelectedItem().toString();
-
         String stationName = stationName_TV.getText().toString();
-        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-        try {
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            ContentValues station = new ContentValues();
-            ContentValues fixedStation = new ContentValues();
-            station.put(DatabaseHelper.mmsi, mmsi);
-            station.put(DatabaseHelper.stationName, stationName);
-            fixedStation.put(DatabaseHelper.mmsi, mmsi);
-            fixedStation.put(DatabaseHelper.stationName, stationName);
-            fixedStation.put(DatabaseHelper.stationType, stationType);
-            fixedStation.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
-            db.insert(DatabaseHelper.stationListTable, null, station);
-            db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
 
-            AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
-            Bundle argument = new Bundle();
-            argument.putInt(DatabaseHelper.mmsi, mmsi);
-            aisFragment.setArguments(argument);
-            FragmentChangeListener fc = (FragmentChangeListener)getActivity();
-            fc.replaceFragment(aisFragment);
-        }catch (SQLiteException e){
-            e.printStackTrace();
-            Log.d(TAG, "Database Unavailable");
+        if (validateMMSINumber(mmsi_TV)) {
+            int mmsi = Integer.parseInt(mmsi_TV.getText().toString());
+
+            try {
+                DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                ContentValues station = new ContentValues();
+                ContentValues fixedStation = new ContentValues();
+                station.put(DatabaseHelper.mmsi, mmsi);
+                station.put(DatabaseHelper.stationName, stationName);
+                fixedStation.put(DatabaseHelper.mmsi, mmsi);
+                fixedStation.put(DatabaseHelper.stationName, stationName);
+                fixedStation.put(DatabaseHelper.stationType, stationType);
+                fixedStation.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
+                db.insert(DatabaseHelper.stationListTable, null, station);
+                db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
+
+                AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
+                Bundle argument = new Bundle();
+                argument.putInt(DatabaseHelper.mmsi, mmsi);
+                aisFragment.setArguments(argument);
+                FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+                fc.replaceFragment(aisFragment);
+            } catch (SQLiteException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Database Unavailable");
+            }
+        }else {
+            Toast.makeText(getActivity(), "MMSI Number does not match the requirements", Toast.LENGTH_LONG).show();
         }
 
     }

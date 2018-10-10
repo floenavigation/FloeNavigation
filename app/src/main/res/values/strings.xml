@@ -113,5 +113,6 @@
     <string name="second_station_message_count">Second Station Message Count</string>
     <string name="ok">Ok</string>
     <string name="next">Next</string>
+    <string name="location_available">location_available</string>
 
 </resources>
