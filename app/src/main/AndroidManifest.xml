@@ -165,6 +165,17 @@
             android:configChanges="orientation"
             android:screenOrientation="landscape">
         </activity>
+
+        <activity android:name=".ParameterViewActivity"
+            android:label="@string/label_parameter_view_activity"
+            android:parentActivityName=".ConfigurationActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
     </application>
 
 </manifest>

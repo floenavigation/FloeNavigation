@@ -114,5 +114,8 @@
     <string name="ok">Ok</string>
     <string name="next">Next</string>
     <string name="location_available">location_available</string>
+    <string name="parametervalue">Parameter Value</string>
+    <string name="parameter_name">Parameter Name</string>
+    <string name="label_parameter_view_activity">System Parameters</string>
 
 </resources>

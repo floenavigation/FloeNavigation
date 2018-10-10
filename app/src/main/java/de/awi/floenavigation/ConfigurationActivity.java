@@ -32,8 +32,8 @@ public class ConfigurationActivity extends Activity {
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            int errorThresholdValue = Integer.parseInt(errorThresholdView.getText().toString());
-            int predAccThresholdValue = Integer.parseInt(predAccThresholdView.getText().toString());
+            int errorThresholdValue = Integer.valueOf(errorThresholdView.getText().toString());
+            int predAccThresholdValue = Integer.valueOf(predAccThresholdView.getText().toString());
 
             updateDatabaseTable(db, DatabaseHelper.error_threshold, errorThresholdValue);
             updateDatabaseTable(db, DatabaseHelper.prediction_accuracy_threshold, predAccThresholdValue);
@@ -50,10 +50,13 @@ public class ConfigurationActivity extends Activity {
         ContentValues configParamsContents = new ContentValues();
         configParamsContents.put(DatabaseHelper.parameterName, parameterName);
         configParamsContents.put(DatabaseHelper.parameterValue, inputValue);
-        db.update(DatabaseHelper.configParametersTable, configParamsContents, null, null);
+        /*db.update(DatabaseHelper.configParametersTable, configParamsContents, null, null);*/
+        db.insert(DatabaseHelper.configParametersTable, null, configParamsContents);
     }
 
     public void onClickViewConfigurationParams(View view) {
+        Intent parameterActivityIntent = new Intent(this, ParameterViewActivity.class);
+        startActivity(parameterActivityIntent);
     }
 
 }
