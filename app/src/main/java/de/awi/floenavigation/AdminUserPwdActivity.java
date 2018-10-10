@@ -1,6 +1,7 @@
 package de.awi.floenavigation;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -17,6 +18,7 @@ public class AdminUserPwdActivity extends Activity {
 
     private static final String TAG = "AdminUserPwdActivity";
     private EditText newusernameView, newpwdView;
+    private static final int MAX_CHARS = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,9 @@ public class AdminUserPwdActivity extends Activity {
             if (validateNewUserCredentials(newUserName, newPassword)){
                 DatabaseHelper.insertUser(db, newUserName, newPassword);
                 Toast.makeText(getApplicationContext(), "New User Credentials Saved", Toast.LENGTH_LONG).show();
+
+                Intent adminPageActivityIntent = new Intent(this, AdminPageActivity.class);
+                startActivity(adminPageActivityIntent);
             }
 
 
@@ -57,6 +62,10 @@ public class AdminUserPwdActivity extends Activity {
             return false;
         }
 
+        if (newUserName.length() < MAX_CHARS){
+            Toast.makeText(getApplicationContext(), "User name must be atleast 3 chars", Toast.LENGTH_LONG).show();
+            return false;
+        }
         Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
         boolean validUserName = (newUserName != null) && pattern.matcher(newUserName).matches();
         boolean validPassword = (newPassword != null) && pattern.matcher(newPassword).matches();
@@ -72,6 +81,5 @@ public class AdminUserPwdActivity extends Activity {
 
         return true;
     }
-
 
 }

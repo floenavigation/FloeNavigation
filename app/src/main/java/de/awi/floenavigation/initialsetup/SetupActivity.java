@@ -2,6 +2,7 @@ package de.awi.floenavigation.initialsetup;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -29,6 +30,7 @@ import java.util.TimerTask;
 import de.awi.floenavigation.AlphaCalculationService;
 import de.awi.floenavigation.AngleCalculationService;
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.DialogActivity;
 import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.PredictionService;
@@ -42,6 +44,7 @@ public class SetupActivity extends Activity {
     private static final int JOB_ID = 100;
     private static final int PREDICTION_TIME = 20 * 1000; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
+    private static final int MAX_TIMER_COUNT = 3;
 
     private static final String toastMsg = "Please wait while Coordinate System is being Setup";
 
@@ -67,13 +70,21 @@ public class SetupActivity extends Activity {
     private int timerIndex = 0;
     private ProgressBar timerProgress;
     private int timerPercentage;
-
+    private TextView progressBarValue;
+    private static int firstStationMessageCount = 0;
+    private static int secondStationMessageCount = 0;
+    private boolean backButtonEnabled = false;
+    private static double firstStationpreviousUpdateTime = 0;
+    private static double secondStationpreviousUpdateTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_setup);
+
+        progressBarValue = findViewById(R.id.progressBarText);
+        progressBarValue.setEnabled(true);
 
         timerProgress = findViewById(R.id.progressBar);
         timerProgress.setEnabled(true);
@@ -152,6 +163,8 @@ public class SetupActivity extends Activity {
                 //calculateDifference();
 
                 refreshScreen();
+                progressBarValueUpdates();
+
 
 
             }
@@ -163,7 +176,7 @@ public class SetupActivity extends Activity {
             public void run() {
                 //scheduler.cancel(JOB_ID);
                 Log.d(TAG, "StartupComplete");
-                if (timerCounter >= 3)
+                if (timerCounter >= MAX_TIMER_COUNT)
                 {
                     try {
                         DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
@@ -197,30 +210,55 @@ public class SetupActivity extends Activity {
                             findViewById(R.id.progressBarText).setVisibility(View.GONE);
                         }
                     });
-                    //------//
 
+
+                    //------//
+                    backButtonEnabled = true;
                     timer.cancel();
                     parentTimer.cancel();
                     new CreateTablesOnStartup().execute();
 
-                    //create rest of the tables
-                    //start the other services
-                    runServices();
+
 
                 }
                             }
         }, PREDICTION_TIME, 500);
     }
 
-    private void runServices(){
-        Intent angleCalcServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
-        Intent alphaCalcServiceIntent = new Intent (getApplicationContext(), AlphaCalculationService.class);
-        Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
-        Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
-        startService(angleCalcServiceIntent);
-        startService(alphaCalcServiceIntent);
-        startService(predictionServiceIntent);
-        startService(validationServiceIntent);
+    private void progressBarValueUpdates(){
+        //Progress Bar Value update
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBarValue.setText(String.format("%s%%", String.valueOf(timerPercentage)));
+                timerIndex++;
+                timerPercentage = (int)timerIndex * 100 / (PREDICTION_TIME / PREDICATION_TIME_PERIOD);
+            }
+        });
+    }
+
+    private void dialogBoxDisplay() {
+
+        String popupMsg = "Do you wish to rerun the initial setup?, then press Confirm!";
+        String title = "Initial Setup Completed";
+        Intent dialogIntent = new Intent(this, DialogActivity.class);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
+        dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
+        dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, "true");
+        startActivity(dialogIntent);
+    }
+
+    public static void runServices(Context mContext){
+        Intent angleCalcServiceIntent = new Intent(mContext, AngleCalculationService.class);
+        Intent alphaCalcServiceIntent = new Intent (mContext, AlphaCalculationService.class);
+        Intent predictionServiceIntent = new Intent(mContext, PredictionService.class);
+        Intent validationServiceIntent = new Intent(mContext, ValidationService.class);
+        mContext.startService(angleCalcServiceIntent);
+        mContext.startService(alphaCalcServiceIntent);
+        mContext.startService(predictionServiceIntent);
+        mContext.startService(validationServiceIntent);
     }
 
     private void refreshScreen(){
@@ -241,18 +279,13 @@ public class SetupActivity extends Activity {
         final EditText calculatedBeta = findViewById(R.id.calculatedBeta);
         final EditText rcvBeta = findViewById(R.id.receivedBeta);
         final EditText betaDiff = findViewById(R.id.betaDifference);
-        final TextView progressBarValue = findViewById(R.id.progressBarText);
-
+        final EditText ais1StationMsgCount = findViewById(R.id.first_station_msgCount);
+        final EditText ais2StationMsgCount = findViewById(R.id.second_station_msgCount);
 
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressBarValue.setText(String.format("%s%%", String.valueOf(timerPercentage)));
-                //Progress Bar Value update
-                timerIndex++;
-                timerPercentage = (int)timerIndex * 100 / (PREDICTION_TIME / PREDICATION_TIME_PERIOD);
-                progressBarValue.setEnabled(true);
                 ais1MMSI.setEnabled(true);
                 ais1UpdateTime.setEnabled(true);
                 ais1Difference.setEnabled(true);
@@ -260,6 +293,7 @@ public class SetupActivity extends Activity {
                 ais1PrdLongitude.setEnabled(true);
                 ais1RcvLatitude.setEnabled(true);
                 ais1RcvLongitude.setEnabled(true);
+                ais1StationMsgCount.setEnabled(true);
                 ais2Difference.setEnabled(true);
                 ais2PrdLatitude.setEnabled(true);
                 ais2PrdLongitude.setEnabled(true);
@@ -267,12 +301,14 @@ public class SetupActivity extends Activity {
                 ais2RcvLongitude.setEnabled(true);
                 ais2MMSI.setEnabled(true);
                 ais2UpdateTime.setEnabled(true);
+                ais2StationMsgCount.setEnabled(true);
                 calculatedBeta.setEnabled(true);
                 rcvBeta.setEnabled(true);
                 betaDiff.setEnabled(true);
                 ais1MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.firstStationIndex]));
                 ais1UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.firstStationIndex]));
                 ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
+
 
                 if(changeFormat){
                     String[] ais1FormattedPredictedCoordinates = NavigationFunctions.locationInDegrees(predictedLatitude[DatabaseHelper.firstStationIndex],
@@ -312,6 +348,8 @@ public class SetupActivity extends Activity {
                     ais2RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
                 }
 
+                ais1StationMsgCount.setText(String.valueOf(firstStationMessageCount));
+                ais2StationMsgCount.setText(String.valueOf(secondStationMessageCount));
                 calculatedBeta.setText(String.valueOf(predictedBeta));
                 rcvBeta.setText(String.valueOf(receivedBeta));
                 betaDiff.setText(String.valueOf(betaDifference));
@@ -332,20 +370,34 @@ public class SetupActivity extends Activity {
                 calculatedBeta.setEnabled(false);
                 rcvBeta.setEnabled(false);
                 betaDiff.setEnabled(false);
+                ais1StationMsgCount.setEnabled(false);
+                ais2StationMsgCount.setEnabled(false);
             }
         });
     }
 
 
 
-    public void onClickFinish(View view) {
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
+    public void onClickNext(View view) {
+        //Intent mainIntent = new Intent(this, MainActivity.class);
+        //startActivity(mainIntent);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialogBoxDisplay();
+            }
+        });
     }
 
     @Override
     public void onBackPressed(){
-        Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+
+        if (backButtonEnabled){
+            Intent mainIntent = new Intent(this, MainActivity.class);
+            startActivity(mainIntent);
+        }else {
+            Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -377,6 +429,7 @@ public class SetupActivity extends Activity {
         double[] sog;
         double[] cog;
         double[] updateTime;
+
 
         @Override
         protected void onPreExecute(){
@@ -412,6 +465,13 @@ public class SetupActivity extends Activity {
                             longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLongitude));
                             sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
                             cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
+                            if (i == 0 && (cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime)) > firstStationpreviousUpdateTime)){
+                                firstStationpreviousUpdateTime = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
+                                firstStationMessageCount++;
+                            }else if (i == 1 && (cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime)) > secondStationpreviousUpdateTime)){
+                                secondStationpreviousUpdateTime = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
+                                secondStationMessageCount++;
+                            }
                             updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
                             i++;
                         } while (cursor.moveToNext());

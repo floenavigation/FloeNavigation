@@ -97,6 +97,8 @@ public class AdminPageActivity extends Activity {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             db.execSQL("delete from AIS_STATION_LIST");
+            db.execSQL("delete from AIS_FIXED_STATION_POSITION");
+            db.execSQL("delete from BASE_STATIONS");
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();
         }
@@ -110,5 +112,13 @@ public class AdminPageActivity extends Activity {
     public void onClickAdminPrivilegesListener(View view) {
         Intent adminUserPwdActIntent = new Intent(this, AdminUserPwdActivity.class);
         startActivity(adminUserPwdActIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 }

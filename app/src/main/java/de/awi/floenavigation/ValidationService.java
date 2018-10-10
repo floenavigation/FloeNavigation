@@ -95,14 +95,14 @@ public class ValidationService extends IntentService {
                                 stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
                                 if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
 
-                                    /*final int numOfFaildPredictions = predictionAccuracy;
+                                    final int numOfFaildPredictions = predictionAccuracy;
                                     final String name = stationName;
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             dialogBoxDisplay(numOfFaildPredictions, name);
                                         }
-                                    });*/
+                                    });
                                     //To be decided
                                     if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
                                         deleteEntryfromStationListTableinDB(mmsi, db);
@@ -112,15 +112,6 @@ public class ValidationService extends IntentService {
                                     }
 
                                 }else {
-                                    final int numOfFaildPredictions = predictionAccuracy;
-                                    final String name = stationName;
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialogBoxDisplay(numOfFaildPredictions, name);
-                                        }
-                                    });
-
                                     evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
                                     Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
                                     if (evaluationDifference > ERROR_THRESHOLD_VALUE) {
@@ -156,6 +147,7 @@ public class ValidationService extends IntentService {
         dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
         dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
+        dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, "false");
         //dialogIntent.putExtras(dialogParams);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(dialogIntent);

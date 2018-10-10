@@ -2,6 +2,7 @@ package de.awi.floenavigation;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -54,4 +55,5 @@ public class ConfigurationActivity extends Activity {
 
     public void onClickViewConfigurationParams(View view) {
     }
+
 }

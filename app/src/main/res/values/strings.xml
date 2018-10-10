@@ -109,5 +109,9 @@
     <!--Menu Titles -->
     <string name="latLonChangeFormat"> Change Lat/Lon Format</string>
     <string name="cancel">Cancel</string>
+    <string name="first_station_message_count">First Station Message Count</string>
+    <string name="second_station_message_count">Second Station Message Count</string>
+    <string name="ok">Ok</string>
+    <string name="next">Next</string>
 
 </resources>

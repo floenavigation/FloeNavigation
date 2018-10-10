@@ -215,6 +215,34 @@
                     android:background="@drawable/et_bg"/>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/first_station_message_count"
+                    android:textAllCaps="true"
+                    android:textSize="15sp"
+                    android:layout_marginEnd="15dp"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/first_station_msgCount"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="2"
+                    android:layout_height="40sp"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"
+                    android:inputType="none"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/et_bg"/>
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -437,6 +465,34 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/second_station_message_count"
+                    android:textAllCaps="true"
+                    android:textSize="15sp"
+                    android:layout_marginEnd="15dp"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/second_station_msgCount"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="2"
+                    android:layout_height="40sp"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"
+                    android:inputType="none"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/et_bg"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="3">
 
@@ -530,10 +586,10 @@
                 android:id="@+id/setup_finish"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="@string/stationFinishBtn"
+                android:text="@string/next"
                 android:enabled="true"
                 android:visibility="gone"
-                android:onClick="onClickFinish"
+                android:onClick="onClickNext"
                 android:background="@drawable/btn_bg"
                 android:textColor="@color/white"
                 android:layout_gravity="right"
@@ -564,7 +620,7 @@
             android:textSize="30sp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="83dp"
+            android:layout_marginTop="80dp"
             android:background="#00000000"
             android:textColor="@color/white" />
 

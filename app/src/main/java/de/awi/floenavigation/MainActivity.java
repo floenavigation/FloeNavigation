@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
             Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
             startActivity(deploymentIntent);
         }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
             Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
             startActivity(sampleMeasureIntent);
         }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
             Intent gridActivityIntent = new Intent(this, GridActivity.class);
             startActivity(gridActivityIntent);
         }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
             Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
             startActivity(recoveryActivityIntent);
         }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -136,7 +136,7 @@ public class MainActivity extends Activity {
             Intent waypointIntent = new Intent(this, WaypointActivity.class);
             startActivity(waypointIntent);
         }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
 }
