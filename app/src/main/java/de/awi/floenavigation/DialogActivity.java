@@ -46,8 +46,7 @@ public class DialogActivity extends Activity {
         if(callingIntent.getExtras().containsKey(DIALOG_OPTIONS)){
             showDialogOptions = callingIntent.getExtras().getBoolean(DIALOG_OPTIONS);
         }
-        Log.d(TAG, dialogTitle);
-        Log.d(TAG, dialogMsg);
+
         //setContentView(R.layout.activity_dialog);
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
@@ -57,6 +56,7 @@ public class DialogActivity extends Activity {
 
 
         if (showDialogOptions){
+
             alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -77,9 +77,14 @@ public class DialogActivity extends Activity {
             });
         }
 
+        Log.d(TAG, dialogTitle);
+        Log.d(TAG, String.valueOf(showDialogOptions));
         alertDialog = alertBuilder.create();
-        alertDialog.setCancelable(false);
-        alertDialog.setCanceledOnTouchOutside(false);
+        if(showDialogOptions){
+            alertDialog.setCancelable(false);
+            alertDialog.setCanceledOnTouchOutside(false);
+        }
+
         alertDialog.show();
     }
 

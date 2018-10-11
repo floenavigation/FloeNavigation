@@ -52,6 +52,14 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         actionBarUpdatesFunction();
     }
 
+    public void showUpButton(){
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public void hideUpButton(){
+        getActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
     private void actionBarUpdatesFunction() {
 
         /*****************ACTION BAR UPDATES*************************/

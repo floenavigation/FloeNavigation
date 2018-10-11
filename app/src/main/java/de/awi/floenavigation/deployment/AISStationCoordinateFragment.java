@@ -14,11 +14,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.FragmentChangeListener;
 import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
@@ -46,6 +48,9 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private double theta;
     private double alpha;
     private static final int checkInterval = 1000;
+    private int autoCancelTimer = 0;
+    private final static int MAX_TIMER = 300; //5 mins timer
+    private boolean isSetupComplete = false;
 
 
     public AISStationCoordinateFragment() {
@@ -58,9 +63,10 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_station_coordinate, container, false);
-        layout.findViewById(R.id.station_finish).setOnClickListener(this);
-        layout.findViewById(R.id.station_finish).setClickable(false);
-
+        Button button = layout.findViewById(R.id.station_finish);
+        button.setOnClickListener(this);
+        //layout.findViewById(R.id.station_finish).setClickable(false);
+        button.setText(R.string.aisStationCancel);
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
 
         handler.post(new Runnable() {
@@ -89,7 +95,17 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                         }
                     } else {
                         Log.d(TAG, "Waiting for AIS Packet");
+                        autoCancelTimer++;
                         handler.postDelayed(this, checkInterval);
+                        if (autoCancelTimer >= MAX_TIMER){
+                            removeMMSIfromDBTable();
+                            Toast.makeText(getActivity(), "No relevant packets received", Toast.LENGTH_LONG).show();
+                            handler.removeCallbacks(this);
+                            StationInstallFragment stationInstallFragment = new StationInstallFragment();
+                            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+                            fc.replaceFragment(stationInstallFragment);
+                        }
+
                     }
                 } catch (SQLiteException e){
                     e.printStackTrace();
@@ -101,6 +117,15 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         return layout;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        DeploymentActivity activity = (DeploymentActivity) getActivity();
+        if(activity != null){
+            activity.hideUpButton();
+        }
+    }
+
 
     @Override
     public void onClick(View v){
@@ -108,6 +133,16 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
             case R.id.station_finish:
                 onClickFinish();
         }
+    }
+
+    private void removeMMSIfromDBTable() {
+        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getActivity());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSINumber)});
+        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSINumber)});
+        Log.d(TAG, "Deleted MMSI from db tables");
+
     }
 
     /**
@@ -121,8 +156,12 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         progress.setVisibility(View.GONE);
         TextView msg = v.findViewById(R.id.aisStationFragMsg);
         msg.setText(changeText);
-        v.findViewById(R.id.station_finish).setClickable(true);
-        v.findViewById(R.id.station_finish).setEnabled(true);
+        //v.findViewById(R.id.station_finish).setClickable(true);
+        //v.findViewById(R.id.station_finish).setEnabled(true);
+        Button finishButton = v.findViewById(R.id.station_finish);
+        finishButton.setText(R.string.stationFinishBtn);
+        isSetupComplete = true;
+
     }
 
     /**
@@ -160,9 +199,19 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     }
 
     private void onClickFinish(){
-        Toast.makeText(getContext(), "Deployment Complete", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        getActivity().startActivity(intent);
+        if(isSetupComplete) {
+            Toast.makeText(getContext(), "Deployment Complete", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            getActivity().startActivity(intent);
+        } else{
+            removeMMSIfromDBTable();
+            Log.d(TAG, "AIS Station Installation Cancelled");
+            StationInstallFragment stationInstallFragment = new StationInstallFragment();
+            FragmentChangeListener fc = (FragmentChangeListener)getActivity();
+            if (fc != null) {
+                fc.replaceFragment(stationInstallFragment);
+            }
+        }
     }
 
     private boolean readParamsFromDatabase(SQLiteDatabase db){

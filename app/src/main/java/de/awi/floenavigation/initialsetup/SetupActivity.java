@@ -239,6 +239,13 @@ public class SetupActivity extends ActionBarActivity {
         });
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+        latLonFormat.setVisible(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void dialogBoxDisplay() {
 
         String popupMsg = "Do you wish to rerun the initial setup?, then press Confirm!";

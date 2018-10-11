@@ -148,16 +148,28 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         String stationName = stationName_TV.getText().toString();
         Spinner stationTypeOption = activityView.findViewById(R.id.stationType);
         String stationType = stationTypeOption.getSelectedItem().toString();
+        if(!TextUtils.isEmpty(stationName_TV.getText().toString())) {
 
+            StaticStationFragment stationFragment = new StaticStationFragment();
+            Bundle arguments = new Bundle();
+            arguments.putString(DatabaseHelper.staticStationName, stationName);
+            arguments.putString(DatabaseHelper.stationType, stationType);
+            stationFragment.setArguments(arguments);
+            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+            fc.replaceFragment(stationFragment);
+        } else {
+            Toast.makeText(getActivity(), "Invalid Station Name", Toast.LENGTH_LONG).show();
+        }
 
-        StaticStationFragment stationFragment = new StaticStationFragment();
-        Bundle arguments = new Bundle();
-        arguments.putString(DatabaseHelper.staticStationName, stationName);
-        arguments.putString(DatabaseHelper.stationType, stationType);
-        stationFragment.setArguments(arguments);
-        FragmentChangeListener fc = (FragmentChangeListener) getActivity();
-        fc.replaceFragment(stationFragment);
+    }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        DeploymentActivity activity = (DeploymentActivity)getActivity();
+        if(activity != null){
+            activity.showUpButton();
+        }
     }
 
     private void populateStationType(View v){

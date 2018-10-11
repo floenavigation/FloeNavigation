@@ -28,6 +28,7 @@
         android:id="@+id/changeLatLonFormat"
         android:title="@string/latLonChangeFormat"
         android:icon="@drawable/ic_transform_black_24dp"
+        android:visible="false"
         app:showAsAction="ifRoom"
         />
 

@@ -128,5 +128,6 @@
 
     <string name="label_parameter_view_activity">System Parameters</string>
     <string name="ais_data_available">ais_data_available</string>
+    <string name="aisStationCancel">Cancel</string>
 
 </resources>

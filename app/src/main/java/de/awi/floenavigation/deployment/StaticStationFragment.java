@@ -102,6 +102,15 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        DeploymentActivity activity = (DeploymentActivity) getActivity();
+        if(activity != null){
+            activity.hideUpButton();
+        }
+    }
+
     private void calculateStaticStationParameters(){
         distance = NavigationFunctions.calculateDifference(tabletLat, tabletLon, originLatitude, originLongitude);
         theta = NavigationFunctions.calculateAngleBeta(tabletLat, tabletLon, originLatitude, originLongitude);
