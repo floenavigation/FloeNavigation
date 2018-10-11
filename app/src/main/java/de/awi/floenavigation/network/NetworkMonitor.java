@@ -59,11 +59,17 @@ public class NetworkMonitor implements Runnable {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }*/
-                    aisMessageThread.start();
-                    mdisconnectFlag = false;
-                    Log.d(TAG, "Connect Flag send");
-                    intent.putExtra("mDisconnectFlag", mdisconnectFlag);
-                    appContext.sendBroadcast(intent);
+                    try {
+                        aisMessageThread.start();
+                        mdisconnectFlag = false;
+                        Log.d(TAG, "Connect Flag send");
+                        intent.putExtra("mDisconnectFlag", mdisconnectFlag);
+                        appContext.sendBroadcast(intent);
+                    }catch (IllegalThreadStateException e){
+                        Log.d(TAG, "Network Monitor Exception");
+                        e.printStackTrace();
+                    }
+
                 }
             } else {
                 Log.d(TAG, "Ping Failed");

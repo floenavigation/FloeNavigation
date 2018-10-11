@@ -73,6 +73,9 @@ public class SampleMeasurementActivity extends Activity {
 
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
 
+        //Broadcast receiver for tablet location
+        actionBarUpdatesFunction();
+
         //Advanced Search Feature
         DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
         setSpinnerValues();
@@ -163,8 +166,7 @@ public class SampleMeasurementActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        //Broadcast receiver for tablet location
-        actionBarUpdatesFunction();
+
     }
 
     @Override

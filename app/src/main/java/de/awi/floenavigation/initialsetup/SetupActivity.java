@@ -218,7 +218,6 @@ public class SetupActivity extends ActionBarActivity {
                     backButtonEnabled = true;
                     timer.cancel();
                     parentTimer.cancel();
-                    new CreateTablesOnStartup().execute();
 
 
 
@@ -403,12 +402,6 @@ public class SetupActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch (menuItem.getItemId()){
             case R.id.changeLatLonFormat:
@@ -508,28 +501,7 @@ public class SetupActivity extends ActionBarActivity {
         }
     }
 
-    private class CreateTablesOnStartup extends AsyncTask<Void,Void,Boolean> {
 
-        @Override
-        protected void onPreExecute(){
-
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            return DatabaseHelper.createTables(db);
-
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (!result){
-                Log.d(TAG, "CreateTablesOnStartup Async Task: Database Error");
-            }
-        }
-    }
 
     private class InsertXAxisDistance extends AsyncTask<Void,Void,Boolean> {
 
@@ -565,3 +537,5 @@ public class SetupActivity extends ActionBarActivity {
         }
     }
 }
+
+

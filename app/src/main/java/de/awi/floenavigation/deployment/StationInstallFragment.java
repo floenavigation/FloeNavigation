@@ -4,6 +4,7 @@ package de.awi.floenavigation.deployment;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -75,6 +76,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                 break;
 
             case R.id.withAIS:
+                activityView.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
                 activityView.findViewById(R.id.station_mmsi).setEnabled(true);
                 stationTypeAIS = true;
                 activityView.findViewById(R.id.station_confirm).setClickable(true);
@@ -82,7 +84,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                 break;
 
             case R.id.withoutAIS:
-                activityView.findViewById(R.id.station_mmsi).setEnabled(false);
+                activityView.findViewById(R.id.stationMMSI).setVisibility(View.GONE);
                 stationTypeAIS = false;
                 activityView.findViewById(R.id.station_confirm).setClickable(true);
                 activityView.findViewById(R.id.station_confirm).setEnabled(true);
@@ -117,15 +119,19 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                 fixedStation.put(DatabaseHelper.stationName, stationName);
                 fixedStation.put(DatabaseHelper.stationType, stationType);
                 fixedStation.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
-                db.insert(DatabaseHelper.stationListTable, null, station);
-                db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
+                try {
+                    db.insert(DatabaseHelper.stationListTable, null, station);
+                    db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
 
-                AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
-                Bundle argument = new Bundle();
-                argument.putInt(DatabaseHelper.mmsi, mmsi);
-                aisFragment.setArguments(argument);
-                FragmentChangeListener fc = (FragmentChangeListener) getActivity();
-                fc.replaceFragment(aisFragment);
+                    AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
+                    Bundle argument = new Bundle();
+                    argument.putInt(DatabaseHelper.mmsi, mmsi);
+                    aisFragment.setArguments(argument);
+                    FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+                    fc.replaceFragment(aisFragment);
+                }catch (SQLiteConstraintException e){
+                    Toast.makeText(getActivity(), "MMSI already present", Toast.LENGTH_LONG).show();
+                }
             } catch (SQLiteException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Database Unavailable");

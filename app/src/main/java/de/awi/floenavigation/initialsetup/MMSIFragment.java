@@ -3,6 +3,7 @@ package de.awi.floenavigation.initialsetup;
 
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -141,9 +142,13 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "StationCount Greater than 2");
             }
-            db.insert(DatabaseHelper.stationListTable, null, station);
-            db.insert(DatabaseHelper.baseStationTable, null, station);
-            db.insert(DatabaseHelper.fixedStationTable, null, stationData);
+            try {
+                db.insert(DatabaseHelper.stationListTable, null, station);
+                db.insert(DatabaseHelper.baseStationTable, null, station);
+                db.insert(DatabaseHelper.fixedStationTable, null, stationData);
+            }catch (SQLiteConstraintException e){
+                Toast.makeText(getActivity(), "MMSI already present", Toast.LENGTH_LONG).show();
+            }
             //db.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Unavailable");

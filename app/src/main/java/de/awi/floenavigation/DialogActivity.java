@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,6 +69,7 @@ public class DialogActivity extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.cancel();
+                    new CreateTablesOnStartup().execute();
                     SetupActivity.runServices(getApplicationContext());
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
@@ -90,6 +92,29 @@ public class DialogActivity extends Activity {
             db.execSQL("delete from BASE_STATIONS");
         } catch (SQLiteException e){
             Toast.makeText(this, "Database Unavailable", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private class CreateTablesOnStartup extends AsyncTask<Void,Void,Boolean> {
+
+        @Override
+        protected void onPreExecute(){
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            return DatabaseHelper.createTables(db);
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result){
+                Log.d(TAG, "CreateTablesOnStartup Async Task: Database Error");
+            }
         }
     }
 }
