@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final double ORIGIN_DISTANCE = 0.0;
     public static final String error_threshold = "ERROR_THRESHOLD";
     public static final String prediction_accuracy_threshold = "PREDICTION_ACCURACY_THRESHOLD";
+    public static final String lat_long_view_format = "LATITUDE_LONGITUDE_VIEW_FORMAT";
 
 
     //Database Tables Names
@@ -107,6 +108,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "Buoy"
     };
 
+    public static final String[] configurationParameters = {
+            "ERROR_THRESHOLD",
+            "PREDICTION_ACCURACY_THRESHOLD",
+            "LATITUDE_LONGITUDE_VIEW_FORMAT"
+    };
+
 
     public DatabaseHelper(Context context){
         super(context, DB_NAME, null, DB_VERSION);
@@ -153,6 +160,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + usersTable + "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 userName + " TEXT NOT NULL, " +
                 password + " TEXT);");
+
+        //Create Configuration Parameters Table
+        db.execSQL("CREATE TABLE " + configParametersTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                parameterName + " TEXT, " +
+                parameterValue + " TEXT); ");
+
+        //Default config params
+        insertDefaultConfigParams(db, error_threshold, "10");
+        insertDefaultConfigParams(db, prediction_accuracy_threshold, "3");
+        insertDefaultConfigParams(db, lat_long_view_format, "1");
 
         insertUser(db, "awi", "awi");
 
@@ -219,17 +236,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     updateTime + " TEXT, " +
                     label + " TEXT); ");
 
-            //Create Configuration Parameters Table
-            db.execSQL("CREATE TABLE " + configParametersTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    parameterName + " TEXT, " +
-                    parameterValue + " INTEGER); ");
+
 
             //Only for debugging purpose
             insertDeviceList(db);
-
-            //Default config params
-            insertDefaultConfigParams(db, error_threshold, 10);
-            insertDefaultConfigParams(db, prediction_accuracy_threshold, 3);
 
             return  true;
         } catch(SQLiteException e){
@@ -246,7 +256,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(usersTable, null, defaultUser);
     }
 
-    private static void insertDefaultConfigParams(SQLiteDatabase db, String name, int value){
+    private static void insertDefaultConfigParams(SQLiteDatabase db, String name, String value){
         ContentValues defaultConfigParam = new ContentValues();
         defaultConfigParam.put(parameterName, name);
         defaultConfigParam.put(parameterValue, value);
@@ -387,10 +397,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    public static boolean readCoordinateDisplaySetting(Context context){
+        boolean changeFormat = false;
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor formatCursor = db.query(DatabaseHelper.configParametersTable,
+                    new String[] {DatabaseHelper.parameterName, DatabaseHelper.parameterValue},
+                    DatabaseHelper.parameterName + " = ?",
+                    new String[] {DatabaseHelper.lat_long_view_format},
+                    null, null, null);
+            if (formatCursor.getCount() == 1){
+                if(formatCursor.moveToFirst()){
+                    String formatValue = formatCursor.getString(formatCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue));
+                    if(formatValue.equals("0")){
+                        changeFormat = true;
+                    } else if(formatValue.equals("1")){
+                        changeFormat = false;
+                    }
+                }
+                formatCursor.close();
+                return changeFormat;
+            } else{
+                Log.d(TAG, "Error with Display Format");
+                return changeFormat;
+            }
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+            e.printStackTrace();
+            return changeFormat;
+        }
+    }
 
-
-
-
-
-
+    public static boolean updateCoordinateDisplaySetting(Context context, boolean changeDegFormat){
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String inputValue;
+            if(changeDegFormat){
+                inputValue = "0";
+            } else{
+                inputValue = "1";
+            }
+            ContentValues configParamsContents = new ContentValues();
+            //configParamsContents.put(DatabaseHelper.parameterName, lat_long_view_format);
+            configParamsContents.put(DatabaseHelper.parameterValue, inputValue);
+            db.update(DatabaseHelper.configParametersTable, configParamsContents, DatabaseHelper.parameterName + " = ?",
+                    new String[] {lat_long_view_format});
+            return true;
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

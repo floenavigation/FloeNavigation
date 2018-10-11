@@ -166,16 +166,16 @@
             android:configChanges="orientation"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
+
         <activity
             android:name=".ParameterViewActivity"
             android:configChanges="orientation"
             android:label="@string/label_parameter_view_activity"
             android:parentActivityName=".ConfigurationActivity"
             android:screenOrientation="landscape">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
         </activity>
+
+
         <activity android:name=".ActionBarActivity"></activity>
     </application>
 

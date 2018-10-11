@@ -26,19 +26,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
-                android:text="@string/error_threshold"
+                android:text="@string/paramName"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textSize="30sp" />
 
-            <EditText
-                android:id="@+id/error_threshold_id"
-                android:textColor="@color/white"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content" />
+            <Spinner
+                android:id="@+id/parameterSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog"
+                android:prompt="@string/paramNamePrompt" />
+
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/normalParam"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
@@ -50,16 +53,63 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
-                android:text="@string/prediction_accuracy_threshold"
+                android:text="@string/paramValue"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textSize="30sp" />
 
             <EditText
-                android:id="@+id/prediction_accuracy_threshold_id"
+                android:id="@+id/parameterValue"
                 android:textColor="@color/white"
                 android:layout_width="500dp"
+                android:digits="0123456789"
+                android:inputType="numberPassword|textVisiblePassword"
                 android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/latLonViewParam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:layout_weight="2"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:text="@string/paramValue"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="30sp" />
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/latLonViewRadioSelect">
+
+                <RadioButton
+                    android:id="@+id/fractionDegrees"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/latLonFraction"
+                    android:onClick="onClickDegreeFraction"
+                    android:textColor="@color/white"/>
+
+                <RadioButton
+                    android:id="@+id/degMinSec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/latLonDegMinSec"
+                    android:onClick="onClickDegMinSec"
+                    android:textColor="@color/white"/>
+
+            </RadioGroup>
+
         </LinearLayout>
 
         <LinearLayout

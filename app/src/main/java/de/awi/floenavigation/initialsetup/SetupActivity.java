@@ -67,7 +67,7 @@ public class SetupActivity extends ActionBarActivity {
     private double receivedBeta = 0.0;
     private double betaDifference = 0.0;
     private double xAxisDistance = 0.0;
-    private boolean changeFormat = false;
+    private boolean changeFormat;
     private int timerIndex = 0;
     private ProgressBar timerProgress;
     private int timerPercentage;
@@ -90,6 +90,7 @@ public class SetupActivity extends ActionBarActivity {
         timerProgress = findViewById(R.id.progressBar);
         timerProgress.setEnabled(true);
         timerPercentage = 0;
+        changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
 
 
         //Populate Screen with Initial Values from DB
@@ -247,7 +248,7 @@ public class SetupActivity extends ActionBarActivity {
         dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
         dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
-        dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, "true");
+        dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, true);
         startActivity(dialogIntent);
     }
 
@@ -420,6 +421,7 @@ public class SetupActivity extends ActionBarActivity {
 
         }
     }
+
 
 
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {

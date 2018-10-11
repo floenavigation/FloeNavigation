@@ -1,6 +1,7 @@
 package de.awi.floenavigation;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -18,7 +19,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class ParameterViewActivity extends Activity {
+public class ParameterViewActivity extends ListActivity {
 
     private static final String TAG = "ParameterViewActivity";
 
@@ -30,19 +31,19 @@ public class ParameterViewActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_parameter_view);
+        //setContentView(R.layout.activity_parameter_view);
 
 
 
-        ListView parametersLV = findViewById(R.id.parametersListView);
-        arrayAdapter = new ParameterListAdapter(this, parameterObjects);
-        parametersLV.setAdapter(arrayAdapter);
+        //ListView parametersLV = findViewById(R.id.parametersListView);
+        arrayAdapter = new ParameterListAdapter(this, generateData());
+        setListAdapter(arrayAdapter);
 
-        displayData();
+        //displayData();
 
     }
 
-    private void displayData(){
+    private ArrayList<ParameterObject> generateData(){
         try{
             dbHelper = DatabaseHelper.getDbInstance(this);
             db = dbHelper.getReadableDatabase();
@@ -53,17 +54,26 @@ public class ParameterViewActivity extends Activity {
                     null, null, null);
             while(paramsCursor.moveToNext()){
                String paramName = paramsCursor.getString(paramsCursor.getColumnIndexOrThrow(DatabaseHelper.parameterName));
-               String paramValue = String.valueOf(paramsCursor.getInt(paramsCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue)));
-               Log.d(TAG, paramName);
+               String paramValue = String.valueOf(paramsCursor.getString(paramsCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue)));
+                Log.d(TAG, paramName);
                Log.d(TAG, paramValue);
+               if(paramName.equals(DatabaseHelper.lat_long_view_format)){
+                   if(paramValue.equals("0")){
+                       paramValue = getResources().getString(R.string.latLonDegMinSec);
+                   } else if(paramValue.equals("1")){
+                       paramValue = getResources().getString(R.string.latLonFraction);
+                   }
+               }
+
+
                parameterObjects.add(new ParameterObject(paramName, paramValue));
 
             }
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
-
-        arrayAdapter.notifyDataSetChanged();
+        return parameterObjects;
+        //arrayAdapter.notifyDataSetChanged();
 
     }
 }

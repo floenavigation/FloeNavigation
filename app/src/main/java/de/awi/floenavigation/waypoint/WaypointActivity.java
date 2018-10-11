@@ -54,7 +54,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private double theta;
     private String waypointLabel;
     private String time;
-    private boolean changeFormat = false;
+    private boolean changeFormat;
 
 
     //Action Bar Updates
@@ -72,6 +72,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
         findViewById(R.id.waypoint_confirm).setOnClickListener(this);
         findViewById(R.id.waypoint_finish).setOnClickListener(this);
 
@@ -162,6 +163,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
             case R.id.changeLatLonFormat:
                 changeFormat = !changeFormat;
                 populateTabLocation();
+                DatabaseHelper.updateCoordinateDisplaySetting(this, changeFormat);
                 return true;
 
             default:

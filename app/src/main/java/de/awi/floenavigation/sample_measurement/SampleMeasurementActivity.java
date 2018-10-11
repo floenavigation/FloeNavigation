@@ -57,7 +57,7 @@ public class SampleMeasurementActivity extends Activity {
     private double yPosition;
     private double theta;
     private Spinner operation;
-    private boolean changeFormat = false;
+    private boolean changeFormat;
 
     //Action Bar Updates
     private BroadcastReceiver aisPacketBroadcastReceiver;
@@ -71,6 +71,7 @@ public class SampleMeasurementActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample_measurement);
 
+        changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
 
         //Advanced Search Feature
         DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
@@ -193,6 +194,7 @@ public class SampleMeasurementActivity extends Activity {
             case R.id.changeLatLonFormat:
                 changeFormat = !changeFormat;
                 populateTabLocation();
+                DatabaseHelper.updateCoordinateDisplaySetting(this, changeFormat);
                 return true;
 
             default:

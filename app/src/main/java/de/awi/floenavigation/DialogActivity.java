@@ -43,7 +43,7 @@ public class DialogActivity extends Activity {
             dialogIcon = callingIntent.getExtras().getInt(DIALOG_ICON);
         }
         if(callingIntent.getExtras().containsKey(DIALOG_OPTIONS)){
-            showDialogOptions = true;
+            showDialogOptions = callingIntent.getExtras().getBoolean(DIALOG_OPTIONS);
         }
         Log.d(TAG, dialogTitle);
         Log.d(TAG, dialogMsg);

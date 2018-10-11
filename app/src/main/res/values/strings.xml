@@ -22,6 +22,7 @@
     <string name="label_activity_configuration">Parameters Configuration</string>
     <string name="label_activity_recovery">Recover Station</string>
     <string name="label_activity_waypoint">Add New Waypoint</string>
+    <string name="label_activity_parameter_view">System Parameters</string>
 
     <!--Login Screen -->
     <string name="login">Login</string>
@@ -93,9 +94,17 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--Configuration Screens -->
     <string name="configuration">Configuration</string>
-    <string name="error_threshold">ERROR_THRESHOLD</string>
-    <string name="prediction_accuracy_threshold">PREDICTION_ACCURACY_THRESHOLD</string>
+    <string name="paramName">Parameter</string>
+    <string name="paramNamePrompt">Choose Parameter</string>
+    <string name="paramValue">Value</string>
+    <string name="parametervalue">Parameter Value</string>
+    <string name="parameter_name">Parameter Name</string>
+    <string name="latLonFraction">Degree.xxxx</string>
+    <string name="latLonDegMinSec">Degree° Minute\' Second\'\'</string>
+
+
     <string name="device_name">Device Name:</string>
     <string name="device_id">Device ID:</string>
     <string name="device_full_name">Device Full Name:</string>
@@ -114,8 +123,9 @@
     <string name="ok">Ok</string>
     <string name="next">Next</string>
     <string name="location_available">location_available</string>
-    <string name="parametervalue">Parameter Value</string>
-    <string name="parameter_name">Parameter Name</string>
+
+
+
     <string name="label_parameter_view_activity">System Parameters</string>
     <string name="ais_data_available">ais_data_available</string>
 

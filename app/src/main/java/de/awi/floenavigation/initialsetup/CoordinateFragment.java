@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -65,7 +66,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private boolean isConfigDone;
     private long countAIS;
     private static final int checkInterval = 1000;
-    private boolean changeFormat = false;
+    private boolean changeFormat;
     private int autoCancelTimer = 0;
     private final static int MAX_TIMER = 300; //5 mins timer
 
@@ -79,6 +80,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         confirmButtonCoordinates.setOnClickListener(this);
         Button progressCancelButton = layout.findViewById(R.id.progressCancelBtn);
         progressCancelButton.setOnClickListener(this);
+        changeFormat = DatabaseHelper.readCoordinateDisplaySetting(getActivity());
         //configureTabLocation();
         if (savedInstanceState != null){
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
@@ -111,6 +113,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             case R.id.changeLatLonFormat:
                 changeFormat = !changeFormat;
                 populateTabLocation();
+                DatabaseHelper.updateCoordinateDisplaySetting(getActivity(), changeFormat);
                 return true;
 
             default:
@@ -393,4 +396,6 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         return bestLocation;
     }
+
+
 }
