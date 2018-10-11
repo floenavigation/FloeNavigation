@@ -107,9 +107,16 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
                     if (gpsIconItem != null)
                         gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
                 }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
                 if (packetStatus){
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
 
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);

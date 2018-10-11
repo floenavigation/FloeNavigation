@@ -73,8 +73,7 @@ public class SampleMeasurementActivity extends Activity {
 
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
 
-        //Broadcast receiver for tablet location
-        actionBarUpdatesFunction();
+
 
         //Advanced Search Feature
         DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
@@ -120,6 +119,7 @@ public class SampleMeasurementActivity extends Activity {
                     tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
                     tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    populateTabLocation();
                 }
             };
         }
@@ -143,11 +143,17 @@ public class SampleMeasurementActivity extends Activity {
                     if (gpsIconItem != null)
                         gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
                 }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
                 if (packetStatus){
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
-
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }
         };
@@ -166,6 +172,8 @@ public class SampleMeasurementActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+        //Broadcast receiver for tablet location
+        actionBarUpdatesFunction();
 
     }
 

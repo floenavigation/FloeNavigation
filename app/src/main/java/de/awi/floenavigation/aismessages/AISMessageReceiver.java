@@ -75,10 +75,7 @@ public class AISMessageReceiver implements Runnable {
                     if (responseString.toString().contains("AIVDM") || responseString.toString().contains("AIVDO")) {
                         packet = responseString.toString();
                         //responseString.setLength(0);
-                        //Broadcast Service for action bar updates
-                        Intent broadcastIntent = new Intent(GPS_Service.AISPacketBroadcast);
-                        broadcastIntent.putExtra(GPS_Service.AISPacketStatus, true);
-                        context.sendBroadcast(broadcastIntent);
+
 
                         Intent serviceIntent = new Intent(context, AISDecodingService.class);
                         serviceIntent.putExtra("AISPacket", packet);

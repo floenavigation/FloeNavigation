@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.InetAddress;
 
+import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.aismessages.AISMessageReceiver;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
@@ -52,6 +53,10 @@ public class NetworkMonitor implements Runnable {
             Log.d(TAG, "Success Value: " + String.valueOf(success));
             //Log.d(TAG, "Thread Status: " + String.valueOf(aisMessageThread.isAlive()));
             if(success){
+                //Broadcast Service for action bar updates
+                Intent broadcastIntent = new Intent(GPS_Service.AISPacketBroadcast);
+                broadcastIntent.putExtra(GPS_Service.AISPacketStatus, true);
+                appContext.sendBroadcast(broadcastIntent);
 
                 if(!aisMessageThread.isAlive()){
 /*                    try {
@@ -73,6 +78,10 @@ public class NetworkMonitor implements Runnable {
                 }
             } else {
                 Log.d(TAG, "Ping Failed");
+                //Broadcast Service for action bar updates
+                Intent broadcastIntent = new Intent(GPS_Service.AISPacketBroadcast);
+                broadcastIntent.putExtra(GPS_Service.AISPacketStatus, false);
+                appContext.sendBroadcast(broadcastIntent);
                 /*try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

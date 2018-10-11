@@ -9,11 +9,13 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class ActionBarActivity extends Activity {
 
+    private static final String TAG = "ActionBarActivity";
     private BroadcastReceiver broadcastReceiver;
     private BroadcastReceiver aisPacketBroadcastReceiver;
     private boolean locationStatus = false;
@@ -22,6 +24,7 @@ public class ActionBarActivity extends Activity {
     private MenuItem gpsIconItem, aisIconItem;
     public static final int UPDATE_TIME = 50;
     public static final String colorGreen = "#00bfa5";
+    public static final String colorRed = "#d32f2f";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +37,16 @@ public class ActionBarActivity extends Activity {
                     if (gpsIconItem != null)
                         gpsIconItem.getIcon().setColorFilter(Color.parseColor(colorGreen), PorterDuff.Mode.SRC_IN);
                 }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(colorRed), PorterDuff.Mode.SRC_IN);
+                }
                 if (packetStatus){
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(colorRed), PorterDuff.Mode.SRC_IN);
                 }
 
                 statusHandler.postDelayed(this, UPDATE_TIME);
@@ -77,6 +87,7 @@ public class ActionBarActivity extends Activity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+                    Log.d(TAG, String.valueOf(packetStatus));
                 }
             };
         }
