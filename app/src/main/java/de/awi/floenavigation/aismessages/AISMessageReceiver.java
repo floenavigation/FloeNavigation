@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.aismessages.AISDecodingService;
 
 public class AISMessageReceiver implements Runnable {
@@ -74,6 +75,11 @@ public class AISMessageReceiver implements Runnable {
                     if (responseString.toString().contains("AIVDM") || responseString.toString().contains("AIVDO")) {
                         packet = responseString.toString();
                         //responseString.setLength(0);
+                        //Broadcast Service for action bar updates
+                        Intent broadcastIntent = new Intent(GPS_Service.AISPacketBroadcast);
+                        broadcastIntent.putExtra(GPS_Service.AISPacketStatus, true);
+                        context.sendBroadcast(broadcastIntent);
+
                         Intent serviceIntent = new Intent(context, AISDecodingService.class);
                         serviceIntent.putExtra("AISPacket", packet);
                         context.startService(serviceIntent);

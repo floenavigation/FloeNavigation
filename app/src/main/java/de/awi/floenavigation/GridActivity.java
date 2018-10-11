@@ -1,11 +1,15 @@
 package de.awi.floenavigation;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
+
+import de.awi.floenavigation.deployment.StationInstallFragment;
 
 public class GridActivity extends FragmentActivity implements FragmentChangeListener{
 
@@ -25,5 +29,11 @@ public class GridActivity extends FragmentActivity implements FragmentChangeList
         fragmentTransaction.replace(R.id.grid_frag_container, fragment, fragment.toString());
         fragmentTransaction.addToBackStack(fragment.toString());
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onBackPressed(){
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 }

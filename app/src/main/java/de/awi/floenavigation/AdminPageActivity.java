@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
-public class AdminPageActivity extends Activity {
+public class AdminPageActivity extends ActionBarActivity {
     CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption;
     Handler handler = new Handler();
     Runnable gridConfigRunnable = new Runnable() {

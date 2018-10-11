@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import java.util.regex.Pattern;
 
-public class AdminUserPwdActivity extends Activity {
+public class AdminUserPwdActivity extends ActionBarActivity {
 
     private static final String TAG = "AdminUserPwdActivity";
     private EditText newusernameView, newpwdView;

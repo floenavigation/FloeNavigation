@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class LoginPage extends Activity {
+public class LoginPage extends ActionBarActivity {
 
     DatabaseHelper databaseHelper = new DatabaseHelper(this);
 

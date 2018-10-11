@@ -3,16 +3,27 @@ package de.awi.floenavigation;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +35,13 @@ import de.awi.floenavigation.network.NetworkService;
 import de.awi.floenavigation.sample_measurement.SampleMeasurementActivity;
 import de.awi.floenavigation.waypoint.WaypointActivity;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     private static boolean networkSetup = false;
     private static boolean gpssetup = false;
     public static final int GPS_REQUEST_CODE = 10;
     private static long numOfBaseStations;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +66,7 @@ public class MainActivity extends Activity {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
 
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-
-        MenuItem item = menu.findItem(R.id.currentLocationAvail);
-        if (item != null)
-            item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     private void checkPermission(){

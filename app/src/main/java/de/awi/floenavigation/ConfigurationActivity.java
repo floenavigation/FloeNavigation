@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ConfigurationActivity extends Activity {
+public class ConfigurationActivity extends ActionBarActivity {
 
     private static final String TAG = "ConfigurationActivity";
     private EditText errorThresholdView, predAccThresholdView;

@@ -76,6 +76,8 @@ public class DialogActivity extends Activity {
         }
 
         alertDialog = alertBuilder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
     }
 

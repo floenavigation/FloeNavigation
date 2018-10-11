@@ -11,6 +11,14 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/aisPacketAvail"
+        android:icon="@drawable/ic_wifi_black_24dp"
+        android:title="@string/ais_data_available"
+        android:visible="true"
+        android:orderInCategory="1"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_text"
         android:icon="@drawable/ic_delete_black_24dp"
         android:title="@string/discard_point"

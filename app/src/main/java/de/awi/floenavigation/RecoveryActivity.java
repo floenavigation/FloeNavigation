@@ -14,7 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecoveryActivity extends Activity {
+public class RecoveryActivity extends ActionBarActivity {
 
     private static final String TAG = "RecoveryActivity";
     private boolean aisDeviceCheck = true;

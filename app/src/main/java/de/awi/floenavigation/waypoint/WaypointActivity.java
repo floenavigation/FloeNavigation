@@ -10,7 +10,10 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.MainActivity;
@@ -52,6 +56,14 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private String time;
     private boolean changeFormat = false;
 
+
+    //Action Bar Updates
+    private BroadcastReceiver aisPacketBroadcastReceiver;
+    private boolean locationStatus = false;
+    private boolean packetStatus = false;
+    private final Handler statusHandler = new Handler();
+    private MenuItem gpsIconItem, aisIconItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,22 +75,60 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         findViewById(R.id.waypoint_confirm).setOnClickListener(this);
         findViewById(R.id.waypoint_finish).setOnClickListener(this);
 
-        if (broadcastReceiver ==  null){
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Broadcast receiver for tablet location
+        actionBarUpdatesFunction();
+    }
+
+    private void actionBarUpdatesFunction() {
+
+        /*****************ACTION BAR UPDATES*************************/
+        if (broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-
-                    if(intent.getExtras()!= null) {
-                        tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
-                        tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
-                        if((findViewById(R.id.waypointCoordinateView).getVisibility()) == View.VISIBLE) {
-                            populateTabLocation();
-                        }
-                    }
+                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
+                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
+                    locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    populateTabLocation();
                 }
             };
         }
+
+        if (aisPacketBroadcastReceiver == null){
+            aisPacketBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+                }
+            };
+        }
+
+        registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
         registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
+        Runnable gpsLocationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (locationStatus){
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }
+                if (packetStatus){
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }
+
+                statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
+            }
+        };
+
+        statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
+        /******************************************/
     }
 
     private void populateTabLocation(){
@@ -98,6 +148,11 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gpsIconItem = menu.findItem(iconItems[0]);
+        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -116,10 +171,12 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         unregisterReceiver(broadcastReceiver);
         broadcastReceiver = null;
+        unregisterReceiver(aisPacketBroadcastReceiver);
+        aisPacketBroadcastReceiver = null;
     }
 
     public void onClick(View v){

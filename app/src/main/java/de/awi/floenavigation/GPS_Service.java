@@ -21,12 +21,13 @@ public class GPS_Service extends Service {
     private double lon = 0.0;
     private static final String TAG = "GPS_SERVICE";
     public static final String GPSBroadcast = "GPSLocationUpdates";
+    public static final String AISPacketBroadcast = "AISPacketUpdates";
+    public static final String AISPacketStatus = "AISPacketReceived";
     public static final String latitude = "LATITUDE";
     public static final String longitude = "LONGITUDE";
+    public static final String locationStatus = "CURRENT_LOCATION_AVAILABLE";
     private static final int updateInterval = 1000;
     LocationUpdates locationUpdates = new LocationUpdates();
-
-
 
 
     public GPS_Service() {
@@ -141,6 +142,11 @@ public class GPS_Service extends Service {
                 Intent broadcastIntent = new Intent(GPSBroadcast);
                 broadcastIntent.putExtra(latitude, lat);
                 broadcastIntent.putExtra(longitude, lon);
+
+                if (lat != 0.0 && lon != 0.0){
+                    broadcastIntent.putExtra(locationStatus, true);
+                }else
+                    broadcastIntent.putExtra(locationStatus, false);
                 //Log.d(TAG, "BroadCast sent");
                 //Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
                 //Toast.makeText(getApplicationContext(),"Broadcast Sent", Toast.LENGTH_LONG).show();

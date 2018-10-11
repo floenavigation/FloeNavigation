@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.AlphaCalculationService;
 import de.awi.floenavigation.AngleCalculationService;
 import de.awi.floenavigation.DatabaseHelper;
@@ -38,7 +39,7 @@ import de.awi.floenavigation.R;
 import de.awi.floenavigation.ValidationService;
 
 
-public class SetupActivity extends Activity {
+public class SetupActivity extends ActionBarActivity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
