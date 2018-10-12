@@ -68,7 +68,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         //layout.findViewById(R.id.station_finish).setClickable(false);
         button.setText(R.string.aisStationCancel);
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
-
+        Log.d(TAG, "Test Message");
         handler.post(new Runnable() {
             @Override
             public void run() {

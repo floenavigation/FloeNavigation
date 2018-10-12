@@ -41,17 +41,13 @@ public class ConfigurationActivity extends ActionBarActivity {
         paramType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position == 0){
+
+                if(position != 2){
                     findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
-                    spinnerItem = 0;
+                    spinnerItem = position;
                     isNormalParam = true;
-                } else if(position == 1){
-                    findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
-                    findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
-                    spinnerItem = 1;
-                    isNormalParam = true;
-                } else if(position == 2){
+                } else {
                     findViewById(R.id.normalParam).setVisibility(View.GONE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.VISIBLE);
                     isNormalParam = false;

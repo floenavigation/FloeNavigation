@@ -78,6 +78,7 @@ public class SetupActivity extends ActionBarActivity {
     private boolean backButtonEnabled = false;
     private static double firstStationpreviousUpdateTime = 0;
     private static double secondStationpreviousUpdateTime = 0;
+    private int numOfSignificantFigures;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +93,12 @@ public class SetupActivity extends ActionBarActivity {
         timerProgress.setEnabled(true);
         timerPercentage = 0;
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
+        numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(this);
 
 
         //Populate Screen with Initial Values from DB
         new ReadParamsFromDB().execute();
+
         receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex],
                 stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
         refreshScreen();
@@ -275,6 +278,7 @@ public class SetupActivity extends ActionBarActivity {
         final EditText betaDiff = findViewById(R.id.betaDifference);
         final EditText ais1StationMsgCount = findViewById(R.id.first_station_msgCount);
         final EditText ais2StationMsgCount = findViewById(R.id.second_station_msgCount);
+        final String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
 
 
         runOnUiThread(new Runnable() {
@@ -301,7 +305,10 @@ public class SetupActivity extends ActionBarActivity {
                 betaDiff.setEnabled(true);
                 ais1MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.firstStationIndex]));
                 ais1UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.firstStationIndex]));
-                ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
+
+                //ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
+                ais1Difference.setText(String.format(formatString, distanceDiff[DatabaseHelper.firstStationIndex]));
+
 
 
                 if(changeFormat){
@@ -315,15 +322,15 @@ public class SetupActivity extends ActionBarActivity {
                     ais1RcvLatitude.setText(ais1FormattedReceivedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
                     ais1RcvLongitude.setText(ais1FormattedReceivedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
                 } else {
-                    ais1PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.firstStationIndex]));
-                    ais1PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.firstStationIndex]));
-                    ais1RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex]));
-                    ais1RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.firstStationIndex]));
+                    ais1PrdLatitude.setText(String.format(formatString, predictedLatitude[DatabaseHelper.firstStationIndex]));
+                    ais1PrdLongitude.setText(String.format(formatString, predictedLongitude[DatabaseHelper.firstStationIndex]));
+                    ais1RcvLatitude.setText(String.format(formatString, stationLatitude[DatabaseHelper.firstStationIndex]));
+                    ais1RcvLongitude.setText(String.format(formatString, stationLongitude[DatabaseHelper.firstStationIndex]));
                 }
 
                 ais2MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.secondStationIndex]));
                 ais2UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.secondStationIndex]));
-                ais2Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.secondStationIndex]));
+                ais2Difference.setText(String.format(formatString, distanceDiff[DatabaseHelper.secondStationIndex]));
 
                 if(changeFormat){
                     String[] ais2FormattedPredictedCoordinates = NavigationFunctions.locationInDegrees(predictedLatitude[DatabaseHelper.secondStationIndex],
@@ -336,17 +343,21 @@ public class SetupActivity extends ActionBarActivity {
                     ais2RcvLatitude.setText(ais2FormattedReceivedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
                     ais2RcvLongitude.setText(ais2FormattedReceivedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
                 } else {
-                    ais2PrdLatitude.setText(String.valueOf(predictedLatitude[DatabaseHelper.secondStationIndex]));
-                    ais2PrdLongitude.setText(String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex]));
-                    ais2RcvLatitude.setText(String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex]));
-                    ais2RcvLongitude.setText(String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex]));
+                    ais2PrdLatitude.setText(String.format(formatString, predictedLatitude[DatabaseHelper.secondStationIndex]));
+                    ais2PrdLongitude.setText(String.format(formatString, predictedLongitude[DatabaseHelper.secondStationIndex]));
+                    ais2RcvLatitude.setText(String.format(formatString, stationLatitude[DatabaseHelper.secondStationIndex]));
+                    ais2RcvLongitude.setText(String.format(formatString, stationLongitude[DatabaseHelper.secondStationIndex]));
                 }
 
                 ais1StationMsgCount.setText(String.valueOf(firstStationMessageCount));
                 ais2StationMsgCount.setText(String.valueOf(secondStationMessageCount));
-                calculatedBeta.setText(String.valueOf(predictedBeta));
-                rcvBeta.setText(String.valueOf(receivedBeta));
-                betaDiff.setText(String.valueOf(betaDifference));
+                //calculatedBeta.setText(String.valueOf(predictedBeta));
+                //rcvBeta.setText(String.valueOf(receivedBeta));
+                //betaDiff.setText(String.valueOf(betaDifference));
+
+                calculatedBeta.setText(String.format(formatString, predictedBeta));
+                rcvBeta.setText(String.format(formatString, receivedBeta));
+                betaDiff.setText(String.format(formatString, betaDifference));
                 ais1MMSI.setEnabled(false);
                 ais1UpdateTime.setEnabled(false);
                 ais1Difference.setEnabled(false);

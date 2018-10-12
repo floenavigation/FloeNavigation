@@ -15,10 +15,13 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -28,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
@@ -58,6 +62,9 @@ public class SampleMeasurementActivity extends Activity {
     private double theta;
     private Spinner operation;
     private boolean changeFormat;
+    private int numOfSignificantFigures;
+    private String label;
+    private String time;
 
     //Action Bar Updates
     private BroadcastReceiver aisPacketBroadcastReceiver;
@@ -72,7 +79,7 @@ public class SampleMeasurementActivity extends Activity {
         setContentView(R.layout.activity_sample_measurement);
 
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
-
+        numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(this);
 
 
         //Advanced Search Feature
@@ -216,18 +223,20 @@ public class SampleMeasurementActivity extends Activity {
         }
     }
 
+
     private void populateTabLocation(){
 
         TextView latView = findViewById(R.id.tabLat);
         TextView lonView = findViewById(R.id.tabLon);
+        String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
 
         if (changeFormat){
             String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
             latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
             lonView.setText(formattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
         } else{
-            latView.setText(String.valueOf(tabletLat));
-            lonView.setText(String.valueOf(tabletLon));
+            latView.setText(String.format(formatString, tabletLat));
+            lonView.setText(String.format(formatString, tabletLon));
         }
 
     }
@@ -241,6 +250,8 @@ public class SampleMeasurementActivity extends Activity {
         deviceIDView.setText(selectedDeviceAttributes.get(deviceIDIndex));
         deviceFullNameView.setText(selectedDeviceAttributes.get(deviceFullNameIndex));
         deviceTypeView.setText(selectedDeviceAttributes.get(deviceTypeIndex));
+        InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     private void populateDatabaseTable(){
@@ -249,8 +260,11 @@ public class SampleMeasurementActivity extends Activity {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+
+
             if (getOriginCoordinates()) {
                 calculateSampledLocationParameters();
+                createLabel();
                 ContentValues mContentValues = new ContentValues();
                 mContentValues.put(DatabaseHelper.deviceID, selectedDeviceAttributes.get(deviceIDIndex));
                 mContentValues.put(DatabaseHelper.deviceName, selectedDeviceAttributes.get(deviceFullNameIndex));
@@ -261,7 +275,8 @@ public class SampleMeasurementActivity extends Activity {
                 mContentValues.put(DatabaseHelper.longitude, tabletLon);
                 mContentValues.put(DatabaseHelper.xPosition, xPosition);
                 mContentValues.put(DatabaseHelper.yPosition, yPosition);
-                mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+                mContentValues.put(DatabaseHelper.label, label);
+                mContentValues.put(DatabaseHelper.updateTime, time);
                 db.insert(DatabaseHelper.sampleMeasurementTable, null, mContentValues);
             } else {
                 Log.d(TAG, "Error Inserting new data");
@@ -270,6 +285,19 @@ public class SampleMeasurementActivity extends Activity {
             Log.d(TAG, "Database Error");
             e.printStackTrace();
         }
+    }
+    private void createLabel(){
+        time = String.valueOf(SystemClock.elapsedRealtime());
+        List<String> labelElements = new ArrayList<String>();
+        labelElements.add(time);
+        labelElements.add(String.valueOf(tabletLat));
+        labelElements.add(String.valueOf(tabletLon));
+        labelElements.add(String.valueOf(xPosition));
+        labelElements.add(String.valueOf(yPosition));
+        labelElements.add(operation.getSelectedItem().toString());
+        labelElements.add(selectedDeviceAttributes.get(deviceIDIndex));
+        label = TextUtils.join(",", labelElements);
+
     }
 
     private void calculateSampledLocationParameters(){

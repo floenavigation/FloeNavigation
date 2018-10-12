@@ -34,6 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String error_threshold = "ERROR_THRESHOLD";
     public static final String prediction_accuracy_threshold = "PREDICTION_ACCURACY_THRESHOLD";
     public static final String lat_long_view_format = "LATITUDE_LONGITUDE_VIEW_FORMAT";
+    public static final String decimal_number_significant_figures = "DECIMAL_NUMBER_SIGNIFICANT_FIGURES";
 
 
     //Database Tables Names
@@ -106,7 +107,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String[] configurationParameters = {
             "ERROR_THRESHOLD",
             "PREDICTION_ACCURACY_THRESHOLD",
-            "LATITUDE_LONGITUDE_VIEW_FORMAT"
+            "LATITUDE_LONGITUDE_VIEW_FORMAT",
+            "DECIMAL_NUMBER_SIGNIFICANT_FIGURES"
     };
 
 
@@ -165,6 +167,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultConfigParams(db, error_threshold, "10");
         insertDefaultConfigParams(db, prediction_accuracy_threshold, "3");
         insertDefaultConfigParams(db, lat_long_view_format, "1");
+        insertDefaultConfigParams(db, decimal_number_significant_figures, "5");
 
         insertUser(db, "awi", "awi");
 
@@ -422,6 +425,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
             return changeFormat;
         }
+    }
+
+    public static int readSiginificantDigitsSetting(Context context){
+        int significantFigure = 5;
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mSignificantFiguresCursor = db.query(DatabaseHelper.configParametersTable,
+                    new String[] {DatabaseHelper.parameterName, DatabaseHelper.parameterValue},
+                    DatabaseHelper.parameterName + " = ?",
+                    new String[] {DatabaseHelper.decimal_number_significant_figures},
+                    null, null, null);
+            if (mSignificantFiguresCursor.getCount() == 1){
+                if(mSignificantFiguresCursor.moveToFirst()){
+                    significantFigure = Integer.parseInt(mSignificantFiguresCursor.getString(mSignificantFiguresCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue)));
+                }
+                mSignificantFiguresCursor.close();
+
+            } else{
+                Log.d(TAG, "Error Reading the Significant Figure Parameter");
+
+            }
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+            e.printStackTrace();
+        }
+        return significantFigure;
     }
 
     public static boolean updateCoordinateDisplaySetting(Context context, boolean changeDegFormat){

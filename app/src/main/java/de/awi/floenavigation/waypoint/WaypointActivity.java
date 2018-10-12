@@ -55,6 +55,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private String waypointLabel;
     private String time;
     private boolean changeFormat;
+    private int numOfSignificantFigures;
 
 
     //Action Bar Updates
@@ -73,6 +74,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
+        numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(this);
         findViewById(R.id.waypoint_confirm).setOnClickListener(this);
         findViewById(R.id.waypoint_finish).setOnClickListener(this);
 
@@ -143,13 +145,14 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
         TextView latView = findViewById(R.id.waypointTabletLat);
         TextView lonView = findViewById(R.id.waypointTabletLon);
+        String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
         if(changeFormat){
             String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
             latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
             lonView.setText(formattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
         } else {
-            latView.setText(String.valueOf(tabletLat));
-            lonView.setText(String.valueOf(tabletLon));
+            latView.setText(String.format(formatString, tabletLat));
+            lonView.setText(String.format(formatString, tabletLon));
         }
     }
 

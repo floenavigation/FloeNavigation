@@ -67,6 +67,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private long countAIS;
     private static final int checkInterval = 1000;
     private boolean changeFormat;
+    private int numOfSignificantFigures;
     private int autoCancelTimer = 0;
     private final static int MAX_TIMER = 300; //5 mins timer
 
@@ -81,6 +82,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         Button progressCancelButton = layout.findViewById(R.id.progressCancelBtn);
         progressCancelButton.setOnClickListener(this);
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(getActivity());
+        numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(getActivity());
         //configureTabLocation();
         if (savedInstanceState != null){
             isConfigDone = savedInstanceState.getBoolean("isConfigDone");
@@ -293,6 +295,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 e.printStackTrace();
             }
         }
+        String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
         String[] tabletFormattedCoordinates = NavigationFunctions.locationInDegrees(Double.valueOf(tabletLat), Double.valueOf(tabletLon));
         String[] stationFormattedCoordinates = NavigationFunctions.locationInDegrees(latitude, longitude);
         if (tabLat != null) {
@@ -300,7 +303,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             if(changeFormat){
                 tabLat.setText(tabletFormattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
             } else {
-                tabLat.setText(tabletLat);
+                Double tabletLatitude = Double.valueOf(tabletLat);
+                tabLat.setText(String.format(formatString, tabletLatitude));
             }
             tabLat.setEnabled(false);
         }
@@ -311,7 +315,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             if(changeFormat){
                 tabLon.setText(tabletFormattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
             } else {
-                tabLon.setText(tabletLon);
+                Double tabletLongitude = Double.valueOf(tabletLon);
+                tabLon.setText(String.format(formatString, tabletLongitude));
             }
             tabLon.setEnabled(false);
         }
@@ -327,7 +332,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             if (changeFormat){
                 aisLat.setText(stationFormattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
             } else {
-                aisLat.setText(String.valueOf(latitude));
+                aisLat.setText(String.format(formatString, latitude));
             }
             aisLat.setEnabled(false);
         }
@@ -337,7 +342,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             if (changeFormat){
                 aisLon.setText(stationFormattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
             } else {
-                aisLon.setText(String.valueOf(longitude));
+                aisLon.setText(String.format(formatString, longitude));
             }
             aisLon.setEnabled(false);
         }
