@@ -56,6 +56,23 @@ public class ActionBarActivity extends Activity {
         statusHandler.postDelayed(gpsLocationRunnable, UPDATE_TIME);
     }
 
+    public boolean onCreateOptionsMenu(Menu menu, boolean showLatlon) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gpsIconItem = menu.findItem(iconItems[0]);
+        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if (showLatlon){
+            MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+            latLonFormat.setVisible(true);
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);

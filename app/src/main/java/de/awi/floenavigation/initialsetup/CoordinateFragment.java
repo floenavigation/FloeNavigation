@@ -210,7 +210,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                 //Toast.makeText(getActivity(), "LocationReceived: " + String.valueOf(locationReceived), Toast.LENGTH_LONG).show();
                 if(locationReceived == DatabaseHelper.IS_LOCATION_RECEIVED) {
                     success = true;
-                    Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(), "Success True", Toast.LENGTH_LONG).show();
                 }
             }
             cursor.close();

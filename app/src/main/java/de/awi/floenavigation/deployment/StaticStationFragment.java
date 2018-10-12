@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
@@ -86,6 +87,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
             layout.findViewById(R.id.static_station_finish).setClickable(true);
             Log.d(TAG, "Station Installed");
             Toast.makeText(getContext(), "Station Installed", Toast.LENGTH_LONG).show();
+
         } else{
             Log.d(TAG, "Error Inserting new Station");
         }
@@ -122,6 +124,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
     private void insertStaticStation(){
         DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getActivity());
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
         ContentValues staticStation = new ContentValues();
         staticStation.put(DatabaseHelper.staticStationName, stationName);
         staticStation.put(DatabaseHelper.stationType, stationType);
@@ -188,5 +191,6 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
             return false;
         }
     }
+
 
 }

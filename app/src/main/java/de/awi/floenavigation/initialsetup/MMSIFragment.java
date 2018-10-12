@@ -2,7 +2,9 @@ package de.awi.floenavigation.initialsetup;
 
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -37,6 +39,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
     private SQLiteOpenHelper dbHelper;
     private EditText aisStationName;
     private EditText mmsi;
+
 
 
     public MMSIFragment() {
@@ -90,21 +93,23 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         if (validateMMSINumber(mmsi)) {
 
             int mmsiNumber = Integer.parseInt(mmsi.getText().toString());
-            insertStation(stationName, mmsiNumber);
-            //if(stationCount == 0) {
+            if (insertStation(stationName, mmsiNumber)) {
+                //if(stationCount == 0) {
             /*AISMessageReceiver aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress, GridSetupActivity.dstPort, getActivity().getApplicationContext());
             Thread aisMessageReceiver = new Thread(aisMessage);
             aisMessageReceiver.start();*/
-            //}
-            CoordinateFragment coordinateFragment = new CoordinateFragment();
-            Bundle argument = new Bundle();
-            argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
-            argument.putString(DatabaseHelper.stationName, stationName);
-            coordinateFragment.setArguments(argument);
-            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
-            if (fc != null) {
-                fc.replaceFragment(coordinateFragment);
+                //}
+                CoordinateFragment coordinateFragment = new CoordinateFragment();
+                Bundle argument = new Bundle();
+                argument.putInt(DatabaseHelper.mmsi, mmsiNumber);
+                argument.putString(DatabaseHelper.stationName, stationName);
+                coordinateFragment.setArguments(argument);
+                FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+                if (fc != null) {
+                    fc.replaceFragment(coordinateFragment);
+                }
             }
+
         }else {
             Toast.makeText(getActivity(), "MMSI Number does not match the requirements", Toast.LENGTH_LONG).show();
         }
@@ -115,10 +120,14 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
     }
 
 
-    private void insertStation(String AISStationName, int MMSI){
+    private boolean insertStation(String AISStationName, int MMSI){
         //DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         try{
             //db = databaseHelper.getWritableDatabase();
+            if (stationCount == 1 && baseStationRetrievalfromDB(db, MMSI) == MMSI){
+                Toast.makeText(getActivity(), "Duplicate MMSI, AIS Station is already existing", Toast.LENGTH_LONG).show();
+                return false;
+            }
             dbHelper = DatabaseHelper.getDbInstance(getActivity());
             db = dbHelper.getReadableDatabase();
             ContentValues station = new ContentValues();
@@ -142,18 +151,18 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "StationCount Greater than 2");
             }
-            try {
-                db.insert(DatabaseHelper.stationListTable, null, station);
-                db.insert(DatabaseHelper.baseStationTable, null, station);
-                db.insert(DatabaseHelper.fixedStationTable, null, stationData);
-            }catch (SQLiteConstraintException e){
-                Toast.makeText(getActivity(), "MMSI already present", Toast.LENGTH_LONG).show();
-            }
+
+            db.insert(DatabaseHelper.stationListTable, null, station);
+            db.insert(DatabaseHelper.baseStationTable, null, station);
+            db.insert(DatabaseHelper.fixedStationTable, null, stationData);
+
             //db.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Unavailable");
             e.printStackTrace();
+            return false;
         }
+        return true;
 
     }
 
@@ -162,6 +171,34 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         return "mmsiFragment";
     }
 
+    private int baseStationRetrievalfromDB(SQLiteDatabase db, int MMSI){
+
+        try {
+            int existingBaseStnMMSI;
+            //SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            //SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
+                    DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSI)}, null, null, null);
+
+
+            int index = 0;
+
+            if (mBaseStnCursor.moveToFirst()) {
+                existingBaseStnMMSI = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+            }else {
+                existingBaseStnMMSI = 0;
+            }
+            Log.d(TAG, String.valueOf(existingBaseStnMMSI));
+            mBaseStnCursor.close();
+            return existingBaseStnMMSI;
+
+        }catch (SQLException e){
+
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
 
 

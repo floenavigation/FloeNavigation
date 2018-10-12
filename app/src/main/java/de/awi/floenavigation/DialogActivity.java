@@ -2,13 +2,17 @@ package de.awi.floenavigation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,8 +31,10 @@ public class DialogActivity extends Activity {
     public static final String DIALOG_MSG = "message";
     public static final String DIALOG_ICON = "icon";
     public static final String DIALOG_OPTIONS = "options";
+    public static final String DIALOG_BETA = "beta";
     private static final String TAG = "DialogActivity";
     private AlertDialog alertDialog;
+    private double receivedBeta = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,9 @@ public class DialogActivity extends Activity {
         }
         if(callingIntent.getExtras().containsKey(DIALOG_OPTIONS)){
             showDialogOptions = callingIntent.getExtras().getBoolean(DIALOG_OPTIONS);
+        }
+        if(callingIntent.getExtras().containsKey(DIALOG_BETA)){
+            receivedBeta = callingIntent.getExtras().getDouble(DIALOG_BETA);
         }
 
         //setContentView(R.layout.activity_dialog);
@@ -70,6 +79,7 @@ public class DialogActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.cancel();
                     new CreateTablesOnStartup().execute();
+                    updateBetaTable(receivedBeta);
                     SetupActivity.runServices(getApplicationContext());
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
@@ -121,5 +131,25 @@ public class DialogActivity extends Activity {
                 Log.d(TAG, "CreateTablesOnStartup Async Task: Database Error");
             }
         }
+    }
+
+    private void updateBetaTable(double recdBeta){
+
+        try {
+            DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            ContentValues beta = new ContentValues();
+            beta.put(DatabaseHelper.beta, recdBeta);
+            beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+            db.insert(DatabaseHelper.betaTable, null, beta);
+            long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
+            Log.d(TAG, String.valueOf(test));
+
+
+        } catch(SQLException e){
+            Log.d(TAG, "Error Updating Beta Table");
+            e.printStackTrace();
+        }
+
     }
 }

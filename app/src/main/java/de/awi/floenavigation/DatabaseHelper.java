@@ -100,12 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "Hut",
             "Mast",
             "Fixpoint",
-            "Polarstern",
-            "Pistenbully",
-            "Hovercraft",
-            "Scooter",
-            "Pulka",
-            "Buoy"
+            "Buoy" //To be discussed with marcel
     };
 
     public static final String[] configurationParameters = {

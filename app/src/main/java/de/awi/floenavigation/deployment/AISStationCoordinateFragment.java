@@ -92,6 +92,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                             packetReceived();
                         } else{
                             Log.d(TAG, "Error Reading from Database");
+                            //Do something here
                         }
                     } else {
                         Log.d(TAG, "Waiting for AIS Packet");
@@ -249,10 +250,16 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
 
             if (betaCursor.getCount() == 1) {
                 if (betaCursor.moveToFirst()) {
+
                     beta = betaCursor.getDouble(betaCursor.getColumnIndex(DatabaseHelper.beta));
+                    Log.d(TAG, String.valueOf(beta));
+                } else{
+                    Log.d(TAG, "Beta Table Move to first failed");
                 }
 
             } else {
+                Log.d(TAG,String.valueOf(betaCursor.getCount()));
+
                 Log.d(TAG, "Error in Beta Table");
                 return false;
             }

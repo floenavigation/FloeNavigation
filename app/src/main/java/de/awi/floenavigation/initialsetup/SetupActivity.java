@@ -1,6 +1,7 @@
 package de.awi.floenavigation.initialsetup;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -180,21 +181,6 @@ public class SetupActivity extends ActionBarActivity {
                 Log.d(TAG, "StartupComplete");
                 if (timerCounter >= MAX_TIMER_COUNT)
                 {
-                    try {
-                        DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-                        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-                        ContentValues beta = new ContentValues();
-                        beta.put(DatabaseHelper.beta, receivedBeta);
-                        beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
-                        db.insert(DatabaseHelper.betaTable, null, beta);
-                        long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
-                        Log.d(TAG, String.valueOf(test));
-
-                    } catch(SQLException e){
-                        Log.d(TAG, "Error Updating Beta Table");
-                        e.printStackTrace();
-                    }
                     timer.cancel();
                     Log.d(TAG, "Completed");
                     //For Test purposes only
@@ -240,10 +226,9 @@ public class SetupActivity extends ActionBarActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
-        latLonFormat.setVisible(true);
-        return super.onCreateOptionsMenu(menu);
+        //getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        return super.onCreateOptionsMenu(menu, true);
     }
 
     private void dialogBoxDisplay() {
@@ -254,6 +239,7 @@ public class SetupActivity extends ActionBarActivity {
         dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
         dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
+        dialogIntent.putExtra(DialogActivity.DIALOG_BETA, receivedBeta);
         dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, true);
         startActivity(dialogIntent);
     }
