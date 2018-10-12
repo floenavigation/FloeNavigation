@@ -128,7 +128,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             if (checkStationInDBTables(db, mmsi)){
-                Toast.makeText(getActivity(), "Duplicate MMSI, AIS Station is already existing", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Duplicate MMSI, AIS Station already exists", Toast.LENGTH_LONG).show();
                 return;
             }
             ContentValues station = new ContentValues();
@@ -170,7 +170,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             if (checkStaticStationInDBTables(db, stationName)) {
-                Toast.makeText(getActivity(), "Duplicate Static Station, Station is already existing", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Duplicate Static Station, Station already exists", Toast.LENGTH_LONG).show();
                 return;
             }
             StaticStationFragment stationFragment = new StaticStationFragment();

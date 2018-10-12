@@ -51,6 +51,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private int autoCancelTimer = 0;
     private final static int MAX_TIMER = 300; //5 mins timer
     private boolean isSetupComplete = false;
+    private Runnable aisStationRunnable;
 
 
     public AISStationCoordinateFragment() {
@@ -69,7 +70,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         button.setText(R.string.aisStationCancel);
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
         Log.d(TAG, "Test Message");
-        handler.post(new Runnable() {
+        aisStationRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -93,6 +94,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                         } else{
                             Log.d(TAG, "Error Reading from Database");
                             //Do something here
+                            Toast.makeText(getActivity(), "Error in Database. Please Try again", Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Log.d(TAG, "Waiting for AIS Packet");
@@ -113,7 +115,8 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                     Log.d(TAG, "Database Error");
                 }
             }
-        });
+        };
+        handler.post(aisStationRunnable);
 
         return layout;
     }
@@ -207,6 +210,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         } else{
             removeMMSIfromDBTable();
             Log.d(TAG, "AIS Station Installation Cancelled");
+            handler.removeCallbacks(aisStationRunnable);
             StationInstallFragment stationInstallFragment = new StationInstallFragment();
             FragmentChangeListener fc = (FragmentChangeListener)getActivity();
             if (fc != null) {

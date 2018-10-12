@@ -90,6 +90,10 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         mmsi = view.findViewById(R.id.mmsi_field);
 
         String stationName = aisStationName.getText().toString();
+        if (TextUtils.isEmpty(aisStationName.getText().toString())){
+            Toast.makeText(getActivity(), "Invalid Station Name", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (validateMMSINumber(mmsi)) {
 
             int mmsiNumber = Integer.parseInt(mmsi.getText().toString());
