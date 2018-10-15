@@ -218,7 +218,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             //Create StationList Table
             db.execSQL("CREATE TABLE " + staticStationListTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    staticStationName + " TEXT, " +
+                    staticStationName + " TEXT UNIQUE NOT NULL, " +
                     stationType + " TEXT, " +
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +

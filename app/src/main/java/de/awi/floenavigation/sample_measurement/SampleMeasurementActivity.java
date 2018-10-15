@@ -106,12 +106,14 @@ public class SampleMeasurementActivity extends Activity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Data Sample Confirmed", Toast.LENGTH_LONG).show();
-                Log.d(TAG, "Data Sample Confirmed");
-                populateDatabaseTable();
+                if (populateDatabaseTable()) {
+                    Toast.makeText(getApplicationContext(), "Data Sample Confirmed", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Data Sample Confirmed");
 
-                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(mainActivityIntent);
+
+                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(mainActivityIntent);
+                }
             }
         });
     }
@@ -254,13 +256,17 @@ public class SampleMeasurementActivity extends Activity {
         inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void populateDatabaseTable(){
+    private boolean populateDatabaseTable(){
 
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-
+            tabletLat = (tabletLat == null) ? 0.0 : tabletLat;
+            tabletLon = (tabletLon == null) ? 0.0 : tabletLon;
+            if (tabletLat == 0.0 && tabletLon == 0.0){
+                Toast.makeText(getApplicationContext(), "Error reading Device Lat and Long", Toast.LENGTH_LONG).show();
+                return false;
+            }
 
             if (getOriginCoordinates()) {
                 calculateSampledLocationParameters();
@@ -278,6 +284,7 @@ public class SampleMeasurementActivity extends Activity {
                 mContentValues.put(DatabaseHelper.label, label);
                 mContentValues.put(DatabaseHelper.updateTime, time);
                 db.insert(DatabaseHelper.sampleMeasurementTable, null, mContentValues);
+                return true;
             } else {
                 Log.d(TAG, "Error Inserting new data");
             }
@@ -285,6 +292,7 @@ public class SampleMeasurementActivity extends Activity {
             Log.d(TAG, "Database Error");
             e.printStackTrace();
         }
+        return false;
     }
     private void createLabel(){
         time = String.valueOf(SystemClock.elapsedRealtime());

@@ -79,7 +79,7 @@ public class DialogActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.cancel();
                     new CreateTablesOnStartup().execute();
-                    updateBetaTable(receivedBeta);
+                    showNavigationBar();
                     SetupActivity.runServices(getApplicationContext());
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
@@ -121,6 +121,7 @@ public class DialogActivity extends Activity {
         protected Boolean doInBackground(Void... voids) {
             DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
+            updateBetaTable(receivedBeta, db);
             return DatabaseHelper.createTables(db);
 
         }
@@ -133,11 +134,9 @@ public class DialogActivity extends Activity {
         }
     }
 
-    private void updateBetaTable(double recdBeta){
+    private void updateBetaTable(double recdBeta, SQLiteDatabase db){
 
         try {
-            DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
             ContentValues beta = new ContentValues();
             beta.put(DatabaseHelper.beta, recdBeta);
             beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
@@ -151,5 +150,11 @@ public class DialogActivity extends Activity {
             e.printStackTrace();
         }
 
+    }
+
+    private void showNavigationBar() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 }

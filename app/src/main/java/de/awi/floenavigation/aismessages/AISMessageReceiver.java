@@ -59,6 +59,7 @@ public class AISMessageReceiver implements Runnable {
 
             client.connect(dstAddress, dstPort);
 
+
             bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             /*Intent serviceIntent = new Intent(context, AISDecodingService.class);
             context.startService(serviceIntent);*/
@@ -89,6 +90,9 @@ public class AISMessageReceiver implements Runnable {
 
                     if(mDisconnectFlag){
                         if (client != null) {
+                            Intent serviceIntent = new Intent(context, AISDecodingService.class);
+                            //serviceIntent.putExtra("AISPacket", packet);
+                            context.stopService(serviceIntent);
                             client.disconnect();
                             client = null;
                             //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));

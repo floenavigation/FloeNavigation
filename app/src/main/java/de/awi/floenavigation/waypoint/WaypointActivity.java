@@ -209,7 +209,9 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
     private void onClickConfirm(){
 
-        if(tabletLat != null && tabletLon != null) {
+        tabletLat = (tabletLat == null) ? 0.0 : tabletLat;
+        tabletLon = (tabletLon == null) ? 0.0 : tabletLon;
+        if(tabletLat != 0.0 && tabletLon != 0.0) {
             DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = databaseHelper.getReadableDatabase();
             findViewById(R.id.waypointCoordinateView).setVisibility(View.GONE);

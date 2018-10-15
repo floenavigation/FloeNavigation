@@ -72,6 +72,11 @@ public class NetworkMonitor implements Runnable {
                         appContext.sendBroadcast(intent);
                     }catch (IllegalThreadStateException e){
                         Log.d(TAG, "Network Monitor Exception");
+                        mdisconnectFlag = true; //to disconnect the client
+                        intent.putExtra("mDisconnectFlag", mdisconnectFlag);
+                        appContext.sendBroadcast(intent);
+                        aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, appContext);
+                        aisMessageThread = new Thread(aisMessage);
                         e.printStackTrace();
                     }
 

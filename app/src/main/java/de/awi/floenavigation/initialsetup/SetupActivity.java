@@ -12,10 +12,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -79,12 +83,17 @@ public class SetupActivity extends ActionBarActivity {
     private static double firstStationpreviousUpdateTime = 0;
     private static double secondStationpreviousUpdateTime = 0;
     private int numOfSignificantFigures;
+    private boolean isLock = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_setup);
+        hideNavigationBar();
+        //isLock = true;
+        //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        //super.onAttachedToWindow();
 
         progressBarValue = findViewById(R.id.progressBarText);
         progressBarValue.setEnabled(true);
@@ -214,6 +223,49 @@ public class SetupActivity extends ActionBarActivity {
                             }
         }, PREDICTION_TIME, 500);
     }
+
+    /*
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if ((event.getKeyCode() == KeyEvent.KEYCODE_HOME) && isLock) {
+            Log.d(TAG, "Home Button");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
+                }
+            });
+            return true;
+        }
+        else
+            return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((event.getKeyCode() == KeyEvent.KEYCODE_HOME) && isLock) {
+            Log.d(TAG, "Home Button");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
+                }
+            });
+            return true;
+        }
+        else
+            return super.onKeyDown(keyCode, event);
+    }
+    */
+
+    private void hideNavigationBar() {
+
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
 
     private void progressBarValueUpdates(){
         //Progress Bar Value update
@@ -401,7 +453,13 @@ public class SetupActivity extends ActionBarActivity {
             Intent mainIntent = new Intent(this, MainActivity.class);
             startActivity(mainIntent);
         }else {
-            Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
     }
 
