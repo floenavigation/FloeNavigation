@@ -54,13 +54,14 @@ public class AISMessageReceiver implements Runnable {
         context.registerReceiver(reconnectReceiver, new IntentFilter("Reconnect"));
         responseString = new StringBuilder();
         try {
-
+            //System.setProperty("http.keepAlive", "false");
             client = new TelnetClient();
 
             client.connect(dstAddress, dstPort);
 
-
-            bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            client.setKeepAlive(false);
+            InputStreamReader clientStream = new InputStreamReader(client.getInputStream());
+            bufferedReader = new BufferedReader(clientStream);
             /*Intent serviceIntent = new Intent(context, AISDecodingService.class);
             context.startService(serviceIntent);*/
 
@@ -69,6 +70,23 @@ public class AISMessageReceiver implements Runnable {
                 if (client != null) {
                     isConnected =  client.isConnected();
                 }
+
+                if(mDisconnectFlag){
+                    if (client != null) {
+
+                        clientStream.close();
+                        bufferedReader.close();
+                        client.disconnect();
+
+                        Intent serviceIntent = new Intent(context, AISDecodingService.class);
+                        //serviceIntent.putExtra("AISPacket", packet);
+                        context.stopService(serviceIntent);
+                        client = null;
+                        //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
+                        break;
+                    }
+                }
+
                 while(bufferedReader.read() != -1) {
                     //Log.d(TAG, "ConnectionStatus: " + String.valueOf(client.isConnected()));
                     //Log.d(TAG, "DisconnectFlag Value: " + String.valueOf(mDisconnectFlag));
@@ -88,17 +106,7 @@ public class AISMessageReceiver implements Runnable {
                     this.context.sendBroadcast(intent);*/
                     //Log.d(TAG, packet);
 
-                    if(mDisconnectFlag){
-                        if (client != null) {
-                            Intent serviceIntent = new Intent(context, AISDecodingService.class);
-                            //serviceIntent.putExtra("AISPacket", packet);
-                            context.stopService(serviceIntent);
-                            client.disconnect();
-                            client = null;
-                            //Log.d(TAG, "DisconnectFlag: " + String.valueOf(client.isConnected()));
-                            break;
-                        }
-                    }
+
                 }
             } while (isConnected);
 

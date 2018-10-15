@@ -13,6 +13,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Date;
+
 public class GPS_Service extends Service {
 
     private LocationManager locationManager;
@@ -25,6 +27,7 @@ public class GPS_Service extends Service {
     public static final String AISPacketStatus = "AISPacketReceived";
     public static final String latitude = "LATITUDE";
     public static final String longitude = "LONGITUDE";
+    public static final String GPSTime = "TIME";
     public static final String locationStatus = "CURRENT_LOCATION_AVAILABLE";
     private static final int updateInterval = 1000;
     LocationUpdates locationUpdates = new LocationUpdates();
@@ -88,7 +91,12 @@ public class GPS_Service extends Service {
 
                 locationUpdates.setLatitude(location.getLatitude());
                 locationUpdates.setLongitude(location.getLongitude());
+                locationUpdates.setTime(location.getTime());
+                locationUpdates.setLocationStatus(true);
                 Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
+                Log.d(TAG, "Location Time: " + String.valueOf(location.getTime()));
+                Date dateTime = new Date(location.getTime());
+                Log.d(TAG, "Formatted TIme: " + dateTime.toString());
             /*lastLocation.set(location);
             Intent broadcastIntent = new Intent(GPSBroadcast);
             broadcastIntent.putExtra(latitude, location.getLatitude());
@@ -122,6 +130,8 @@ public class GPS_Service extends Service {
     private class LocationUpdates implements Runnable {
         private double lat = 0.0;
         private double lon = 0.0;
+        private long time = 0;
+        private boolean locStatus = false;
 
         public void setLatitude(double lat) {
             this.lat = lat;
@@ -129,6 +139,14 @@ public class GPS_Service extends Service {
 
         public void setLongitude(double lon) {
             this.lon = lon;
+        }
+
+        public void setTime(long gpsTime){
+            this.time = gpsTime;
+        }
+
+        public void setLocationStatus(boolean status){
+            this.locStatus = status;
         }
 
         public void run() {
@@ -139,16 +157,20 @@ public class GPS_Service extends Service {
                     e.printStackTrace();
                     Log.d(TAG, "Thread Interrupted");
                 }
+                Log.d(TAG, "Thread Status: Running");
+                Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
+                Log.d(TAG, "LocStatus: " + String.valueOf(locStatus));
                 Intent broadcastIntent = new Intent(GPSBroadcast);
                 broadcastIntent.putExtra(latitude, lat);
                 broadcastIntent.putExtra(longitude, lon);
+                broadcastIntent.putExtra(GPSTime, time);
 
                 if (lat != 0.0 && lon != 0.0){
                     broadcastIntent.putExtra(locationStatus, true);
                 }else
                     broadcastIntent.putExtra(locationStatus, false);
                 //Log.d(TAG, "BroadCast sent");
-                //Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
+                Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
                 //Toast.makeText(getApplicationContext(),"Broadcast Sent", Toast.LENGTH_LONG).show();
                 sendBroadcast(broadcastIntent);
             }

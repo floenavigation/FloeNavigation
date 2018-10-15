@@ -145,7 +145,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
         TextView latView = findViewById(R.id.waypointTabletLat);
         TextView lonView = findViewById(R.id.waypointTabletLon);
-        String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
+        String formatString = "%." + String.valueOf(numOfSignificantFigures) + "f";
         if(changeFormat){
             String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
             latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);

@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Date;
 import java.util.List;
 
 import de.awi.floenavigation.NavigationFunctions;
@@ -61,8 +62,10 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private LocationListener listener;
     private BroadcastReceiver broadcastReceiver;
     private final Handler handler = new Handler();
+    private Runnable fragRunnable;
     private String tabletLat;
     private String tabletLon;
+    private long tabletTime;
     private boolean isConfigDone;
     private long countAIS;
     private static final int checkInterval = 1000;
@@ -70,6 +73,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private int numOfSignificantFigures;
     private int autoCancelTimer = 0;
     private final static int MAX_TIMER = 300; //5 mins timer
+
 
 
     @Override
@@ -90,6 +94,30 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
         stationName = getArguments().getString(DatabaseHelper.stationName);
         setHasOptionsMenu(true);
+        fragRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (checkForCoordinates()){
+
+                    isConfigDone = true;
+                    //show the packet received
+                    changeLayout();
+                    populateTabLocation();
+                } else {
+                    //Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Waiting for AIS Packet");
+                    autoCancelTimer++;
+                    handler.postDelayed(this, checkInterval);
+
+                    if (autoCancelTimer >= MAX_TIMER){
+                        removeMMSIfromDBTable();
+                        callMMSIFragment();
+                        Toast.makeText(getActivity(), "No relevant packets received", Toast.LENGTH_LONG).show();
+                        handler.removeCallbacks(this);
+                    }
+                }
+            }
+        };
        return layout;
     }
 
@@ -130,30 +158,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             changeLayout();
             populateTabLocation();
         } else{
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (checkForCoordinates()){
-
-                        isConfigDone = true;
-                        //show the packet received
-                        changeLayout();
-                        populateTabLocation();
-                    } else {
-                        //Toast.makeText(getActivity(), "In Coordinate Fragment", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "Waiting for AIS Packet");
-                        autoCancelTimer++;
-                        handler.postDelayed(this, checkInterval);
-
-                        if (autoCancelTimer >= MAX_TIMER){
-                            removeMMSIfromDBTable();
-                            callMMSIFragment();
-                            Toast.makeText(getActivity(), "No relevant packets received", Toast.LENGTH_LONG).show();
-                            handler.removeCallbacks(this);
-                        }
-                    }
-                }
-            });
+            handler.post(fragRunnable);
         }
         if(broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver(){
@@ -164,6 +169,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                     String[] coordinates = coordinateString.split(",");*/
                     tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
                     tabletLon = intent.getExtras().get(GPS_Service.longitude).toString();
+                    tabletTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+
                     //Log.d(TAG, "Tablet Loc: " + tabletLat);
                     //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
                     populateTabLocation();
@@ -354,6 +361,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         switch (v.getId()){
             case R.id.progressCancelBtn:
                 removeMMSIfromDBTable();
+                handler.removeCallbacks(fragRunnable);
                 callMMSIFragment();
                 break;
             case R.id.confirm_Coordinates:

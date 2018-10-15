@@ -78,6 +78,13 @@ public class NetworkMonitor implements Runnable {
                         aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, appContext);
                         aisMessageThread = new Thread(aisMessage);
                         e.printStackTrace();
+                        mdisconnectFlag = true; //to disconnect the client
+                        intent.putExtra("mDisconnectFlag", mdisconnectFlag);
+                        appContext.sendBroadcast(intent);
+
+
+                        aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, appContext);
+                        aisMessageThread = new Thread(aisMessage);
                     }
 
                 }

@@ -95,8 +95,10 @@ public class ActionBarActivity extends Activity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    Log.d(TAG, "Location Status: " + String.valueOf(locationStatus));
                 }
             };
+
         }
 
         if (aisPacketBroadcastReceiver == null){
