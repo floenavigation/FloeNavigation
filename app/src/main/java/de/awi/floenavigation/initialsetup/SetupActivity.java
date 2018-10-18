@@ -29,6 +29,9 @@ import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -68,6 +71,7 @@ public class SetupActivity extends ActionBarActivity {
     private double[] predictedLongitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
     private double[] distanceDiff = new double[DatabaseHelper.INITIALIZATION_SIZE];
     private double[] stationUpdateTime = new double[DatabaseHelper.INITIALIZATION_SIZE];
+    private Date[] stationTime = new Date[DatabaseHelper.INITIALIZATION_SIZE];
     private double predictedBeta = 0.0;
     private double receivedBeta = 0.0;
     private double betaDifference = 0.0;
@@ -84,6 +88,7 @@ public class SetupActivity extends ActionBarActivity {
     private static double secondStationpreviousUpdateTime = 0;
     private int numOfSignificantFigures;
     private boolean isLock = false;
+    private SimpleDateFormat sdf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +96,8 @@ public class SetupActivity extends ActionBarActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_setup);
         hideNavigationBar();
+        sdf = new SimpleDateFormat("HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("gmt"));
         //isLock = true;
         //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         //super.onAttachedToWindow();
@@ -107,6 +114,11 @@ public class SetupActivity extends ActionBarActivity {
 
         //Populate Screen with Initial Values from DB
         new ReadParamsFromDB().execute();
+        try{
+            Thread.sleep(50);
+        } catch(InterruptedException ex){
+            Thread.currentThread().interrupt();
+        }
 
         receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex],
                 stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
@@ -166,6 +178,7 @@ public class SetupActivity extends ActionBarActivity {
                     predictedLatitude[i] = predictedCoordinates[DatabaseHelper.LATITUDE_INDEX];
                     predictedLongitude[i] = predictedCoordinates[DatabaseHelper.LONGITUDE_INDEX];
                     distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
+
 
                 }
 
@@ -356,7 +369,8 @@ public class SetupActivity extends ActionBarActivity {
                 rcvBeta.setEnabled(true);
                 betaDiff.setEnabled(true);
                 ais1MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.firstStationIndex]));
-                ais1UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.firstStationIndex]));
+                //ais1UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.firstStationIndex]));
+                ais1UpdateTime.setText(sdf.format(stationTime[DatabaseHelper.firstStationIndex]));
 
                 //ais1Difference.setText(String.valueOf(distanceDiff[DatabaseHelper.firstStationIndex]));
                 ais1Difference.setText(String.format(formatString, distanceDiff[DatabaseHelper.firstStationIndex]));
@@ -381,7 +395,8 @@ public class SetupActivity extends ActionBarActivity {
                 }
 
                 ais2MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.secondStationIndex]));
-                ais2UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.secondStationIndex]));
+                //ais2UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.secondStationIndex]));
+                ais2UpdateTime.setText(sdf.format(stationTime[DatabaseHelper.secondStationIndex]));
                 ais2Difference.setText(String.format(formatString, distanceDiff[DatabaseHelper.secondStationIndex]));
 
                 if(changeFormat){
@@ -530,7 +545,10 @@ public class SetupActivity extends ActionBarActivity {
                                 secondStationpreviousUpdateTime = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
                                 secondStationMessageCount++;
                             }
-                            updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
+                            //updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
+                            updateTime[i] = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.updateTime));
+                            stationTime[i] = new Date((long) updateTime[i]);
+
                             i++;
                         } while (cursor.moveToNext());
                         cursor.close();

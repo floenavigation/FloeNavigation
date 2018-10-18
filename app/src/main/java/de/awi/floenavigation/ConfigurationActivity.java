@@ -76,9 +76,12 @@ public class ConfigurationActivity extends ActionBarActivity {
                     String paramName = DatabaseHelper.configurationParameters[spinnerItem];
                     String paramValue = valueField.getText().toString();
                     updateDatabaseTable(db, paramName, paramValue);
+
                 }else {
                     Toast.makeText(this, "Please Enter a Correct Parameter Value", Toast.LENGTH_LONG).show();
                 }
+                InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             } else{
 
                 String paramName = DatabaseHelper.configurationParameters[spinnerItem];
@@ -95,8 +98,7 @@ public class ConfigurationActivity extends ActionBarActivity {
             }
 
             Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_LONG).show();
-            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
 
 
         } catch(SQLiteException e){

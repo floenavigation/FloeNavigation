@@ -3,6 +3,7 @@ package de.awi.floenavigation.aismessages;
 import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -13,7 +14,11 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.GPS_Service;
 
 import static de.awi.floenavigation.aismessages.AIVDM.strbuildtodec;
 
@@ -54,6 +59,11 @@ public class AISDecodingService extends IntentService {
     private String recvdStationName;
     private int packetType;
     private BroadcastReceiver wifiReceiver;
+    private BroadcastReceiver broadcastReceiver;
+    private long gpsTime;
+    private long timeDiff;
+
+
 
     public AISDecodingService() {
         super("AISDecodingService");
@@ -62,6 +72,27 @@ public class AISDecodingService extends IntentService {
         posObjB = new PostnReportClassB(); //18
         voyageDataObj = new StaticVoyageData(); //5
         dataReportObj = new StaticDataReport(); //24
+
+        //System.out.println(sdf.format(date));
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    //Log.d(TAG, "BroadCast Received");
+                    /*String coordinateString = intent.getExtras().get("coordinates").toString();
+                    String[] coordinates = coordinateString.split(",");*/
+                    //tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
+                    //tabletLon = intent.getExtras().get(GPS_Service.longitude).toString();
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    //Log.d(TAG, String.valueOf(new Date(tabletTime)));
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                    //Log.d(TAG, "Tablet Loc: " + tabletLat);
+                    //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
+                    //populateTabLocation();
+                }
+            };
+        }
     }
 
 
@@ -142,7 +173,7 @@ public class AISDecodingService extends IntentService {
                                 }
                                 Log.d(TAG, "Updated DB " + String.valueOf(recvdMMSI));
                                 int a = db.update(DatabaseHelper.fixedStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
-                                Log.d(TAG, "Update Result: " + String.valueOf(a));
+                                Log.d(TAG, "Update Result: " + recvdTimeStamp);
 
                                 break;
                                 //}
@@ -205,7 +236,8 @@ public class AISDecodingService extends IntentService {
                 recvdLon = posObjA.getLongitude();
                 recvdSpeed = posObjA.getSpeed();
                 recvdCourse = posObjA.getCourse();
-                recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjA.getSeconds());
+                //recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjA.getSeconds());
+                recvdTimeStamp = String.valueOf(System.currentTimeMillis() - timeDiff);
                 packetType = POSITION_REPORT_CLASSA_TYPE_1;
                 break;
             case STATIC_VOYAGE_DATA_CLASSB:
@@ -221,7 +253,8 @@ public class AISDecodingService extends IntentService {
                 recvdLon = posObjB.getLongitude();
                 recvdSpeed = posObjB.getSpeed();
                 recvdCourse = posObjB.getCourse();
-                recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjB.getSeconds());
+                //recvdTimeStamp = String.valueOf(SystemClock.elapsedRealtime());//String.valueOf(posObjA.getSeconds());
+                recvdTimeStamp = String.valueOf(System.currentTimeMillis() - timeDiff);
                 packetType = POSITION_REPORT_CLASSB;
                 break;
             case STATIC_DATA_CLASSA:

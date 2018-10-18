@@ -93,10 +93,10 @@ public class GPS_Service extends Service {
                 locationUpdates.setLongitude(location.getLongitude());
                 locationUpdates.setTime(location.getTime());
                 locationUpdates.setLocationStatus(true);
-                Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
-                Log.d(TAG, "Location Time: " + String.valueOf(location.getTime()));
-                Date dateTime = new Date(location.getTime());
-                Log.d(TAG, "Formatted TIme: " + dateTime.toString());
+               /* Log.d(TAG, "Location: " + String.valueOf(location.getLatitude()) + " " +  String.valueOf(location.getLongitude()));
+                Log.d(TAG, "Location Time: " + String.valueOf(new Date(location.getTime())));*/
+                /*Date dateTime = new Date(location.getTime());*/
+                //Log.d(TAG, "Formatted TIme: " + dateTime.toString());
             /*lastLocation.set(location);
             Intent broadcastIntent = new Intent(GPSBroadcast);
             broadcastIntent.putExtra(latitude, location.getLatitude());
@@ -133,8 +133,10 @@ public class GPS_Service extends Service {
         private long time = 0;
         private boolean locStatus = false;
 
+
         public void setLatitude(double lat) {
             this.lat = lat;
+
         }
 
         public void setLongitude(double lon) {
@@ -157,22 +159,26 @@ public class GPS_Service extends Service {
                     e.printStackTrace();
                     Log.d(TAG, "Thread Interrupted");
                 }
-                Log.d(TAG, "Thread Status: Running");
-                Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
-                Log.d(TAG, "LocStatus: " + String.valueOf(locStatus));
+
+
                 Intent broadcastIntent = new Intent(GPSBroadcast);
                 broadcastIntent.putExtra(latitude, lat);
                 broadcastIntent.putExtra(longitude, lon);
                 broadcastIntent.putExtra(GPSTime, time);
 
-                if (lat != 0.0 && lon != 0.0){
+
+                /*if (lat != 0.0 && lon != 0.0){
                     broadcastIntent.putExtra(locationStatus, true);
                 }else
-                    broadcastIntent.putExtra(locationStatus, false);
+                    broadcastIntent.putExtra(locationStatus, false);*/
+                broadcastIntent.putExtra(locationStatus, locStatus);
                 //Log.d(TAG, "BroadCast sent");
                 Log.d(TAG, "Tablet Location: " + String.valueOf(lat) + " " +  String.valueOf(lon));
+                Log.d(TAG, "Tablet Time: " + String.valueOf(time));
+                Log.d(TAG, "LocStatus: " + String.valueOf(locStatus));
                 //Toast.makeText(getApplicationContext(),"Broadcast Sent", Toast.LENGTH_LONG).show();
                 sendBroadcast(broadcastIntent);
+                locStatus = false;
             }
         }
     }

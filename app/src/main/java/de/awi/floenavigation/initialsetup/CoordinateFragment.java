@@ -65,7 +65,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
     private Runnable fragRunnable;
     private String tabletLat;
     private String tabletLon;
-    private long tabletTime;
+    /*private long tabletTime;*/
     private boolean isConfigDone;
     private long countAIS;
     private static final int checkInterval = 1000;
@@ -169,7 +169,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
                     String[] coordinates = coordinateString.split(",");*/
                     tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
                     tabletLon = intent.getExtras().get(GPS_Service.longitude).toString();
-                    tabletTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    //tabletTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
 
                     //Log.d(TAG, "Tablet Loc: " + tabletLat);
                     //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();

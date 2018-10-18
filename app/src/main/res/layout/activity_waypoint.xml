@@ -68,6 +68,34 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/waypointLabel"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:layout_marginEnd="15dp"
+                android:textColor="@color/white"/>
+
+            <EditText
+                android:id="@+id/waypointLabelId"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/et_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="2">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/waypointTabletLat"
                 android:textAllCaps="true"
                 android:textSize="15sp"

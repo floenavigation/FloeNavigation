@@ -20,12 +20,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
@@ -56,6 +60,8 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private String time;
     private boolean changeFormat;
     private int numOfSignificantFigures;
+    private long gpsTime;
+    private long timeDiff;
 
 
     //Action Bar Updates
@@ -97,6 +103,8 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
                     tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
                     tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
                     populateTabLocation();
                 }
             };
@@ -248,7 +256,6 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         waypoint.put(DatabaseHelper.yPosition, yPosition);
         waypoint.put(DatabaseHelper.updateTime, time);
         waypoint.put(DatabaseHelper.label, waypointLabel);
-        Log.d(TAG, waypointLabel);
         long result = db.insert(DatabaseHelper.waypointsTable, null, waypoint);
         if(result != -1){
             Log.d(TAG, "Waypoint Inserted Successfully");
@@ -274,14 +281,22 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     }
 
     private void createLabel(){
-        time = String.valueOf(SystemClock.elapsedRealtime());
+        Date date = new Date(System.currentTimeMillis() - timeDiff);
+        SimpleDateFormat displayFormat = new SimpleDateFormat("yyyyMMdd'D'HHmmss");
+        displayFormat.setTimeZone(TimeZone.getTimeZone("gmt"));
+        time = displayFormat.format(date);
+        EditText labelID_TV = findViewById(R.id.waypointLabelId);
+        String labelId = labelID_TV.getText().toString();
         List<String> labelElements = new ArrayList<String>();
         labelElements.add(time);
         labelElements.add(String.valueOf(tabletLat));
         labelElements.add(String.valueOf(tabletLon));
         labelElements.add(String.valueOf(xPosition));
         labelElements.add(String.valueOf(yPosition));
+        labelElements.add(String.valueOf(0.0));
+        labelElements.add(labelId);
         waypointLabel = TextUtils.join(",", labelElements);
+        Log.d(TAG, "Label: " + waypointLabel);
     }
 
     private boolean getOriginCoordinates(SQLiteDatabase db){

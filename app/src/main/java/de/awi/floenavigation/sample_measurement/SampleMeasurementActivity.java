@@ -30,8 +30,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
@@ -65,6 +68,8 @@ public class SampleMeasurementActivity extends Activity {
     private int numOfSignificantFigures;
     private String label;
     private String time;
+    private long gpsTime;
+    private long timeDiff;
 
     //Action Bar Updates
     private BroadcastReceiver aisPacketBroadcastReceiver;
@@ -128,6 +133,8 @@ public class SampleMeasurementActivity extends Activity {
                     tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
                     tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
                     populateTabLocation();
                 }
             };
@@ -295,7 +302,10 @@ public class SampleMeasurementActivity extends Activity {
         return false;
     }
     private void createLabel(){
-        time = String.valueOf(SystemClock.elapsedRealtime());
+        Date date = new Date(System.currentTimeMillis() - timeDiff);
+        SimpleDateFormat displayFormat = new SimpleDateFormat("yyyyMMdd'D'HHmmss");
+        displayFormat.setTimeZone(TimeZone.getTimeZone("gmt"));
+        time = displayFormat.format(date);
         List<String> labelElements = new ArrayList<String>();
         labelElements.add(time);
         labelElements.add(String.valueOf(tabletLat));
@@ -305,6 +315,7 @@ public class SampleMeasurementActivity extends Activity {
         labelElements.add(operation.getSelectedItem().toString());
         labelElements.add(selectedDeviceAttributes.get(deviceIDIndex));
         label = TextUtils.join(",", labelElements);
+        Log.d(TAG, "Label: " + label);
 
     }
 

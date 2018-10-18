@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.StrictMode;
 import android.util.Log;
 
 import org.apache.commons.net.telnet.TelnetClient;
@@ -46,6 +47,8 @@ public class AISMessageReceiver implements Runnable {
                 }
             }
         };
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
     }
 
@@ -59,7 +62,7 @@ public class AISMessageReceiver implements Runnable {
 
             client.connect(dstAddress, dstPort);
 
-            client.setKeepAlive(false);
+            //client.setKeepAlive(false);
             InputStreamReader clientStream = new InputStreamReader(client.getInputStream());
             bufferedReader = new BufferedReader(clientStream);
             /*Intent serviceIntent = new Intent(context, AISDecodingService.class);
