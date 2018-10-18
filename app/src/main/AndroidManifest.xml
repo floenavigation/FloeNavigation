@@ -165,8 +165,7 @@
             android:name=".DialogActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
-
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".ParameterViewActivity"
             android:configChanges="orientation"
@@ -174,9 +173,20 @@
             android:parentActivityName=".ConfigurationActivity"
             android:screenOrientation="landscape">
         </activity>
+        <activity android:name=".ActionBarActivity" />
 
+        <service
+            android:name=".AuthenticatorService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name = "android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
 
-        <activity android:name=".ActionBarActivity"></activity>
     </application>
 
 </manifest>

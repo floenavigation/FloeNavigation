@@ -2,10 +2,12 @@ package de.awi.floenavigation.network;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.aismessages.AISMessageReceiver;
@@ -25,6 +27,7 @@ public class NetworkMonitor implements Runnable {
         this.appContext = con;
         aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, con);
         aisMessageThread = new Thread(aisMessage);
+
     }
 
     public void run(){
@@ -86,7 +89,6 @@ public class NetworkMonitor implements Runnable {
                         aisMessage = new AISMessageReceiver(GridSetupActivity.dstAddress,GridSetupActivity.dstPort, appContext);
                         aisMessageThread = new Thread(aisMessage);
                     }
-
                 }
             } else {
                 Log.d(TAG, "Ping Failed");

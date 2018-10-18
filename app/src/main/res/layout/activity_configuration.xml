@@ -65,6 +65,44 @@
                 android:digits="0123456789"
                 android:inputType="numberPassword|textVisiblePassword"
                 android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/normalInitialRangeParam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:layout_weight="2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:text="@string/paramValue"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="30sp" />
+
+            <SeekBar
+                android:id="@+id/seekBarInitialTimeRange"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:progress="0"
+                android:max="50"/>
+
+            <TextView
+                android:id="@+id/progressBarInitValue"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="30sp" />
+
+
         </LinearLayout>
 
         <LinearLayout
@@ -111,6 +149,7 @@
             </RadioGroup>
 
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="wrap_content"

@@ -17,7 +17,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -31,7 +33,11 @@ public class ConfigurationActivity extends ActionBarActivity {
     private EditText valueField;
     private boolean coordinateTypeDegMinSec = false;
     private boolean isNormalParam = true;
+    private boolean isNormalInitialRangeParam = false;
     private int spinnerItem = 0;
+    private int MIN_VALUE = 10;
+    private int progressValue = MIN_VALUE;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +46,53 @@ public class ConfigurationActivity extends ActionBarActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         populateParameters();
         Spinner paramType = findViewById(R.id.parameterSelect);
+
+        SeekBar initialTimeRange = findViewById(R.id.seekBarInitialTimeRange);
+        final TextView progressBarValue = findViewById(R.id.progressBarInitValue);
+        initialTimeRange.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressValue = MIN_VALUE + progress;
+                progressBarValue.setText(String.valueOf(progressValue));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         paramType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                if(position != 2){
+                if (position != 2) {
                     findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
+                    findViewById(R.id.normalInitialRangeParam).setVisibility(View.GONE);
                     spinnerItem = position;
+                    isNormalInitialRangeParam = false;
                     isNormalParam = true;
                 } else {
                     findViewById(R.id.normalParam).setVisibility(View.GONE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.VISIBLE);
+                    findViewById(R.id.normalInitialRangeParam).setVisibility(View.GONE);
                     isNormalParam = false;
+                    isNormalInitialRangeParam = false;
                     spinnerItem = 2;
+                }
+                if (position == 4){
+                    findViewById(R.id.normalParam).setVisibility(View.GONE);
+                    findViewById(R.id.normalInitialRangeParam).setVisibility(View.VISIBLE);
+                    isNormalInitialRangeParam = true;
+                    isNormalParam = false;
+                    progressBarValue.setText(String.valueOf(MIN_VALUE));
                 }
             }
 
@@ -61,7 +100,7 @@ public class ConfigurationActivity extends ActionBarActivity {
             public void onNothingSelected(AdapterView<?> parent) {
                 return;
             }
-        } );
+        });
     }
 
 
@@ -70,8 +109,9 @@ public class ConfigurationActivity extends ActionBarActivity {
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            valueField = findViewById(R.id.parameterValue);
+
             if(isNormalParam){
+                valueField = findViewById(R.id.parameterValue);
                 if(validateValueField(valueField)){
                     String paramName = DatabaseHelper.configurationParameters[spinnerItem];
                     String paramValue = valueField.getText().toString();
@@ -82,6 +122,10 @@ public class ConfigurationActivity extends ActionBarActivity {
                 }
                 InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            } else if (isNormalInitialRangeParam) {
+                String paramName = DatabaseHelper.configurationParameters[spinnerItem];
+                Log.d(TAG, String.valueOf(progressValue * 60 * 1000));
+                updateDatabaseTable(db, paramName, String.valueOf(progressValue * 60 * 1000));
             } else{
 
                 String paramName = DatabaseHelper.configurationParameters[spinnerItem];
@@ -106,6 +150,8 @@ public class ConfigurationActivity extends ActionBarActivity {
             e.printStackTrace();
         }
     }
+
+
 
     private void populateParameters(){
         List<String> parameterList = new ArrayList<String>();

@@ -35,6 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String prediction_accuracy_threshold = "PREDICTION_ACCURACY_THRESHOLD";
     public static final String lat_long_view_format = "LATITUDE_LONGITUDE_VIEW_FORMAT";
     public static final String decimal_number_significant_figures = "DECIMAL_NUMBER_SIGNIFICANT_FIGURES";
+    public static final String initial_setup_time = "INITIAL_SETUP_TIME";
 
 
     //Database Tables Names
@@ -102,14 +103,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "Hut",
             "Mast",
             "Fixpoint",
-            "Buoy" //To be discussed with marcel
     };
 
     public static final String[] configurationParameters = {
             "ERROR_THRESHOLD",
             "PREDICTION_ACCURACY_THRESHOLD",
             "LATITUDE_LONGITUDE_VIEW_FORMAT",
-            "DECIMAL_NUMBER_SIGNIFICANT_FIGURES"
+            "DECIMAL_NUMBER_SIGNIFICANT_FIGURES",
+            "INITIAL_SETUP_TIME"
     };
 
 
@@ -169,6 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultConfigParams(db, prediction_accuracy_threshold, "3");
         insertDefaultConfigParams(db, lat_long_view_format, "1");
         insertDefaultConfigParams(db, decimal_number_significant_figures, "5");
+        insertDefaultConfigParams(db, initial_setup_time, String.valueOf(30 * 60 * 1000));
 
         insertUser(db, "awi", "awi");
 

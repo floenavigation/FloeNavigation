@@ -51,7 +51,7 @@ public class SetupActivity extends ActionBarActivity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static final int PREDICTION_TIME = 20 * 1000; //30 * 60 * 1000;
+    private static int PREDICTION_TIME; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
     private static final int MAX_TIMER_COUNT = 3;
 
@@ -98,7 +98,7 @@ public class SetupActivity extends ActionBarActivity {
         hideNavigationBar();
         sdf = new SimpleDateFormat("HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
+        retrievePredictionTimefromDB();
         //isLock = true;
         //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         //super.onAttachedToWindow();
@@ -278,6 +278,37 @@ public class SetupActivity extends ActionBarActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private void retrievePredictionTimefromDB(){
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor configParamCursor = db.query(DatabaseHelper.configParametersTable, null, null,
+                    null, null, null, null);
+            String parameterName;
+            int parameterValue = 0;
+
+            if (configParamCursor.moveToFirst()){
+                do{
+                    parameterName = configParamCursor.getString(configParamCursor.getColumnIndex(DatabaseHelper.parameterName));
+                    parameterValue = configParamCursor.getInt(configParamCursor.getColumnIndex(DatabaseHelper.parameterValue));
+
+                    switch (parameterName) {
+                        case DatabaseHelper.initial_setup_time:
+                            PREDICTION_TIME = parameterValue;
+                            break;
+                    }
+                }while (configParamCursor.moveToNext());
+            }else {
+                Log.d(TAG, "Config Parameter table cursor error");
+            }
+            configParamCursor.close();
+        }catch (SQLException e){
+
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
     }
 
 
