@@ -62,6 +62,8 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private int numOfSignificantFigures;
     private long gpsTime;
     private long timeDiff;
+    private EditText labelId_TV;
+    private String labelId;
 
 
     //Action Bar Updates
@@ -255,6 +257,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         waypoint.put(DatabaseHelper.xPosition, xPosition);
         waypoint.put(DatabaseHelper.yPosition, yPosition);
         waypoint.put(DatabaseHelper.updateTime, time);
+        waypoint.put(DatabaseHelper.labelID, labelId);
         waypoint.put(DatabaseHelper.label, waypointLabel);
         long result = db.insert(DatabaseHelper.waypointsTable, null, waypoint);
         if(result != -1){
@@ -285,8 +288,8 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         SimpleDateFormat displayFormat = new SimpleDateFormat("yyyyMMdd'D'HHmmss");
         displayFormat.setTimeZone(TimeZone.getTimeZone("gmt"));
         time = displayFormat.format(date);
-        EditText labelID_TV = findViewById(R.id.waypointLabelId);
-        String labelId = labelID_TV.getText().toString();
+        labelId_TV = findViewById(R.id.waypointLabelId);
+        labelId = labelId_TV.getText().toString();
         List<String> labelElements = new ArrayList<String>();
         labelElements.add(time);
         labelElements.add(String.valueOf(tabletLat));

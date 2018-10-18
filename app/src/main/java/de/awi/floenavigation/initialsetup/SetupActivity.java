@@ -70,7 +70,6 @@ public class SetupActivity extends ActionBarActivity {
     private double[] predictedLatitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
     private double[] predictedLongitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
     private double[] distanceDiff = new double[DatabaseHelper.INITIALIZATION_SIZE];
-    private double[] stationUpdateTime = new double[DatabaseHelper.INITIALIZATION_SIZE];
     private Date[] stationTime = new Date[DatabaseHelper.INITIALIZATION_SIZE];
     private double predictedBeta = 0.0;
     private double receivedBeta = 0.0;
@@ -90,6 +89,7 @@ public class SetupActivity extends ActionBarActivity {
     private boolean isLock = false;
     private SimpleDateFormat sdf;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +97,8 @@ public class SetupActivity extends ActionBarActivity {
         setContentView(R.layout.activity_setup);
         hideNavigationBar();
         sdf = new SimpleDateFormat("HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("gmt"));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         //isLock = true;
         //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         //super.onAttachedToWindow();
@@ -346,6 +347,7 @@ public class SetupActivity extends ActionBarActivity {
         final String formatString = "%."+String.valueOf(numOfSignificantFigures)+"f";
 
 
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -397,6 +399,8 @@ public class SetupActivity extends ActionBarActivity {
                 ais2MMSI.setText(String.valueOf(stationMMSI[DatabaseHelper.secondStationIndex]));
                 //ais2UpdateTime.setText(String.valueOf(stationUpdateTime[DatabaseHelper.secondStationIndex]));
                 ais2UpdateTime.setText(sdf.format(stationTime[DatabaseHelper.secondStationIndex]));
+                Log.d(TAG, "Time: " + sdf.format(stationTime[DatabaseHelper.secondStationIndex]));
+                Log.d(TAG, "Also Time: " + String.valueOf(stationTime[DatabaseHelper.secondStationIndex]));
                 ais2Difference.setText(String.format(formatString, distanceDiff[DatabaseHelper.secondStationIndex]));
 
                 if(changeFormat){
@@ -548,6 +552,9 @@ public class SetupActivity extends ActionBarActivity {
                             //updateTime[i] = SystemClock.elapsedRealtime() - cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
                             updateTime[i] = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.updateTime));
                             stationTime[i] = new Date((long) updateTime[i]);
+                            Log.d(TAG, "Also Also Time: " + String.valueOf(stationTime[i]));
+                            Log.d(TAG, "Also ALso Also Time: " + stationTime[i].toGMTString());
+                            Log.d(TAG, "Also Also Also Also Time: " + sdf.format(updateTime[i]));
 
                             i++;
                         } while (cursor.moveToNext());
@@ -576,7 +583,7 @@ public class SetupActivity extends ActionBarActivity {
                 stationLongitude = longitude;
                 stationSOG = sog;
                 stationCOG = cog;
-                stationUpdateTime = updateTime;
+
             }
         }
     }

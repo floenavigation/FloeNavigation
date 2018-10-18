@@ -79,6 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String deviceName = "DEVICE_NAME";
     public static final String deviceShortName = "DEVICE_SHORT_NAME";
     public static final String operation = "OPERATION";
+    public static final String labelID = "LABEL_ID";
     public static final String label = "LABEL";
     public static final String parameterName = "PARAMETER_NAME";
     public static final String parameterValue = "PARAMETER_VALUE";
@@ -207,6 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +
                     updateTime + " TEXT, " +
+                    labelID + " TEXT, " +
                     label + " TEXT);");
 
             //Create DeviceList Table
@@ -232,6 +234,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +
                     updateTime + " TEXT, " +
+                    labelID + " TEXT, " +
                     label + " TEXT); ");
 
 

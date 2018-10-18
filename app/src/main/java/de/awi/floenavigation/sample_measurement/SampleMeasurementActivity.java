@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +71,8 @@ public class SampleMeasurementActivity extends Activity {
     private String time;
     private long gpsTime;
     private long timeDiff;
+    private EditText labelId_TV;
+    private String labelId;
 
     //Action Bar Updates
     private BroadcastReceiver aisPacketBroadcastReceiver;
@@ -288,6 +291,7 @@ public class SampleMeasurementActivity extends Activity {
                 mContentValues.put(DatabaseHelper.longitude, tabletLon);
                 mContentValues.put(DatabaseHelper.xPosition, xPosition);
                 mContentValues.put(DatabaseHelper.yPosition, yPosition);
+                mContentValues.put(DatabaseHelper.labelID, labelId);
                 mContentValues.put(DatabaseHelper.label, label);
                 mContentValues.put(DatabaseHelper.updateTime, time);
                 db.insert(DatabaseHelper.sampleMeasurementTable, null, mContentValues);
@@ -306,12 +310,15 @@ public class SampleMeasurementActivity extends Activity {
         SimpleDateFormat displayFormat = new SimpleDateFormat("yyyyMMdd'D'HHmmss");
         displayFormat.setTimeZone(TimeZone.getTimeZone("gmt"));
         time = displayFormat.format(date);
+        labelId_TV = findViewById(R.id.sampleMeasurementLabelId);
+        labelId = labelId_TV.getText().toString();
         List<String> labelElements = new ArrayList<String>();
         labelElements.add(time);
         labelElements.add(String.valueOf(tabletLat));
         labelElements.add(String.valueOf(tabletLon));
         labelElements.add(String.valueOf(xPosition));
         labelElements.add(String.valueOf(yPosition));
+        labelElements.add(labelId);
         labelElements.add(operation.getSelectedItem().toString());
         labelElements.add(selectedDeviceAttributes.get(deviceIDIndex));
         label = TextUtils.join(",", labelElements);
