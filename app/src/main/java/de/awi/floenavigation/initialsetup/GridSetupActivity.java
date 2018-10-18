@@ -34,8 +34,8 @@ public class GridSetupActivity extends FragmentActivity implements FragmentChang
     private boolean configSetupStep;
     private static final String TAG = "GridSetupActivity";
 
-    public static final String dstAddress = "192.168.137.105";//"192.168.0.1";
-    public static final int dstPort = 8080;//2000;
+    public static final String dstAddress = "192.168.0.1";
+    public static final int dstPort = 2000;
 
     //Action Bar Updates
     private BroadcastReceiver broadcastReceiver;

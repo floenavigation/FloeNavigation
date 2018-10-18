@@ -171,8 +171,7 @@
             android:configChanges="orientation"
             android:label="@string/label_parameter_view_activity"
             android:parentActivityName=".ConfigurationActivity"
-            android:screenOrientation="landscape">
-        </activity>
+            android:screenOrientation="landscape"></activity>
         <activity android:name=".ActionBarActivity" />
 
         <service
@@ -182,11 +181,13 @@
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
-                android:name = "android.accounts.AccountAuthenticator"
+                android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
 
+        <activity android:name=".ListViewActivity"></activity>
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.design.widget.SwipeDismissBehavior;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +87,7 @@ class ParameterObject{
     private String parameterName;
     private String parameterValue;
 
-    public ParameterObject(String name, String value){
+    ParameterObject(String name, String value){
         this.parameterName = name;
         this.parameterValue = value;
     }

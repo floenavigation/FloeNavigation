@@ -34,6 +34,7 @@ import java.util.TimeZone;
 import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.ListViewActivity;
 import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
@@ -356,5 +357,10 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void onClickViewWaypoints(View view) {
+        Intent listViewIntent = new Intent(this, ListViewActivity.class);
+        startActivity(listViewIntent);
     }
 }

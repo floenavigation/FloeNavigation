@@ -35,7 +35,7 @@
     <string name="synchronization">Synchronization</string>
     <string name="administrator_privileges">Administrator Privileges</string>
     <string name="viewParamsBtn">View Parameter List</string>
-
+    <string name="viewWapointsBtn">View Waypoints List</string>
     <!--Setup Screens -->
     <string name="setup">Device Setup</string>
     <string name="AISstationName">AIS Station Name</string>
@@ -123,7 +123,6 @@
     <string name="ok">Ok</string>
     <string name="next">Next</string>
     <string name="location_available">location_available</string>
-
 
 
     <string name="label_parameter_view_activity">System Parameters</string>

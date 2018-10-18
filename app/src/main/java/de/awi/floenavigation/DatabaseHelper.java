@@ -170,7 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultConfigParams(db, prediction_accuracy_threshold, "3");
         insertDefaultConfigParams(db, lat_long_view_format, "1");
         insertDefaultConfigParams(db, decimal_number_significant_figures, "5");
-        insertDefaultConfigParams(db, initial_setup_time, String.valueOf(30 * 60 * 1000));
+        insertDefaultConfigParams(db, initial_setup_time, String.valueOf(1 * 60 * 1000));
 
         insertUser(db, "awi", "awi");
 
@@ -273,7 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] deviceLongNames = {"2 m Blake Trawl", "3D camera", "8-Channel Temperature Lance",
                 "Absorption and beam attenuation", "Accoustic Geodetic Seafloor Station",};
 
-        for(int index = 0; index < 5; index++) {
+        for(int index = 0; index < stationTypes.length; index++) {
             ContentValues mContentValues = new ContentValues();
             mContentValues.put(deviceID, index);
             mContentValues.put(deviceName, deviceLongNames[index]);
