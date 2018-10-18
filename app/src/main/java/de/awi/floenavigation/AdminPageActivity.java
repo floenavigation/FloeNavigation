@@ -47,6 +47,7 @@ public class AdminPageActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_page);
+        dialogBoxDisplay();
         gridConfigOption = (CardView) findViewById(R.id.gridconfigcardView);
         handler.postDelayed(gridConfigRunnable, 100);
         SyncOption = (CardView) findViewById(R.id.synccardView);
@@ -112,6 +113,19 @@ public class AdminPageActivity extends ActionBarActivity {
     public void onClickAdminPrivilegesListener(View view) {
         Intent adminUserPwdActIntent = new Intent(this, AdminUserPwdActivity.class);
         startActivity(adminUserPwdActIntent);
+    }
+
+    private void dialogBoxDisplay() {
+
+        String popupMsg = "Please Give a Unique ID to this Tablet: ";
+        String title = "Setup Tablet ID";
+        Intent dialogIntent = new Intent(this, DialogActivity.class);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
+        dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
+        dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, false);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TABLETID, true);
+        startActivity(dialogIntent);
     }
 
     @Override

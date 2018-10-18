@@ -13,8 +13,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
@@ -26,6 +28,7 @@ public class DialogActivity extends Activity {
     private String dialogMsg;
     private int dialogIcon;
     private boolean showDialogOptions = false;
+    private boolean tabletIdDialog = false;
     public static final String DIALOG_BUNDLE = "dialogBundle";
     public static final String DIALOG_TITLE = "title";
     public static final String DIALOG_MSG = "message";
@@ -33,6 +36,8 @@ public class DialogActivity extends Activity {
     public static final String DIALOG_OPTIONS = "options";
     public static final String DIALOG_BETA = "beta";
     private static final String TAG = "DialogActivity";
+    public static final String DIALOG_TABLETID = "tabletIdDialog";
+    private String tabletId;
     private AlertDialog alertDialog;
     private double receivedBeta = 0.0;
 
@@ -54,6 +59,9 @@ public class DialogActivity extends Activity {
         }
         if(callingIntent.getExtras().containsKey(DIALOG_BETA)){
             receivedBeta = callingIntent.getExtras().getDouble(DIALOG_BETA);
+        }
+        if(callingIntent.getExtras().containsKey(DIALOG_TABLETID)){
+            tabletIdDialog = callingIntent.getExtras().getBoolean(DIALOG_TABLETID);
         }
 
         //setContentView(R.layout.activity_dialog);
@@ -87,10 +95,31 @@ public class DialogActivity extends Activity {
             });
         }
 
+        if(tabletIdDialog){
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            alertBuilder.setView(input);
+            alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    tabletId = input.getText().toString();
+                    Log.d(TAG, tabletId);
+                    //insert in Db;
+                }
+            });
+            alertBuilder.setNegativeButton("Finish", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    alertDialog.cancel();
+
+                }
+            });
+        }
+
         Log.d(TAG, dialogTitle);
         Log.d(TAG, String.valueOf(showDialogOptions));
         alertDialog = alertBuilder.create();
-        if(showDialogOptions){
+        if(showDialogOptions || tabletIdDialog){
             alertDialog.setCancelable(false);
             alertDialog.setCanceledOnTouchOutside(false);
         }

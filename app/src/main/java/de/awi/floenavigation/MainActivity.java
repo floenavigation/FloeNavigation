@@ -16,6 +16,10 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,10 +28,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import java.util.UUID;
 
 import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.initialsetup.CoordinateFragment;
@@ -41,6 +48,8 @@ public class MainActivity extends ActionBarActivity {
     private static boolean gpssetup = false;
     public static final int GPS_REQUEST_CODE = 10;
     private static long numOfBaseStations;
+    private static final String TAG = "MainActivity";
+
 
 
     @Override

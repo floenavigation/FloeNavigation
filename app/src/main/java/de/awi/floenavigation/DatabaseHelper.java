@@ -36,6 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String lat_long_view_format = "LATITUDE_LONGITUDE_VIEW_FORMAT";
     public static final String decimal_number_significant_figures = "DECIMAL_NUMBER_SIGNIFICANT_FIGURES";
     public static final String initial_setup_time = "INITIAL_SETUP_TIME";
+    public static final String tabletId = "TABLET_ID";
 
 
     //Database Tables Names
@@ -110,7 +111,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "PREDICTION_ACCURACY_THRESHOLD",
             "LATITUDE_LONGITUDE_VIEW_FORMAT",
             "DECIMAL_NUMBER_SIGNIFICANT_FIGURES",
-            "INITIAL_SETUP_TIME"
+            "INITIAL_SETUP_TIME",
+            "TABLET_ID"
     };
 
 

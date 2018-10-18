@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
@@ -118,6 +119,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+
                 }
             };
         }

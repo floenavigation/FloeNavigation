@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -45,7 +46,7 @@ public class ConfigurationActivity extends ActionBarActivity {
         setContentView(R.layout.activity_configuration);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         populateParameters();
-        Spinner paramType = findViewById(R.id.parameterSelect);
+        final Spinner paramType = findViewById(R.id.parameterSelect);
 
         SeekBar initialTimeRange = findViewById(R.id.seekBarInitialTimeRange);
         final TextView progressBarValue = findViewById(R.id.progressBarInitValue);
@@ -71,7 +72,8 @@ public class ConfigurationActivity extends ActionBarActivity {
         paramType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                EditText paramVal = findViewById(R.id.parameterValue);
+                int defaultInputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
                 if (position != 2) {
                     findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
@@ -93,6 +95,13 @@ public class ConfigurationActivity extends ActionBarActivity {
                     isNormalInitialRangeParam = true;
                     isNormalParam = false;
                     progressBarValue.setText(String.valueOf(MIN_VALUE));
+                }
+                if(position == 5){
+                    //defaultInputType = paramVal.getInputType();
+                    paramVal.setInputType(InputType.TYPE_CLASS_TEXT);
+                } else{
+                    paramVal.setInputType(defaultInputType);
+
                 }
             }
 
