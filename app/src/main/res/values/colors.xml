@@ -14,6 +14,7 @@
     <color name="aqua">#7fffd4</color>
     <color name="maroon">#b03060</color>
     <color name="orange">#ffa500</color>
+    <color name="Gray">#fbf7f7</color>
 
     <!--Login Screen -->
     <color name="loginGradStart">#19AA8B</color>

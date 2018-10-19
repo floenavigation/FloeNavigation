@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:padding="5dp">
 
+
     <TextView
         android:id="@+id/labelIDView"
         android:layout_width="wrap_content"
@@ -18,6 +19,7 @@
         android:textSize="20sp"/>
 
     <LinearLayout
+        android:id="@+id/posLay"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_below="@+id/labelIDView">
@@ -61,5 +63,11 @@
             android:textAppearance="@android:style/TextAppearance.Material.Large"
             android:textSize="20sp" />
     </LinearLayout>
+
+    <View
+        android:layout_below="@+id/posLay"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/backgroundGradStop"/>
 
 </RelativeLayout>

@@ -37,4 +37,5 @@ dependencies {
     implementation 'org.kie.modules:org-apache-commons-net:6.5.0.Final'
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.android.support:design:27.1.1'
 }

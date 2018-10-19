@@ -8,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
@@ -21,6 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -81,6 +84,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         new ReadTabletID().execute();
 
         ActionBar actionBar = getActionBar();
@@ -225,6 +229,11 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
     private void onClickConfirm(){
 
+        TextView wayPointLabel = findViewById(R.id.waypointLabelId);
+        if (TextUtils.isEmpty(wayPointLabel.getText().toString())) {
+            Toast.makeText(this, "Invalid waypoint label", Toast.LENGTH_LONG).show();
+            return;
+        }
         tabletLat = (tabletLat == null) ? 0.0 : tabletLat;
         tabletLon = (tabletLon == null) ? 0.0 : tabletLon;
         if(tabletLat != 0.0 && tabletLon != 0.0) {
@@ -366,8 +375,29 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     }
 
     public void onClickViewWaypoints(View view) {
-        Intent listViewIntent = new Intent(this, ListViewActivity.class);
-        startActivity(listViewIntent);
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            long numOfWaypoints = DatabaseUtils.queryNumEntries(db, DatabaseHelper.waypointsTable);
+
+            if (numOfWaypoints > 0){
+                Intent listViewIntent = new Intent(this, ListViewActivity.class);
+                startActivity(listViewIntent);
+            }else {
+                Toast.makeText(this, "No waypoints are marked in the grid", Toast.LENGTH_LONG).show();
+            }
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error in reading database");
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent mainActIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActIntent);
     }
 
     private class ReadTabletID extends AsyncTask<Void, Void, Boolean>{
