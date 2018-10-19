@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -66,6 +67,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     private long timeDiff;
     private EditText labelId_TV;
     private String labelId;
+    private String tabletID;
 
 
     //Action Bar Updates
@@ -79,6 +81,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint);
+        new ReadTabletID().execute();
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -293,6 +296,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
         time = displayFormat.format(date);
         labelId_TV = findViewById(R.id.waypointLabelId);
         labelId = labelId_TV.getText().toString();
+        labelId = tabletID + "_" + labelId;
         List<String> labelElements = new ArrayList<String>();
         labelElements.add(time);
         labelElements.add(String.valueOf(tabletLat));
@@ -364,5 +368,50 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
     public void onClickViewWaypoints(View view) {
         Intent listViewIntent = new Intent(this, ListViewActivity.class);
         startActivity(listViewIntent);
+    }
+
+    private class ReadTabletID extends AsyncTask<Void, Void, Boolean>{
+
+        @Override
+        protected void onPreExecute(){
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            boolean success = false;
+            try{
+                DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                Cursor paramCursor = db.query(DatabaseHelper.configParametersTable,
+                        new String[] {DatabaseHelper.parameterName, DatabaseHelper.parameterValue},
+                        DatabaseHelper.parameterName +" = ?",
+                        new String[] {DatabaseHelper.tabletId},
+                        null, null, null);
+                if (paramCursor.moveToFirst()){
+                    String paramValue = paramCursor.getString(paramCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue));
+                    if(!paramValue.isEmpty()){
+                        success = true;
+                        tabletID = paramValue;
+                    } else{
+                        Log.d(TAG, "Blank TabletID");
+                    }
+                } else{
+                    Log.d(TAG, "TabletID not set");
+                }
+                paramCursor.close();
+
+            } catch(SQLiteException e){
+                Log.d(TAG, "Error Reading from Database");
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result){
+                Log.d(TAG, "Waypoint AsyncTask: Database Error");
+            }
+        }
     }
 }

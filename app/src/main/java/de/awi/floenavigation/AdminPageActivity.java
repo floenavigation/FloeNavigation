@@ -2,11 +2,15 @@ package de.awi.floenavigation;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
+import android.text.style.TtsSpan;
+import android.util.Log;
 import android.view.View;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -15,6 +19,8 @@ import android.widget.Toast;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
 public class AdminPageActivity extends ActionBarActivity {
+    private static final String TAG = "AdminPageActivity";
+
     CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption;
     Handler handler = new Handler();
     Runnable gridConfigRunnable = new Runnable() {
@@ -47,7 +53,9 @@ public class AdminPageActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_page);
-        dialogBoxDisplay();
+        if(!isTabletNameSetup()) {
+            dialogBoxDisplay();
+        }
         gridConfigOption = (CardView) findViewById(R.id.gridconfigcardView);
         handler.postDelayed(gridConfigRunnable, 100);
         SyncOption = (CardView) findViewById(R.id.synccardView);
@@ -89,6 +97,35 @@ public class AdminPageActivity extends ActionBarActivity {
 
         if (count < 2){
             success =  false;
+        }
+        return success;
+    }
+
+    private boolean isTabletNameSetup(){
+        boolean success = false;
+        try{
+            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor paramCursor = db.query(DatabaseHelper.configParametersTable,
+                    new String[] {DatabaseHelper.parameterName, DatabaseHelper.parameterValue},
+                    DatabaseHelper.parameterName +" = ?",
+                    new String[] {DatabaseHelper.tabletId},
+                    null, null, null);
+            if (paramCursor.moveToFirst()){
+                String paramValue = paramCursor.getString(paramCursor.getColumnIndexOrThrow(DatabaseHelper.parameterValue));
+                if(!paramValue.isEmpty()){
+                    success = true;
+                    Log.d(TAG, "TabletID is: " + paramValue);
+                } else{
+                    Log.d(TAG, "Blank TabletID");
+                }
+            } else{
+                Log.d(TAG, "TabletID not set");
+            }
+            paramCursor.close();
+
+        } catch(SQLiteException e){
+            Log.d(TAG, "Error Reading from Database");
         }
         return success;
     }

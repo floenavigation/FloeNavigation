@@ -105,15 +105,13 @@ public class DialogActivity extends Activity {
                     tabletId = input.getText().toString();
                     Log.d(TAG, tabletId);
                     //insert in Db;
-                }
-            });
-            alertBuilder.setNegativeButton("Finish", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    alertDialog.cancel();
+                    new SetupTabletID().execute();
+                    Intent intent = new Intent(getApplicationContext(), AdminPageActivity.class);
+                    startActivity(intent);
 
                 }
             });
+
         }
 
         Log.d(TAG, dialogTitle);
@@ -139,6 +137,41 @@ public class DialogActivity extends Activity {
         }
     }
 
+    private class SetupTabletID extends AsyncTask<Void,Void,Boolean> {
+
+        @Override
+        protected void onPreExecute(){
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                ContentValues tablet = new ContentValues();
+                tablet.put(DatabaseHelper.parameterName, DatabaseHelper.tabletId);
+                tablet.put(DatabaseHelper.parameterValue, tabletId);
+                if((db.insert(DatabaseHelper.configParametersTable, null, tablet)) != -1){
+                    return true;
+                } else{
+                    return false;
+                }
+            } catch (SQLiteException e){
+                Log.d(TAG, "Error Inserting TabletID");
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result){
+                Log.d(TAG, "SetupTabletID AsyncTask: Database Error");
+            }
+        }
+    }
     private class CreateTablesOnStartup extends AsyncTask<Void,Void,Boolean> {
 
         @Override
@@ -170,9 +203,9 @@ public class DialogActivity extends Activity {
             beta.put(DatabaseHelper.beta, recdBeta);
             beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
             db.insert(DatabaseHelper.betaTable, null, beta);
-            long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
+            /*long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
             Log.d(TAG, String.valueOf(test));
-
+*/
 
         } catch(SQLException e){
             Log.d(TAG, "Error Updating Beta Table");
