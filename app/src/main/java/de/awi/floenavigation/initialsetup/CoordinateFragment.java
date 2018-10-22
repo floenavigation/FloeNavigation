@@ -388,6 +388,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
             callMMSIFragment();
         } else{
             Intent intent = new Intent(getActivity(), SetupActivity.class);
+            intent.putExtra(SetupActivity.calledFromCoordinateFragment, true);
             startActivity(intent);
         }
     }

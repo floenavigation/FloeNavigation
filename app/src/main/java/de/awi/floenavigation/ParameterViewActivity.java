@@ -65,9 +65,11 @@ public class ParameterViewActivity extends ListActivity {
                        paramValue = getResources().getString(R.string.latLonFraction);
                    }
                }
-               if (paramName.equals(DatabaseHelper.initial_setup_time)) {
+               if (paramName.equals(DatabaseHelper.initial_setup_time) || paramName.equals(DatabaseHelper.prediction_accuracy_threshold)) {
                    paramValue = String.valueOf(Integer.parseInt(paramValue) / 60000);
                    paramValue = paramValue + " mins";
+               } else if(paramName.equals(DatabaseHelper.error_threshold)){
+                   paramValue = paramValue + " meters";
                }
 
 

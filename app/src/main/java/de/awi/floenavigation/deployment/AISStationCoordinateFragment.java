@@ -79,6 +79,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                     if (checkForAISPacket(db)) {
                         Log.d(TAG, "AIS Packet Received");
                         if (readParamsFromDatabase(db)) {
+                            distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, stationLatitude, stationLongitude);
                             theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, stationLatitude, stationLongitude);
                             alpha = Math.abs(theta - beta);
                             stationX = distance * Math.cos(Math.toRadians(alpha));
@@ -256,7 +257,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                 if (betaCursor.moveToFirst()) {
 
                     beta = betaCursor.getDouble(betaCursor.getColumnIndex(DatabaseHelper.beta));
-                    Log.d(TAG, String.valueOf(beta));
+                    //Log.d(TAG, String.valueOf(beta));
                 } else{
                     Log.d(TAG, "Beta Table Move to first failed");
                 }

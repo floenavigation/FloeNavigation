@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
+import android.text.style.TtsSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -51,11 +52,12 @@ public class SetupActivity extends ActionBarActivity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static int PREDICTION_TIME; //30 * 60 * 1000;
+    private static int PREDICTION_TIME = 2 * 60 * 1000; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
     private static final int MAX_TIMER_COUNT = 3;
 
     private static final String toastMsg = "Please wait while Coordinate System is being Setup";
+    public static final String calledFromCoordinateFragment = "calledFromFragment";
 
 
     Timer parentTimer = new Timer();
@@ -88,6 +90,7 @@ public class SetupActivity extends ActionBarActivity {
     private int numOfSignificantFigures;
     private boolean isLock = false;
     private SimpleDateFormat sdf;
+    private boolean isCalledFromCoordinateFragment = false;
 
 
     @Override
@@ -98,10 +101,13 @@ public class SetupActivity extends ActionBarActivity {
         hideNavigationBar();
         sdf = new SimpleDateFormat("HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        retrievePredictionTimefromDB();
+        //retrievePredictionTimefromDB();
         //isLock = true;
         //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         //super.onAttachedToWindow();
+        if(getIntent().getExtras().containsKey(calledFromCoordinateFragment)){
+            isCalledFromCoordinateFragment = getIntent().getExtras().getBoolean(calledFromCoordinateFragment);
+        }
 
         progressBarValue = findViewById(R.id.progressBarText);
         progressBarValue.setEnabled(true);
@@ -111,7 +117,6 @@ public class SetupActivity extends ActionBarActivity {
         timerPercentage = 0;
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(this);
         numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(this);
-
 
         //Populate Screen with Initial Values from DB
         new ReadParamsFromDB().execute();
@@ -123,6 +128,21 @@ public class SetupActivity extends ActionBarActivity {
 
         receivedBeta = NavigationFunctions.calculateAngleBeta(stationLatitude[DatabaseHelper.firstStationIndex],
                 stationLongitude[DatabaseHelper.firstStationIndex], stationLatitude[DatabaseHelper.secondStationIndex], stationLongitude[DatabaseHelper.secondStationIndex]);
+        //Log.d(TAG, "Initial Coordinates: " + String.valueOf(stationLatitude[DatabaseHelper.firstStationIndex] + " " + String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex])));
+        //Log.d(TAG, "Also Inital Coordinates: " + String.valueOf(stationLatitude[DatabaseHelper.secondStationIndex] + " " + String.valueOf(stationLongitude[DatabaseHelper.secondStationIndex])));
+        if(!isCalledFromCoordinateFragment){
+            predictedBeta = NavigationFunctions.calculateAngleBeta(predictedLatitude[DatabaseHelper.firstStationIndex],
+                    predictedLongitude[DatabaseHelper.firstStationIndex], predictedLatitude[DatabaseHelper.secondStationIndex], predictedLongitude[DatabaseHelper.secondStationIndex]);
+            for(int i = 0; i < DatabaseHelper.INITIALIZATION_SIZE; i++) {
+                distanceDiff[i] = NavigationFunctions.calculateDifference(stationLatitude[i], stationLongitude[i], predictedLatitude[i], predictedLongitude[i]);
+
+            }
+            //Log.d(TAG, "Predicted Initial Coordinates: " + String.valueOf(predictedLatitude[DatabaseHelper.firstStationIndex] + " " + String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex])));
+            //Log.d(TAG, "Also Predicted Inital Coordinates: " + String.valueOf(predictedLatitude[DatabaseHelper.secondStationIndex] + " " + String.valueOf(predictedLongitude[DatabaseHelper.secondStationIndex])));
+            betaDifference = Math.abs(predictedBeta - receivedBeta);
+        }
+        //Log.d(TAG, "Predicted Beta: " + String.valueOf(predictedBeta));
+        //Log.d(TAG, "Received Beta: " + String.valueOf(receivedBeta));
         refreshScreen();
 
         /*findViewById(R.id.first_station_predicted_Latitude).setEnabled(false);
@@ -209,6 +229,9 @@ public class SetupActivity extends ActionBarActivity {
                 {
                     timer.cancel();
                     Log.d(TAG, "Completed");
+                    if(insertPredictedValuesInDB()){
+                        Log.d(TAG, "Values Inserted Successfully");
+                    }
                     //For Test purposes only
                     runOnUiThread(new Runnable() {
                         @Override
@@ -236,6 +259,7 @@ public class SetupActivity extends ActionBarActivity {
                 }
                             }
         }, PREDICTION_TIME, 500);
+
     }
 
     /*
@@ -278,6 +302,26 @@ public class SetupActivity extends ActionBarActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private boolean insertPredictedValuesInDB(){
+        try{
+            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            for (int i = 0; i < DatabaseHelper.INITIALIZATION_SIZE; i++) {
+                ContentValues fixedStation = new ContentValues();
+                fixedStation.put(DatabaseHelper.latitude, predictedLatitude[i]);
+                fixedStation.put(DatabaseHelper.longitude, predictedLongitude[i]);
+                db.update(DatabaseHelper.fixedStationTable, fixedStation, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(stationMMSI[i])});
+            }
+
+            return true;
+
+        } catch(SQLiteException e){
+            Log.d(TAG, "Error Updating Database with Predicted Values");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void retrievePredictionTimefromDB(){
@@ -341,6 +385,7 @@ public class SetupActivity extends ActionBarActivity {
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
         dialogIntent.putExtra(DialogActivity.DIALOG_BETA, receivedBeta);
         dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, true);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TABLETID, false);
         startActivity(dialogIntent);
     }
 
@@ -454,7 +499,6 @@ public class SetupActivity extends ActionBarActivity {
                 //calculatedBeta.setText(String.valueOf(predictedBeta));
                 //rcvBeta.setText(String.valueOf(receivedBeta));
                 //betaDiff.setText(String.valueOf(betaDifference));
-
                 calculatedBeta.setText(String.format(formatString, predictedBeta));
                 rcvBeta.setText(String.format(formatString, receivedBeta));
                 betaDiff.setText(String.format(formatString, betaDifference));
@@ -530,10 +574,7 @@ public class SetupActivity extends ActionBarActivity {
     private class ReadParamsFromDB extends AsyncTask<Void,Void,Boolean> {
 
         int[] mmsi;
-        double[] latitude;
-        double[] longitude;
-        double[] sog;
-        double[] cog;
+
         double[] updateTime;
 
 
@@ -546,17 +587,13 @@ public class SetupActivity extends ActionBarActivity {
         @Override
         protected Boolean doInBackground(Void... voids) {
             mmsi = new int[DatabaseHelper.INITIALIZATION_SIZE];
-            latitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
-            longitude = new double[DatabaseHelper.INITIALIZATION_SIZE];
-            sog = new double[DatabaseHelper.INITIALIZATION_SIZE];
-            cog = new double[DatabaseHelper.INITIALIZATION_SIZE];
             updateTime = new double[DatabaseHelper.INITIALIZATION_SIZE];
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
 
             try{
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
                 Cursor cursor = db.query(DatabaseHelper.fixedStationTable,
-                        new String[] {DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.updateTime},
+                        new String[] {DatabaseHelper.mmsi, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.updateTime},
                         null, null, null, null, null);
                 long stationCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
                 if (stationCount == DatabaseHelper.INITIALIZATION_SIZE) {
@@ -564,13 +601,19 @@ public class SetupActivity extends ActionBarActivity {
                         Log.d(TAG, "Row Count: " + String.valueOf(cursor.getCount()));
                         int i = 0;
                         do {
-                            mmsi[i] = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi));
-                            latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLatitude));
-                            Log.d(TAG, String.valueOf(i) + " " + String.valueOf(latitude[i]));
-                            Log.d(TAG, "MMSIs: " + String.valueOf(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi))));
-                            longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLongitude));
-                            sog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
-                            cog[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
+                            stationMMSI[i] = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi));
+                            //latitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLatitude));
+                            /*Log.d(TAG, String.valueOf(i) + " " + String.valueOf(latitude[i]));
+                            Log.d(TAG, "MMSIs: " + String.valueOf(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.mmsi))));*/
+                            //longitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLongitude));
+                            stationLatitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLatitude));
+                            stationLongitude[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.recvdLongitude));
+                            if(!isCalledFromCoordinateFragment){
+                                predictedLatitude[i] = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.latitude));
+                                predictedLongitude[i] = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.longitude));
+                            }
+                            stationSOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.sog));
+                            stationCOG[i] = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.cog));
                             if (i == 0 && (cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime)) > firstStationpreviousUpdateTime)){
                                 firstStationpreviousUpdateTime = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.updateTime));
                                 firstStationMessageCount++;
@@ -603,13 +646,6 @@ public class SetupActivity extends ActionBarActivity {
         protected void onPostExecute(Boolean result) {
             if (!result){
                 Log.d(TAG, "ReadParamsFromDB Async Task: Database Unavailable");
-            } else{
-                stationMMSI = mmsi;
-                stationLatitude = latitude;
-                stationLongitude = longitude;
-                stationSOG = sog;
-                stationCOG = cog;
-
             }
         }
     }

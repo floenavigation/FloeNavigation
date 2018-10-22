@@ -42,6 +42,9 @@ public class ConfigurationActivity extends ActionBarActivity {
     private int DISTANCE_MIN_VALUE = 0;
     private int DISTANCE_MAX_VALUE = 100;
     private int TIME_MAX_VALUE = 50;
+    private int SIGNIFICANT_FIGURES_MIN_VALUE = 0;
+    private int SIGNIFICANT_FIGURES_MAX_VALUE = 10;
+    private String units = "";
     private int progressValue = MIN_VALUE;
 
 
@@ -60,7 +63,7 @@ public class ConfigurationActivity extends ActionBarActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressValue = MIN_VALUE + progress;
-                progressBarValue.setText(String.valueOf(progressValue));
+                progressBarValue.setText(String.valueOf(progressValue) + " " + units);
             }
 
             @Override
@@ -81,20 +84,24 @@ public class ConfigurationActivity extends ActionBarActivity {
                 if (position == 0) {
                     findViewById(R.id.normalParam).setVisibility(View.GONE);
                     findViewById(R.id.normalInitialRangeParam).setVisibility(View.VISIBLE);
+                    findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
                     isDistanceRangeParam = true;
                     isNormalParam = false;
-                    progressBarValue.setText(String.valueOf(DISTANCE_MIN_VALUE));
                     MIN_VALUE = DISTANCE_MIN_VALUE;
                     initialTimeRange.setMax(DISTANCE_MAX_VALUE);
+                    units = "meters";
+                    progressBarValue.setText(String.valueOf(DISTANCE_MIN_VALUE) + " " + units);
 
                 } else if(position == 1 || position == 4){
                     findViewById(R.id.normalParam).setVisibility(View.GONE);
                     findViewById(R.id.normalInitialRangeParam).setVisibility(View.VISIBLE);
+                    findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
                     isTimeRangeParam = true;
                     isNormalParam = false;
-                    progressBarValue.setText(String.valueOf(TIME_MIN_VALUE));
                     MIN_VALUE = TIME_MIN_VALUE;
                     initialTimeRange.setMax(TIME_MAX_VALUE);
+                    units = "minutes";
+                    progressBarValue.setText(String.valueOf(TIME_MIN_VALUE) + " " + units);
                 } else if (position == 2){
                     findViewById(R.id.normalParam).setVisibility(View.GONE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.VISIBLE);
@@ -102,6 +109,16 @@ public class ConfigurationActivity extends ActionBarActivity {
                     isNormalParam = false;
                     isTimeRangeParam = false;
                     isDistanceRangeParam = false;
+                } else if (position == 3){
+                    findViewById(R.id.normalParam).setVisibility(View.GONE);
+                    findViewById(R.id.normalInitialRangeParam).setVisibility(View.VISIBLE);
+                    findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
+                    isTimeRangeParam = true;
+                    isNormalParam = false;
+                    MIN_VALUE = SIGNIFICANT_FIGURES_MIN_VALUE;
+                    initialTimeRange.setMax(SIGNIFICANT_FIGURES_MAX_VALUE);
+                    units = " ";
+                    progressBarValue.setText(String.valueOf(SIGNIFICANT_FIGURES_MIN_VALUE) + " " + units);
                 } else {
                     findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
@@ -112,6 +129,7 @@ public class ConfigurationActivity extends ActionBarActivity {
                     isNormalParam = true;
                 }
                 spinnerItem = position;
+                initialTimeRange.setProgress(0);
 
             }
 
@@ -207,7 +225,7 @@ public class ConfigurationActivity extends ActionBarActivity {
     }
 
     private boolean validateValueField(EditText valueField) {
-        return !TextUtils.isEmpty(valueField.getText().toString()) && TextUtils.isDigitsOnly(valueField.getText().toString());
+        return !TextUtils.isEmpty(valueField.getText().toString());
     }
 
     public void onClickDegreeFraction(View view) {

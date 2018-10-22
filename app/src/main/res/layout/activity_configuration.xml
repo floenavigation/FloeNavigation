@@ -62,8 +62,6 @@
                 android:id="@+id/parameterValue"
                 android:textColor="@color/white"
                 android:layout_width="500dp"
-                android:digits="0123456789"
-                android:inputType="numberPassword|textVisiblePassword"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>

@@ -79,6 +79,7 @@ public class DialogActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     //clearDatabase();
                     Intent intent = new Intent(getApplicationContext(), SetupActivity.class);
+                    intent.putExtra(SetupActivity.calledFromCoordinateFragment, false);
                     startActivity(intent);
                 }
             });
