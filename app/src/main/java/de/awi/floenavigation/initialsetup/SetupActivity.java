@@ -52,7 +52,7 @@ public class SetupActivity extends ActionBarActivity {
 
     private static final String TAG = "SetupActivity";
     private static final int JOB_ID = 100;
-    private static int PREDICTION_TIME = 2 * 60 * 1000; //30 * 60 * 1000;
+    private static int PREDICTION_TIME;// = 2 * 60 * 1000; //30 * 60 * 1000;
     private static final int PREDICATION_TIME_PERIOD = 10 * 1000;
     private static final int MAX_TIMER_COUNT = 3;
 
@@ -101,7 +101,7 @@ public class SetupActivity extends ActionBarActivity {
         hideNavigationBar();
         sdf = new SimpleDateFormat("HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        //retrievePredictionTimefromDB();
+        retrievePredictionTimefromDB();
         //isLock = true;
         //this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         //super.onAttachedToWindow();
