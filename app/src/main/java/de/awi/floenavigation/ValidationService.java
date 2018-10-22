@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -30,12 +31,15 @@ import android.widget.TextView;
  */
 public class ValidationService extends IntentService {
 
+    private static final int MAX_NUM_OF_VALID_PACKETS = 3;
     private final Handler mValidationHandler;
     private static final String TAG = "Validation Service: ";
     private static final int VALIDATION_TIME = 3 * 60 * 1000;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
     public static int ERROR_THRESHOLD_VALUE;
     public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
+    private static int stationMessageCount = 0;
+    private static double stationpreviousUpdateTime = 0;
 
     private Handler uiHandler;
     private Dialog alertDialog;
@@ -78,12 +82,13 @@ public class ValidationService extends IntentService {
                         double fixedStnLatitude;
                         double fixedStnLongitude;
                         double evaluationDifference;
+                        double updateTime;
                         int predictionAccuracy;
                         int mmsi;
                         String stationName;
 
                         mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
-                                DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy},null, null, null, null, null);
+                                DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy, DatabaseHelper.updateTime},null, null, null, null, null);
                         if (mFixedStnCursor.moveToFirst()){
                             do{
                                 mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
@@ -92,32 +97,43 @@ public class ValidationService extends IntentService {
                                 fixedStnLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
                                 fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                 predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-                                stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
-                                if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE){
+                                //stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
+                                updateTime = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.updateTime));
+                                if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME){
 
-                                    final int numOfFaildPredictions = predictionAccuracy;
-                                    final String name = stationName;
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialogBoxDisplay(numOfFaildPredictions, name);
+                                    if (stationMessageCount > MAX_NUM_OF_VALID_PACKETS) {
+                                        stationMessageCount = 0;
+                                        final int faildPredictionTime = PREDICTION_ACCURACY_THRESHOLD_VALUE / (60 * 1000);
+                                        final String MMSI = String.valueOf(mmsi);
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                dialogBoxDisplay(faildPredictionTime, MMSI);
+                                            }
+                                        });
+
+                                        if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
+                                            deleteEntryfromStationListTableinDB(mmsi, db);
+                                        } else {
+                                            deleteEntryfromStationListTableinDB(mmsi, db);
+                                            deleteEntryfromFixedStationTableinDB(mmsi, db);
                                         }
-                                    });
-                                    //To be decided
-                                    if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]){
-                                        deleteEntryfromStationListTableinDB(mmsi, db);
-                                    }else{
-                                        deleteEntryfromStationListTableinDB(mmsi, db);
-                                        deleteEntryfromFixedStationTableinDB(mmsi, db);
                                     }
 
                                 }else {
                                     evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
                                     Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
                                     if (evaluationDifference > ERROR_THRESHOLD_VALUE) {
+                                        getMessageCount(db, updateTime);
                                         ContentValues mContentValues = new ContentValues();
                                         mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
                                         Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
+                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                                    } else {
+                                        stationMessageCount = 0;
+                                        ContentValues mContentValues = new ContentValues();
+                                        mContentValues.put(DatabaseHelper.predictionAccuracy, 0);
+                                        //Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
                                         db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
                                     }
                                 }
@@ -139,8 +155,16 @@ public class ValidationService extends IntentService {
         }
     }
 
-    private void dialogBoxDisplay(int failedAttempts, String name) {
-        String validationMsg = getResources().getString(R.string.validationFailedMsg, failedAttempts, name);
+    private void getMessageCount(SQLiteDatabase db, double updateTime) {
+        //long numOfStaticStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.fixedStationTable);
+        if (updateTime > stationpreviousUpdateTime){
+            stationpreviousUpdateTime = updateTime;
+            stationMessageCount++;
+        }
+    }
+
+    private void dialogBoxDisplay(int failedAttempts, String mmsi) {
+        String validationMsg = getResources().getString(R.string.validationFailedMsg, failedAttempts, mmsi);
         String popupMsg = validationMsg + "\n" + getResources().getString(R.string.stationRemovedMsg);
         String title = "Validation Failed";
         Intent dialogIntent = new Intent(this, DialogActivity.class);

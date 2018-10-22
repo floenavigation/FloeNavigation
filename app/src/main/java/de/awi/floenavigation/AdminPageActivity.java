@@ -21,7 +21,7 @@ import de.awi.floenavigation.initialsetup.GridSetupActivity;
 public class AdminPageActivity extends ActionBarActivity {
     private static final String TAG = "AdminPageActivity";
 
-    CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption;
+    CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption, recoverycardOption;
     Handler handler = new Handler();
     Runnable gridConfigRunnable = new Runnable() {
         @Override
@@ -49,6 +49,13 @@ public class AdminPageActivity extends ActionBarActivity {
         }
     };
 
+    Runnable recoveryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            recoverycardOption.setVisibility(View.VISIBLE);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,12 +66,13 @@ public class AdminPageActivity extends ActionBarActivity {
         gridConfigOption = (CardView) findViewById(R.id.gridconfigcardView);
         handler.postDelayed(gridConfigRunnable, 100);
         SyncOption = (CardView) findViewById(R.id.synccardView);
-        handler.postDelayed(syncRunnable, 500);
+        handler.postDelayed(syncRunnable, 300);
         adminPrivilegesOption = (CardView) findViewById(R.id.admincardView);
-        handler.postDelayed(adminPrivilegesRunnable, 1000);
+        handler.postDelayed(adminPrivilegesRunnable, 500);
         configParamsOption = (CardView) findViewById(R.id.configparamcardView);
-        handler.postDelayed(configParamsRunnable, 1500);
-
+        handler.postDelayed(configParamsRunnable, 700);
+        recoverycardOption = (CardView) findViewById(R.id.recoverycardView);
+        handler.postDelayed(recoveryRunnable, 900);
     }
 
     public void onClickListener(View view) {
@@ -80,6 +88,7 @@ public class AdminPageActivity extends ActionBarActivity {
            clearDatabase();
        }
     }
+
 
     private boolean isSetupComplete(){
         long count = 0;
@@ -150,6 +159,25 @@ public class AdminPageActivity extends ActionBarActivity {
     public void onClickAdminPrivilegesListener(View view) {
         Intent adminUserPwdActIntent = new Intent(this, AdminUserPwdActivity.class);
         startActivity(adminUserPwdActIntent);
+    }
+
+    public void onClickRecoveryListener(View view) {
+
+        long numOfBaseStations = 0;
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+            if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
+                startActivity(recoveryActivityIntent);
+            }else {
+                Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
+            }
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error reading database");
+            e.printStackTrace();
+        }
     }
 
     private void dialogBoxDisplay() {

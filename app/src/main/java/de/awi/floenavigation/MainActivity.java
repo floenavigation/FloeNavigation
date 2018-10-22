@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -71,9 +72,14 @@ public class MainActivity extends ActionBarActivity {
             gpssetup = true;
         }
 
-        SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error reading database");
+            e.printStackTrace();
+        }
 
 
     }
@@ -147,14 +153,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void onClickRecoveryListener(View view) {
-        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
-            Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
-            startActivity(recoveryActivityIntent);
-        }else {
-            Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     public void onClickWaypointBtn(View view) {
         if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {

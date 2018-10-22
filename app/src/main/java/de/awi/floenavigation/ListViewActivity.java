@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +15,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -39,17 +43,18 @@ public class ListViewActivity extends ActionBarActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private Intent intentOnExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
+        final String callingActivity = getCallingActivityName();
 
         mRecyclerView = findViewById(R.id.parametersListRecyclerView);
         mLayoutManager = new GridLayoutManager(this, 1);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ListViewAdapter(this, generateData());
         mRecyclerView.setAdapter(mAdapter);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -61,23 +66,8 @@ public class ListViewActivity extends ActionBarActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final int position = viewHolder.getAdapterPosition();
-                Log.d(TAG, "Size: " + parameterObjects.size());
-                Log.d(TAG, "Pos: " + position);
                 mAdapter.notifyDataSetChanged();
-                Log.d(TAG, "labelID: " + parameterObjects.get(position).getLabelID());
-                deleteEntryfromWaypointsTableinDB(parameterObjects.get(position).getLabelID());
-                parameterObjects.remove(position);
-                mAdapter.notifyItemRemoved(position);
-                mAdapter.notifyItemRangeChanged(position, parameterObjects.size());
-                if (parameterObjects.size() == 0){
-                    Intent waypointIntent = new Intent(getApplicationContext(), WaypointActivity.class);
-                    startActivity(waypointIntent);
-                }
-                /*
-                Snackbar snackbar = Snackbar.make(getWindow().getDecorView().getRootView(), "Removed from waypoints table", Snackbar.LENGTH_LONG);
-                snackbar.setActionTextColor(Color.RED);
-                snackbar.show();*/
-
+                deleteEntry(callingActivity, position, getNumOfAISStation());
             }
 
             @Override
@@ -96,20 +86,9 @@ public class ListViewActivity extends ActionBarActivity {
                         p.setColor(Color.parseColor("#D32F2F"));
                         RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX,(float) itemView.getBottom());
                         c.drawRect(background,p);
-                        Drawable drawable = getResources().getDrawable(R.drawable.delete);
-                        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                        //icon = BitmapFactory.decodeResource(getResources(), R.drawable.delete);
+                        icon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_delete);
                         RectF icon_dest = new RectF((float) itemView.getLeft() + width ,(float) itemView.getTop() + width,(float) itemView.getLeft()+ 2*width,(float)itemView.getBottom() - width);
-                        c.drawBitmap(bitmap,null,icon_dest,p);
-                    } else {
-                        p.setColor(Color.parseColor("#D32F2F")); //388E3C
-                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(),(float) itemView.getRight(), (float) itemView.getBottom());
-                        c.drawRect(background,p);
-                        Drawable drawable = getResources().getDrawable(R.drawable.delete);
-                        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                        //icon = BitmapFactory.decodeResource(getResources(), R.drawable.delete);
-                        RectF icon_dest = new RectF((float) itemView.getRight() - 2*width ,(float) itemView.getTop() + width,(float) itemView.getRight() - width,(float)itemView.getBottom() - width);
-                        c.drawBitmap(bitmap,null,icon_dest,p);
+                        c.drawBitmap(icon,null,icon_dest,p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -118,6 +97,71 @@ public class ListViewActivity extends ActionBarActivity {
 
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
+    }
+
+    private void deleteEntry(String callingActivityString, int position, long numOfStations){
+
+        switch (callingActivityString){
+            case "WaypointActivity":
+                deleteEntryfromWaypointsTableinDB(parameterObjects.get(position).getLabelID());
+                Toast.makeText(getApplicationContext(), "Removed from waypoints table", Toast.LENGTH_SHORT).show();
+                break;
+            case "AISRecoverActivity":
+                if (numOfStations <= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                    Toast.makeText(getApplicationContext(), "Cannot be removed from fixed station table", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                deleteEntryfromFixedStnTableinDB(parameterObjects.get(position).getLabelID().split(" ")[0]);
+                Toast.makeText(getApplicationContext(), "Removed from fixed station table", Toast.LENGTH_SHORT).show();
+                break;
+            case "StaticStationRecoverActivity":
+                deleteEntryfromStaticStnTableinDB(parameterObjects.get(position).getLabelID());
+                Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        parameterObjects.remove(position);
+        mAdapter.notifyItemRemoved(position);
+        mAdapter.notifyItemRangeChanged(position, parameterObjects.size());
+        if (parameterObjects.size() == 0){
+            startActivity(intentOnExit);
+        }
+    }
+
+    private String getCallingActivityName(){
+
+        Intent intent = getIntent();
+        String callingActivityString = intent.getExtras().getString("GenerateDataOption");
+        if (callingActivityString != null) {
+            switch (callingActivityString){
+                case "WaypointActivity":
+                    mAdapter = new ListViewAdapter(this, generateDataFromWaypointsTable());
+                    intentOnExit = new Intent(getApplicationContext(), WaypointActivity.class);
+                    break;
+                case "AISRecoverActivity":
+                    mAdapter = new ListViewAdapter(this, generateDataFromFixedStnTable());
+                    intentOnExit = new Intent(getApplicationContext(), RecoveryActivity.class);
+                    break;
+                case "StaticStationRecoverActivity":
+                    mAdapter = new ListViewAdapter(this, generateDataFromStaticStnTable());
+                    intentOnExit = new Intent(getApplicationContext(), RecoveryActivity.class);
+                    break;
+            }
+        }
+        return callingActivityString;
+    }
+
+    private long getNumOfAISStation() {
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            return DatabaseUtils.queryNumEntries(db, DatabaseHelper.fixedStationTable);
+
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error in reading database");
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 
@@ -131,7 +175,27 @@ public class ListViewActivity extends ActionBarActivity {
         }
     }
 
-    private ArrayList<ParameterListObject> generateData(){
+    private void deleteEntryfromFixedStnTableinDB(String mmsiToBeRemoved){
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+    }
+
+    private void deleteEntryfromStaticStnTableinDB(String stationToBeRemoved){
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved});
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+    }
+
+    private ArrayList<ParameterListObject> generateDataFromWaypointsTable(){
         try{
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -151,6 +215,67 @@ public class ListViewActivity extends ActionBarActivity {
                 } while (waypointsCursor.moveToNext());
             }else {
                 Log.d(TAG, "Error reading from waypointstable stn table");
+            }
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+        return parameterObjects;
+        //arrayAdapter.notifyDataSetChanged();
+
+    }
+
+    private ArrayList<ParameterListObject> generateDataFromFixedStnTable(){
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor fixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
+                    new String[] {DatabaseHelper.stationName, DatabaseHelper.mmsi, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
+                    null,
+                    null,
+                    null, null, null);
+            if (fixedStnCursor.moveToFirst()) {
+                do {
+                    int mmsi = fixedStnCursor.getInt(fixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                    String stationName = fixedStnCursor.getString(fixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
+                    if (stationName == null)
+                        stationName = "";
+                    double xPosition = fixedStnCursor.getDouble(fixedStnCursor.getColumnIndex(DatabaseHelper.xPosition));
+                    double yPosition = fixedStnCursor.getDouble(fixedStnCursor.getColumnIndex(DatabaseHelper.yPosition));
+
+                    parameterObjects.add(new ParameterListObject(String.valueOf(mmsi + " " + stationName), xPosition, yPosition));
+
+                } while (fixedStnCursor.moveToNext());
+            }else {
+                Log.d(TAG, "Error reading from fixed stn table");
+            }
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+        return parameterObjects;
+        //arrayAdapter.notifyDataSetChanged();
+
+    }
+
+    private ArrayList<ParameterListObject> generateDataFromStaticStnTable(){
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor staticStnCursor = db.query(DatabaseHelper.staticStationListTable,
+                    new String[] {DatabaseHelper.staticStationName, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
+                    null,
+                    null,
+                    null, null, null);
+            if (staticStnCursor.moveToFirst()) {
+                do {
+                    String stationName = staticStnCursor.getString(staticStnCursor.getColumnIndex(DatabaseHelper.staticStationName));
+                    double xPosition = staticStnCursor.getDouble(staticStnCursor.getColumnIndex(DatabaseHelper.xPosition));
+                    double yPosition = staticStnCursor.getDouble(staticStnCursor.getColumnIndex(DatabaseHelper.yPosition));
+
+                    parameterObjects.add(new ParameterListObject(stationName, xPosition, yPosition));
+
+                } while (staticStnCursor.moveToNext());
+            }else {
+                Log.d(TAG, "Error reading from static stn table");
             }
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
@@ -235,6 +360,8 @@ class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
             yPosValue = view.findViewById(R.id.yPosView);
 
         }
+
+
 
     }
 }

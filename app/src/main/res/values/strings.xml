@@ -87,7 +87,7 @@
     <string name="waypointWaitingMsg">Inserting new Waypoint. Do not close the App</string>
 
     <!--Waypoint Screens -->
-    <string name="validationFailedMsg">Validation Failed %1$d Times for %2$s Station</string>
+    <string name="validationFailedMsg">Validation Failed for %1$d minutes for %2$s Station</string>
     <string name="stationRemovedMsg">The Station has been removed</string>
     <string name="dialogOK">OK</string>
 
@@ -130,5 +130,7 @@
     <string name="aisStationCancel">Cancel</string>
     <string name="waypointLabel">Label</string>
     <string name="sampleMeasurementLabelId">LabelID</string>
+    <string name="view_deployed_stations">View Deployed Stations</string>
+    <string name="recover">Recover</string>
 
 </resources>

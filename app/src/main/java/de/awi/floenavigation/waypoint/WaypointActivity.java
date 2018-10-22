@@ -382,6 +382,7 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
             if (numOfWaypoints > 0){
                 Intent listViewIntent = new Intent(this, ListViewActivity.class);
+                listViewIntent.putExtra("GenerateDataOption", "WaypointActivity");
                 startActivity(listViewIntent);
             }else {
                 Toast.makeText(this, "No waypoints are marked in the grid", Toast.LENGTH_LONG).show();
