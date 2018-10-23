@@ -13,11 +13,16 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
 import de.awi.floenavigation.GPS_Service;
@@ -60,6 +66,11 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
     private Double tabletLon;
     private boolean changeFormat;
     private int numOfSignificantFigures;
+    private MenuItem gpsIconItem, aisIconItem;
+    private boolean locationStatus = false;
+    private boolean packetStatus = false;
+    private final Handler statusHandler = new Handler();
+    private BroadcastReceiver aisPacketBroadcastReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,27 +80,6 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         stationTypeAIS = getArguments().getBoolean("stationTypeAIS");
         layout.findViewById(R.id.station_confirm).setOnClickListener(this);
 
-        if(broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver(){
-                @Override
-                public void onReceive(Context context, Intent intent){
-                    //Log.d(TAG, "BroadCast Received");
-                    /*String coordinateString = intent.getExtras().get("coordinates").toString();
-                    String[] coordinates = coordinateString.split(",");*/
-                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
-                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
-                    //tabletTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
-
-                    //Log.d(TAG, "Tablet Loc: " + tabletLat);
-                    //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
-                    if(!stationTypeAIS) {
-                        populateTabLocation();
-                    }
-                }
-            };
-        }
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
-
         if (stationTypeAIS) {
             layout.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
             layout.findViewById(R.id.station_mmsi).setEnabled(true);
@@ -97,7 +87,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             layout.findViewById(R.id.staticStationTabletLon).setVisibility(View.GONE);
             layout.findViewById(R.id.station_confirm).setClickable(true);
             layout.findViewById(R.id.station_confirm).setEnabled(true);
-            setHasOptionsMenu(false);
+            //setHasOptionsMenu(false);
         }else {
             layout.findViewById(R.id.staticStationTabletLat).setVisibility(View.VISIBLE);
             layout.findViewById(R.id.staticStationTabletLon).setVisibility(View.VISIBLE);
@@ -106,9 +96,9 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             layout.findViewById(R.id.station_confirm).setEnabled(true);
             changeFormat = DatabaseHelper.readCoordinateDisplaySetting(getActivity());
             numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(getActivity());
-            setHasOptionsMenu(true);
-        }
 
+        }
+        setHasOptionsMenu(true);
         populateStationType(layout);
         return layout;
     }
@@ -130,10 +120,30 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
     @Override
     public void onPause(){
         super.onPause();
-        if(broadcastReceiver != null){
-            getActivity().unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
+        getActivity().unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
+        getActivity().unregisterReceiver(aisPacketBroadcastReceiver);
+        aisPacketBroadcastReceiver = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+        if(!stationTypeAIS){
+            latLonFormat.setVisible(true);
+           /* */
+        } else{
+            latLonFormat.setVisible(false);
         }
+
+        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gpsIconItem = menu.findItem(iconItems[0]);
+        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        super.onCreateOptionsMenu(menu,inflater);
     }
 
     @Override
@@ -148,6 +158,61 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             default:
                 return super.onOptionsItemSelected(menuItem);
         }
+    }
+
+    private void actionBarUpdatesFunction() {
+
+        //***************ACTION BAR UPDATES*************************/
+        if (broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
+                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
+                    populateTabLocation();
+
+                }
+            };
+        }
+
+        if (aisPacketBroadcastReceiver == null){
+            aisPacketBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+                }
+            };
+        }
+
+        getActivity().registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
+        Runnable gpsLocationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (locationStatus){
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+                if (packetStatus){
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+
+                statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
+            }
+        };
+
+        statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
+        //****************************************/
     }
 
     private void populateTabLocation(){
@@ -269,6 +334,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         if(activity != null){
             activity.showUpButton();
         }
+        actionBarUpdatesFunction();
     }
 
     private void populateStationType(View v){

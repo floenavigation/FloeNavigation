@@ -1,17 +1,25 @@
 package de.awi.floenavigation.deployment;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,9 +27,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.AdminPageActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
+import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.MainActivity;
 import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
@@ -53,6 +63,12 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private final static int MAX_TIMER = 300; //5 mins timer
     private boolean isSetupComplete = false;
     private Runnable aisStationRunnable;
+    private MenuItem gpsIconItem, aisIconItem;
+    private boolean locationStatus = false;
+    private boolean packetStatus = false;
+    private final Handler statusHandler = new Handler();
+    private BroadcastReceiver aisPacketBroadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
 
 
     public AISStationCoordinateFragment() {
@@ -119,7 +135,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
             }
         };
         handler.post(aisStationRunnable);
-
+        setHasOptionsMenu(true);
         return layout;
     }
 
@@ -130,6 +146,16 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         if(activity != null){
             activity.hideUpButton();
         }
+        actionBarUpdatesFunction();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        getActivity().unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
+        getActivity().unregisterReceiver(aisPacketBroadcastReceiver);
+        aisPacketBroadcastReceiver = null;
     }
 
 
@@ -139,6 +165,21 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
             case R.id.station_finish:
                 onClickFinish();
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+        latLonFormat.setVisible(false);
+
+        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gpsIconItem = menu.findItem(iconItems[0]);
+        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        super.onCreateOptionsMenu(menu,inflater);
     }
 
     private void removeMMSIfromDBTable() {
@@ -281,6 +322,57 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
             Log.d(TAG, "Error reading Database");
             return false;
         }
+    }
+
+    private void actionBarUpdatesFunction() {
+
+        //***************ACTION BAR UPDATES*************************/
+        if (broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                }
+            };
+        }
+
+        if (aisPacketBroadcastReceiver == null){
+            aisPacketBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+                }
+            };
+        }
+
+        getActivity().registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
+        Runnable gpsLocationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (locationStatus){
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+                if (packetStatus){
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+
+                statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
+            }
+        };
+
+        statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
+        //****************************************/
     }
 
 }

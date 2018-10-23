@@ -35,12 +35,9 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
 
     private static final String TAG = "DeploymentActivity";
     //Action Bar Updates
-    private BroadcastReceiver broadcastReceiver;
-    private BroadcastReceiver aisPacketBroadcastReceiver;
-    private boolean locationStatus = false;
-    private boolean packetStatus = false;
-    private final Handler statusHandler = new Handler();
-    private MenuItem gpsIconItem, aisIconItem;
+
+
+
     private boolean aisDeployment;
 
     @Override
@@ -61,7 +58,7 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
     @Override
     protected void onStart() {
         super.onStart();
-        actionBarUpdatesFunction();
+
     }
 
     public void showUpButton(){
@@ -72,56 +69,7 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         getActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
-    private void actionBarUpdatesFunction() {
 
-        //***************ACTION BAR UPDATES*************************/
-        if (broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
-                }
-            };
-        }
-
-        if (aisPacketBroadcastReceiver == null){
-            aisPacketBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
-                }
-            };
-        }
-
-        registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
-        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
-
-        Runnable gpsLocationRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (locationStatus){
-                    if (gpsIconItem != null)
-                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
-                }
-                else {
-                    if (gpsIconItem != null)
-                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
-                }
-                if (packetStatus){
-                    if (aisIconItem != null)
-                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
-                }else {
-                    if (aisIconItem != null)
-                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
-                }
-
-                statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
-            }
-        };
-
-        statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
-        //****************************************/
-    }
 
     @Override
     public void replaceFragment(Fragment fragment){
@@ -149,28 +97,8 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
-        latLonFormat.setVisible(true);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
-        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
-        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unregisterReceiver(broadcastReceiver);
-        broadcastReceiver = null;
-        unregisterReceiver(aisPacketBroadcastReceiver);
-        aisPacketBroadcastReceiver = null;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

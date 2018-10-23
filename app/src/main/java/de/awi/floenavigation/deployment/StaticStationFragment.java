@@ -10,16 +10,23 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.awi.floenavigation.ActionBarActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
 import de.awi.floenavigation.MainActivity;
@@ -48,7 +55,11 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
     private double xPosition;
     private double yPosition;
     private double theta;
-
+    private MenuItem gpsIconItem, aisIconItem;
+    private boolean locationStatus = false;
+    private boolean packetStatus = false;
+    private final Handler statusHandler = new Handler();
+    private BroadcastReceiver aisPacketBroadcastReceiver;
 
     public StaticStationFragment() {
         // Required empty public constructor
@@ -65,16 +76,6 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         layout.findViewById(R.id.static_station_finish).setClickable(false);
         stationName = getArguments().getString(DatabaseHelper.staticStationName);
         stationType = getArguments().getString(DatabaseHelper.stationType);
-        if (broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    tabletLat = Double.parseDouble(intent.getExtras().get(GPS_Service.latitude).toString());
-                    tabletLon = Double.parseDouble(intent.getExtras().get(GPS_Service.longitude).toString());
-                }
-            };
-        }
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
         if(getOriginCoordinates()) {
             calculateStaticStationParameters();
             insertStaticStation();
@@ -91,6 +92,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         } else{
             Log.d(TAG, "Error Inserting new Station");
         }
+        setHasOptionsMenu(true);
         return layout;
     }
 
@@ -105,12 +107,38 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
     }
 
     @Override
+    public void onPause(){
+        super.onPause();
+        getActivity().unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
+        getActivity().unregisterReceiver(aisPacketBroadcastReceiver);
+        aisPacketBroadcastReceiver = null;
+    }
+
+    @Override
     public void onResume(){
         super.onResume();
         DeploymentActivity activity = (DeploymentActivity) getActivity();
         if(activity != null){
             activity.hideUpButton();
         }
+        actionBarUpdatesFunction();
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+        latLonFormat.setVisible(false);
+
+        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gpsIconItem = menu.findItem(iconItems[0]);
+        gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        super.onCreateOptionsMenu(menu,inflater);
     }
 
     private void calculateStaticStationParameters(){
@@ -190,6 +218,59 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
             e.printStackTrace();
             return false;
         }
+    }
+
+    private void actionBarUpdatesFunction() {
+
+        //***************ACTION BAR UPDATES*************************/
+        if (broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
+                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
+                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
+                }
+            };
+        }
+
+        if (aisPacketBroadcastReceiver == null){
+            aisPacketBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    packetStatus = intent.getExtras().getBoolean(GPS_Service.AISPacketStatus);
+                }
+            };
+        }
+
+        getActivity().registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
+        Runnable gpsLocationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (locationStatus){
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }
+                else {
+                    if (gpsIconItem != null)
+                        gpsIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+                if (packetStatus){
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+                }else {
+                    if (aisIconItem != null)
+                        aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+                }
+
+                statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
+            }
+        };
+
+        statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
+        //****************************************/
     }
 
 
