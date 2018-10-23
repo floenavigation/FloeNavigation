@@ -80,6 +80,7 @@
                 android:layout_height="wrap_content" />
 
             <EditText
+                android:visibility="gone"
                 android:id="@+id/StaticStationSelected"
                 android:layout_width="500dp"
                 android:textColor="@color/white"

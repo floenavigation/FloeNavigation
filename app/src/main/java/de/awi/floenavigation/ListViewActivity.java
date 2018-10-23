@@ -26,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -50,6 +51,7 @@ public class ListViewActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
         final String callingActivity = getCallingActivityName();
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         mRecyclerView = findViewById(R.id.parametersListRecyclerView);
         mLayoutManager = new GridLayoutManager(this, 1);
@@ -283,6 +285,16 @@ public class ListViewActivity extends ActionBarActivity {
         return parameterObjects;
         //arrayAdapter.notifyDataSetChanged();
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 

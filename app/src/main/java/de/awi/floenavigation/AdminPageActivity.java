@@ -96,7 +96,7 @@ public class AdminPageActivity extends ActionBarActivity {
        } else{
            Toast.makeText(this, "Grid is already Setup", Toast.LENGTH_LONG).show();
            //For testing purposes has to be removed later.
-           clearDatabase();
+           //clearDatabase();
        }
     }
 

@@ -123,8 +123,8 @@
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:layout_width="500dp"
-            android:layout_height="wrap_content"
-            />
+            android:layout_height="40sp"
+            android:background="@drawable/et_bg"/>
     </LinearLayout>
 
     <LinearLayout
@@ -149,8 +149,8 @@
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:layout_width="500dp"
-            android:layout_height="wrap_content"
-            />
+            android:layout_height="40sp"
+            android:background="@drawable/et_bg"/>
     </LinearLayout>
 
     <LinearLayout

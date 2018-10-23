@@ -1,6 +1,13 @@
 package de.awi.floenavigation;
 
+import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -17,9 +24,10 @@ import java.util.ArrayList;
 
 public class GridLineView extends View {
 
+    private static final String TAG = "GridLineView";
     private static final int DEFAULT_PAINT_COLOR = Color.BLACK;
     private static final int DEFAULT_NUMBER_OF_ROWS = 20;
-    private static final int DEFAULT_NUMBER_OF_COLUMNS = 20;
+    private static final int DEFAULT_NUMBER_OF_COLUMNS = 40;
 
     private boolean showGrid = true;
     private final Paint paint = new Paint();
@@ -32,6 +40,7 @@ public class GridLineView extends View {
         super(context);
         init();
     }
+
 
     public GridLineView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -137,13 +146,13 @@ public class GridLineView extends View {
             }
 
             setLineColor(Color.GREEN);
-            canvas.drawCircle(width * 10 / numColumns, height * 15 / numRows, 15, paint);
-            canvas.drawCircle(width * 15 / numColumns, height * 15 / numRows, 15, paint);
+            canvas.drawCircle(width * 20 / numColumns, height * 10 / numRows, 15, paint);
+            //canvas.drawCircle(width * 15 / numColumns, height * 15 / numRows, 15, paint);
 
 
-            setLineColor(Color.RED);
-            canvas.drawLine(width * 10 / numColumns,height * 15 / numRows,width * 15 / numColumns,
-                    height * 15 / numRows, paint);
+            //setLineColor(Color.RED);
+            //canvas.drawLine(width * 10 / numColumns,height * 15 / numRows,width * 15 / numColumns,
+            //        height * 15 / numRows, paint);
 
             setLineColor(Color.BLACK);
             /*
@@ -235,6 +244,32 @@ public class GridLineView extends View {
             }
         }
         return true;
+    }
+
+    private void readDatabase() {
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mFixedStnCursor;
+            double xPosition, yPosition;
+            int mmsi;
+
+            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude},null, null, null, null, null);
+            if (mFixedStnCursor.moveToFirst()) {
+                do {
+                    mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                    xPosition = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.xPosition));
+                    yPosition = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.yPosition));
+                } while (mFixedStnCursor.moveToNext());
+                mFixedStnCursor.close();
+            }
+            else {
+                Log.d(TAG, "FixedStationTable Cursor Error");
+            }
+        } catch (SQLiteException e) {
+            Log.d(TAG, "Error reading database");
+            e.printStackTrace();
+        }
     }
 
 

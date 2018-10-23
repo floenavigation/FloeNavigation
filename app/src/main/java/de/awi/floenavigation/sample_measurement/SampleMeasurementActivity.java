@@ -277,6 +277,11 @@ public class SampleMeasurementActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Error reading Device Lat and Long", Toast.LENGTH_LONG).show();
                 return false;
             }
+            EditText labelView = findViewById(R.id.sampleMeasurementLabelId);
+            if (TextUtils.isEmpty(labelView.getText().toString())){
+                Toast.makeText(getApplicationContext(), "Error reading Label ID", Toast.LENGTH_LONG).show();
+                return false;
+            }
 
             if (getOriginCoordinates()) {
                 calculateSampledLocationParameters();
