@@ -19,8 +19,8 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/deploymentIcon"
-            android:layout_width="160dp"
-            android:layout_height="190dp"
+            android:layout_width="180dp"
+            android:layout_height="210dp"
             android:layout_margin="50dp"
             app:cardCornerRadius="30dp"
             android:clickable="true"
@@ -51,6 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/deploymentButton"
+                    android:textSize="20sp"
                     android:textStyle="bold"/>
 
             </LinearLayout>
@@ -140,8 +141,8 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/sampleMeasurementIcon"
-            android:layout_width="160dp"
-            android:layout_height="190dp"
+            android:layout_width="180dp"
+            android:layout_height="210dp"
             android:layout_margin="50dp"
             app:cardCornerRadius="30dp"
             android:clickable="true"
@@ -171,8 +172,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_marginTop="10dp"
                     android:text="@string/sampleMeasurementButton"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -180,8 +183,8 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/waypointIcon"
-            android:layout_width="160dp"
-            android:layout_height="190dp"
+            android:layout_width="180dp"
+            android:layout_height="210dp"
             android:layout_margin="50dp"
             app:cardCornerRadius="30dp"
             android:clickable="true"
@@ -213,6 +216,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/waypointButton"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -231,8 +235,8 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/gridIcon"
-            android:layout_width="160dp"
-            android:layout_height="190dp"
+            android:layout_width="180dp"
+            android:layout_height="210dp"
             android:layout_margin="50dp"
             app:cardCornerRadius="30dp"
             android:clickable="true"
@@ -264,14 +268,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/gridButton"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
-            android:layout_width="160dp"
-            android:layout_height="190dp"
+            android:layout_width="180dp"
+            android:layout_height="210dp"
             android:layout_margin="50dp"
             app:cardCornerRadius="30dp"
             android:clickable="true"
@@ -303,6 +308,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/adminButton"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 

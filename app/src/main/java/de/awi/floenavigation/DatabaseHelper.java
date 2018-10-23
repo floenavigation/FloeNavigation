@@ -169,10 +169,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //Default config params
         insertDefaultConfigParams(db, error_threshold, "10");
-        insertDefaultConfigParams(db, prediction_accuracy_threshold, "3");
+        insertDefaultConfigParams(db, prediction_accuracy_threshold, String.valueOf(3 * 60 * 1000));
         insertDefaultConfigParams(db, lat_long_view_format, "1");
         insertDefaultConfigParams(db, decimal_number_significant_figures, "5");
-        insertDefaultConfigParams(db, initial_setup_time, String.valueOf(1 * 60 * 1000));
+        insertDefaultConfigParams(db, initial_setup_time, String.valueOf(60 * 1000));
 
         insertUser(db, "awi", "awi");
 

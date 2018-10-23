@@ -5,7 +5,7 @@
     <string name="deploymentButton">Deployment</string>
     <string name="recoveryButton">Recovery</string>
     <string name="redeploymentButton">Redeployment</string>
-    <string name="sampleMeasurementButton">Sample/Measurement</string>
+    <string name="sampleMeasurementButton">Sample/\nMeasurement</string>
     <string name="waypointButton">Waypoint</string>
     <string name="gridButton">Grid</string>
     <string name="adminButton">Administration</string>
