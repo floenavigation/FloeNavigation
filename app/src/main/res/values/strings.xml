@@ -78,6 +78,8 @@
     <string name="staticStationWaitingMsg">Inserting new Station. Do not close the App</string>
     <string name="yesChoice">Yes</string>
     <string name="noChoice">No</string>
+    <string name="staticStationCurrentLatitude">Current Latitude</string>
+    <string name="staticStationCurrentLongitude">Current Longitude</string>
 
     <!--Waypoint Screens -->
     <string name="waypointTabletLat">Current Latitude</string>
@@ -133,5 +135,6 @@
     <string name="view_deployed_stations">View Deployed Stations</string>
     <string name="recover">Recover</string>
     <string name="ais_station_deployment">AIS Station Deployment</string>
+
 
 </resources>

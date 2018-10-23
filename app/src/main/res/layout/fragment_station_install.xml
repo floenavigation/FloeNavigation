@@ -57,7 +57,8 @@
             android:layout_height="wrap_content"
             android:text="@string/stationName"
             android:textAllCaps="true"
-            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textSize="30sp"
             android:layout_marginEnd="15dp"
             android:textColor="@color/white"/>
 
@@ -86,7 +87,8 @@
             android:layout_height="wrap_content"
             android:text="@string/stationType"
             android:textAllCaps="true"
-            android:textSize="15sp"
+            android:textSize="30sp"
+            android:textStyle="bold"
             android:layout_marginEnd="15dp"
             android:textColor="@color/white"/>
 
@@ -97,6 +99,60 @@
             android:spinnerMode="dialog"
             android:prompt="@string/stationPrompt"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/staticStationTabletLat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:layout_weight="2"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="@string/staticStationCurrentLatitude"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_marginRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/staticStationCurrentLat"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/staticStationTabletLon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:layout_weight="2"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="@string/staticStationCurrentLongitude"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_marginRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/staticStationCurrentLon"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            />
     </LinearLayout>
 
     <LinearLayout
@@ -111,7 +167,8 @@
             android:layout_height="wrap_content"
             android:text="@string/stationMMSI"
             android:textAllCaps="true"
-            android:textSize="15sp"
+            android:textSize="30sp"
+            android:textStyle="bold"
             android:layout_marginEnd="15dp"
             android:textColor="@color/white"/>
 

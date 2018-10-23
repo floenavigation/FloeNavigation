@@ -152,6 +152,8 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
+        latLonFormat.setVisible(true);
 
         int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
         gpsIconItem = menu.findItem(iconItems[0]);

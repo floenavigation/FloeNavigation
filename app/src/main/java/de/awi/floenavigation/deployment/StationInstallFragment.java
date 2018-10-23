@@ -1,7 +1,11 @@
 package de.awi.floenavigation.deployment;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -14,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,6 +26,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,6 +35,8 @@ import java.util.List;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
+import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.NavigationFunctions;
 import de.awi.floenavigation.R;
 import de.awi.floenavigation.aismessages.AISDecodingService;
 
@@ -47,6 +55,11 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
 
     View activityView;
     private boolean stationTypeAIS;
+    private BroadcastReceiver broadcastReceiver;
+    private Double tabletLat;
+    private Double tabletLon;
+    private boolean changeFormat;
+    private int numOfSignificantFigures;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,15 +69,44 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         stationTypeAIS = getArguments().getBoolean("stationTypeAIS");
         layout.findViewById(R.id.station_confirm).setOnClickListener(this);
 
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    //Log.d(TAG, "BroadCast Received");
+                    /*String coordinateString = intent.getExtras().get("coordinates").toString();
+                    String[] coordinates = coordinateString.split(",");*/
+                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
+                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
+                    //tabletTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+
+                    //Log.d(TAG, "Tablet Loc: " + tabletLat);
+                    //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
+                    if(!stationTypeAIS) {
+                        populateTabLocation();
+                    }
+                }
+            };
+        }
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
         if (stationTypeAIS) {
             layout.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
             layout.findViewById(R.id.station_mmsi).setEnabled(true);
+            layout.findViewById(R.id.staticStationTabletLat).setVisibility(View.GONE);
+            layout.findViewById(R.id.staticStationTabletLon).setVisibility(View.GONE);
             layout.findViewById(R.id.station_confirm).setClickable(true);
             layout.findViewById(R.id.station_confirm).setEnabled(true);
+            setHasOptionsMenu(false);
         }else {
+            layout.findViewById(R.id.staticStationTabletLat).setVisibility(View.VISIBLE);
+            layout.findViewById(R.id.staticStationTabletLon).setVisibility(View.VISIBLE);
             layout.findViewById(R.id.stationMMSI).setVisibility(View.GONE);
             layout.findViewById(R.id.station_confirm).setClickable(true);
             layout.findViewById(R.id.station_confirm).setEnabled(true);
+            changeFormat = DatabaseHelper.readCoordinateDisplaySetting(getActivity());
+            numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(getActivity());
+            setHasOptionsMenu(true);
         }
 
         populateStationType(layout);
@@ -82,6 +124,45 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     insertStaticStation();
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(broadcastReceiver != null){
+            getActivity().unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.changeLatLonFormat:
+                changeFormat = !changeFormat;
+                populateTabLocation();
+                DatabaseHelper.updateCoordinateDisplaySetting(getActivity(), changeFormat);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
+
+    private void populateTabLocation(){
+        Log.d(TAG, "Tab Location" + String.valueOf(changeFormat));
+        View v = getView();
+        TextView latView = v.findViewById(R.id.staticStationCurrentLat);
+        TextView lonView = v.findViewById(R.id.staticStationCurrentLon);
+        String formatString = "%." + String.valueOf(numOfSignificantFigures) + "f";
+        if(changeFormat){
+            String[] formattedCoordinates = NavigationFunctions.locationInDegrees(tabletLat, tabletLon);
+            latView.setText(formattedCoordinates[DatabaseHelper.LATITUDE_INDEX]);
+            lonView.setText(formattedCoordinates[DatabaseHelper.LONGITUDE_INDEX]);
+        } else {
+            latView.setText(String.format(formatString, tabletLat));
+            lonView.setText(String.format(formatString, tabletLon));
         }
     }
 
@@ -152,24 +233,31 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
         String stationName = stationName_TV.getText().toString();
         Spinner stationTypeOption = activityView.findViewById(R.id.stationType);
         String stationType = stationTypeOption.getSelectedItem().toString();
-        if(!TextUtils.isEmpty(stationName_TV.getText().toString())) {
+        tabletLat = (tabletLat == null) ? 0.0 : tabletLat;
+        tabletLon = (tabletLon == null) ? 0.0 : tabletLon;
+        if(tabletLat != 0.0 && tabletLon != 0.0) {
+            if (!TextUtils.isEmpty(stationName_TV.getText().toString())) {
 
-            DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            if (checkStaticStationInDBTables(db, stationName)) {
-                Toast.makeText(getActivity(), "Duplicate Static Station, Station already exists", Toast.LENGTH_LONG).show();
-                return;
+                DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                if (checkStaticStationInDBTables(db, stationName)) {
+                    Toast.makeText(getActivity(), "Duplicate Static Station, Station already exists", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                StaticStationFragment stationFragment = new StaticStationFragment();
+                Bundle arguments = new Bundle();
+                arguments.putString(DatabaseHelper.staticStationName, stationName);
+                arguments.putString(DatabaseHelper.stationType, stationType);
+                stationFragment.setArguments(arguments);
+                FragmentChangeListener fc = (FragmentChangeListener) getActivity();
+                fc.replaceFragment(stationFragment);
+
+            } else {
+                Toast.makeText(getActivity(), "Invalid Station Name", Toast.LENGTH_LONG).show();
             }
-            StaticStationFragment stationFragment = new StaticStationFragment();
-            Bundle arguments = new Bundle();
-            arguments.putString(DatabaseHelper.staticStationName, stationName);
-            arguments.putString(DatabaseHelper.stationType, stationType);
-            stationFragment.setArguments(arguments);
-            FragmentChangeListener fc = (FragmentChangeListener) getActivity();
-            fc.replaceFragment(stationFragment);
-
-        } else {
-            Toast.makeText(getActivity(), "Invalid Station Name", Toast.LENGTH_LONG).show();
+        }else{
+            Log.d(TAG, "Error with GPS Service");
+            Toast.makeText(getActivity(), "Error reading Device Lat and Long", Toast.LENGTH_LONG).show();
         }
 
     }
