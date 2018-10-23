@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.awi.floenavigation.AdminPageActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
 import de.awi.floenavigation.MainActivity;
@@ -206,13 +207,16 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private void onClickFinish(){
         if(isSetupComplete) {
             Toast.makeText(getContext(), "Deployment Complete", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(getActivity(), MainActivity.class);
+            Intent intent = new Intent(getActivity(), AdminPageActivity.class);
             getActivity().startActivity(intent);
         } else{
             removeMMSIfromDBTable();
             Log.d(TAG, "AIS Station Installation Cancelled");
             handler.removeCallbacks(aisStationRunnable);
             StationInstallFragment stationInstallFragment = new StationInstallFragment();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("stationTypeAIS", true);
+            stationInstallFragment.setArguments(bundle);
             FragmentChangeListener fc = (FragmentChangeListener)getActivity();
             if (fc != null) {
                 fc.replaceFragment(stationInstallFragment);

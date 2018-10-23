@@ -53,18 +53,21 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_station_install, container, false);
+        stationTypeAIS = getArguments().getBoolean("stationTypeAIS");
         layout.findViewById(R.id.station_confirm).setOnClickListener(this);
-        layout.findViewById(R.id.withAIS).setOnClickListener(this);
-        layout.findViewById(R.id.withoutAIS).setOnClickListener(this);
-        layout.findViewById(R.id.station_confirm).setClickable(true);
-        layout.findViewById(R.id.station_confirm).setEnabled(true);
-        layout.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
-        layout.findViewById(R.id.station_mmsi).setEnabled(true);
-        stationTypeAIS = true;
+
+        if (stationTypeAIS) {
+            layout.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
+            layout.findViewById(R.id.station_mmsi).setEnabled(true);
+            layout.findViewById(R.id.station_confirm).setClickable(true);
+            layout.findViewById(R.id.station_confirm).setEnabled(true);
+        }else {
+            layout.findViewById(R.id.stationMMSI).setVisibility(View.GONE);
+            layout.findViewById(R.id.station_confirm).setClickable(true);
+            layout.findViewById(R.id.station_confirm).setEnabled(true);
+        }
 
         populateStationType(layout);
-
-
         return layout;
     }
 
@@ -79,22 +82,6 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     insertStaticStation();
                 }
                 break;
-
-            case R.id.withAIS:
-                activityView.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
-                activityView.findViewById(R.id.station_mmsi).setEnabled(true);
-                stationTypeAIS = true;
-                activityView.findViewById(R.id.station_confirm).setClickable(true);
-                activityView.findViewById(R.id.station_confirm).setEnabled(true);
-                break;
-
-            case R.id.withoutAIS:
-                activityView.findViewById(R.id.stationMMSI).setVisibility(View.GONE);
-                stationTypeAIS = false;
-                activityView.findViewById(R.id.station_confirm).setClickable(true);
-                activityView.findViewById(R.id.station_confirm).setEnabled(true);
-                break;
-
         }
     }
 

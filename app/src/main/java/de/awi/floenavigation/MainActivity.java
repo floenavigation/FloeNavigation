@@ -124,6 +124,7 @@ public class MainActivity extends ActionBarActivity {
     public void onClickDeploymentBtn(View view){
         if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
             Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
+            deploymentIntent.putExtra("DeploymentSelection", false);
             startActivity(deploymentIntent);
         }else {
             Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();

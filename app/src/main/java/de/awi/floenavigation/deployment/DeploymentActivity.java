@@ -16,12 +16,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import de.awi.floenavigation.ActionBarActivity;
+import de.awi.floenavigation.AdminPageActivity;
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.FragmentChangeListener;
 import de.awi.floenavigation.GPS_Service;
@@ -39,6 +41,7 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
     private MenuItem gpsIconItem, aisIconItem;
+    private boolean aisDeployment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,11 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         setContentView(R.layout.activity_deployment);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        aisDeployment = getIntent().getExtras().getBoolean("DeploymentSelection");
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("stationTypeAIS", aisDeployment);
         StationInstallFragment deviceFragment = new StationInstallFragment();
+        deviceFragment.setArguments(bundle);
         this.replaceFragment(deviceFragment);
 
     }
@@ -67,7 +74,7 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
 
     private void actionBarUpdatesFunction() {
 
-        /*****************ACTION BAR UPDATES*************************/
+        //***************ACTION BAR UPDATES*************************/
         if (broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
@@ -113,7 +120,7 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         };
 
         statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
-        /******************************************/
+        //****************************************/
     }
 
     @Override
@@ -128,8 +135,12 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
     @Override
     public void onBackPressed(){
         Fragment frag = this.getSupportFragmentManager().findFragmentById(R.id.frag_container);
+        Intent intent;
         if (frag instanceof StationInstallFragment){
-            Intent intent = new Intent(this, MainActivity.class);
+            if (aisDeployment) {
+                intent = new Intent(this, AdminPageActivity.class);
+            }else
+                intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
@@ -138,7 +149,6 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         }
     }
 
-    /*****************ACTION BAR UPDATES*************************/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -159,6 +169,15 @@ public class DeploymentActivity extends FragmentActivity implements FragmentChan
         unregisterReceiver(aisPacketBroadcastReceiver);
         aisPacketBroadcastReceiver = null;
     }
-    /******************************************/
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (aisDeployment) {
+                onBackPressed();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

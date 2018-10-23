@@ -16,12 +16,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.widget.Toast;
 
+import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 
 public class AdminPageActivity extends ActionBarActivity {
     private static final String TAG = "AdminPageActivity";
 
-    CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption, recoverycardOption;
+    CardView gridConfigOption, SyncOption, adminPrivilegesOption, configParamsOption,
+            recoverycardOption, deploymentcardOption;
     Handler handler = new Handler();
     Runnable gridConfigRunnable = new Runnable() {
         @Override
@@ -56,6 +58,13 @@ public class AdminPageActivity extends ActionBarActivity {
         }
     };
 
+    Runnable deploymentRunnable = new Runnable() {
+        @Override
+        public void run() {
+            deploymentcardOption.setVisibility(View.VISIBLE);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +82,8 @@ public class AdminPageActivity extends ActionBarActivity {
         handler.postDelayed(configParamsRunnable, 700);
         recoverycardOption = (CardView) findViewById(R.id.recoverycardView);
         handler.postDelayed(recoveryRunnable, 900);
+        deploymentcardOption = (CardView) findViewById(R.id.deploymentcardView);
+        handler.postDelayed(deploymentRunnable, 1100);
     }
 
     public void onClickListener(View view) {
@@ -199,5 +210,26 @@ public class AdminPageActivity extends ActionBarActivity {
 
         Intent mainActivityIntent = new Intent(this, MainActivity.class);
         startActivity(mainActivityIntent);
+    }
+
+    public void onClickDeploymentListener(View view) {
+        long numOfBaseStations = 0;
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+            if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                Intent deploymentIntent = new Intent(this, DeploymentActivity.class);
+                deploymentIntent.putExtra("DeploymentSelection", true);
+                startActivity(deploymentIntent);
+            }else {
+                Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
+            }
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error reading database");
+            e.printStackTrace();
+        }
+
+
     }
 }
