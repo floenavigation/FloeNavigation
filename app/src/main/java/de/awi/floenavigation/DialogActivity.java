@@ -115,11 +115,10 @@ public class DialogActivity extends Activity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (TextUtils.isEmpty(s)){
-                        Toast.makeText(getApplicationContext(), "Please enter valid ID", Toast.LENGTH_SHORT).show();
-                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    }else
-                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    if (!TextUtils.isEmpty(s)) {
+                        ((AlertDialog)alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    }
+
                 }
             });
             alertBuilder.setView(input);
@@ -128,8 +127,10 @@ public class DialogActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     tabletId = input.getText().toString();
                     Log.d(TAG, tabletId);
+
                     //insert in Db;
                     new SetupTabletID().execute();
+                    alertDialog.cancel();
                     Intent intent = new Intent(getApplicationContext(), AdminPageActivity.class);
                     startActivity(intent);
 
@@ -144,6 +145,16 @@ public class DialogActivity extends Activity {
             alertDialog.setCancelable(false);
             alertDialog.setCanceledOnTouchOutside(false);
         }
+
+        if (tabletIdDialog) {
+            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            });
+        }
+
 
         alertDialog.show();
     }
