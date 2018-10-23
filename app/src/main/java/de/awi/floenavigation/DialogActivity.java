@@ -13,7 +13,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -99,6 +102,26 @@ public class DialogActivity extends Activity {
         if(tabletIdDialog){
             final EditText input = new EditText(this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (TextUtils.isEmpty(s)){
+                        Toast.makeText(getApplicationContext(), "Please enter valid ID", Toast.LENGTH_SHORT).show();
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    }else
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+            });
             alertBuilder.setView(input);
             alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                 @Override
@@ -112,7 +135,6 @@ public class DialogActivity extends Activity {
 
                 }
             });
-
         }
 
         Log.d(TAG, dialogTitle);
@@ -125,6 +147,7 @@ public class DialogActivity extends Activity {
 
         alertDialog.show();
     }
+
 
     private void clearDatabase(){
         try {
