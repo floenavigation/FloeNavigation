@@ -246,31 +246,7 @@ public class GridLineView extends View {
         return true;
     }
 
-    private void readDatabase() {
-        try {
-            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getContext());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor mFixedStnCursor;
-            double xPosition, yPosition;
-            int mmsi;
 
-            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude},null, null, null, null, null);
-            if (mFixedStnCursor.moveToFirst()) {
-                do {
-                    mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
-                    xPosition = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.xPosition));
-                    yPosition = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.yPosition));
-                } while (mFixedStnCursor.moveToNext());
-                mFixedStnCursor.close();
-            }
-            else {
-                Log.d(TAG, "FixedStationTable Cursor Error");
-            }
-        } catch (SQLiteException e) {
-            Log.d(TAG, "Error reading database");
-            e.printStackTrace();
-        }
-    }
 
 
 }
