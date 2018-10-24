@@ -36,6 +36,9 @@ public class AngleCalculationService extends IntentService {
     private static final int CALCULATION_TIME = 10 * 1000;
     private Cursor mBaseStnCursor, mFixedStnCursor, mBetaCursor;
 
+    private static AngleCalculationService instance = null;
+
+
 
     public AngleCalculationService() {
 
@@ -43,6 +46,16 @@ public class AngleCalculationService extends IntentService {
 
         this.mHandler = new Handler();
         mmsi = new int[INITIALIZATION_SIZE];
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        instance = this;
+    }
+
+    public static boolean isInstanceCreated(){
+        return instance != null;
     }
 
     @Override
@@ -212,6 +225,12 @@ public class AngleCalculationService extends IntentService {
         } else {
             Log.d(TAG, "No New Stations Deployed");
         }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        instance = null;
     }
 
 

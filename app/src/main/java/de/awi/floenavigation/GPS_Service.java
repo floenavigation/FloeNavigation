@@ -32,6 +32,8 @@ public class GPS_Service extends Service {
     private static final int updateInterval = 1000;
     LocationUpdates locationUpdates = new LocationUpdates();
 
+    private static GPS_Service instance = null;
+
 
     public GPS_Service() {
         //super(name);
@@ -39,6 +41,9 @@ public class GPS_Service extends Service {
 
     }
 
+    public static boolean isInstanceCreated(){
+        return instance != null;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -50,6 +55,7 @@ public class GPS_Service extends Service {
     @Override
     public void onCreate(){
         Log.d(TAG, "GPS Service Started");
+        instance = this;
         listener =  new Listener(LocationManager.GPS_PROVIDER);
         locationManager = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
@@ -75,6 +81,7 @@ public class GPS_Service extends Service {
             locationManager.removeUpdates(listener);
             //locationManager = null;
         }
+        instance = null;
     }
 
     private class Listener implements LocationListener{
@@ -182,5 +189,7 @@ public class GPS_Service extends Service {
             }
         }
     }
+
+
 }
 

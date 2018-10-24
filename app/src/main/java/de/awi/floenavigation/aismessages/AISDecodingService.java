@@ -112,6 +112,7 @@ public class AISDecodingService extends IntentService {
             packet = intent.getExtras().getString("AISPacket");
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
             SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor cursor_mobilestnlist = null;
             Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
                     new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
                     null, null, null, null, null);
@@ -120,11 +121,14 @@ public class AISDecodingService extends IntentService {
                     null, null, null, null, null, null);
 
             //Mobile Station Disabled for now. Uncomment later
-           /* Cursor cursor_mobilestnlist = db.query(DatabaseHelper.mobileStationTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);*/
+            Cursor mobileCheckCursor = db.rawQuery("Select DISTINCT tbl_name from sqlite_master where tbl_name = '" + DatabaseHelper.mobileStationTable + "'", null);
+            if(mobileCheckCursor.getCount() == 1) {
+                cursor_mobilestnlist = db.query(DatabaseHelper.mobileStationTable,
+                        null,
+                        null,
+                        null,
+                        null, null, null);
+            }
 
             int msgType = 0;
 
@@ -180,16 +184,15 @@ public class AISDecodingService extends IntentService {
                             } while (cursor_fixedstnlist.moveToNext());
                         }
 
-                    } //Uncomment later
-                    /*else{
-                        if(cursor_mobilestnlist.moveToFirst()) {
+                    } else if (mobileCheckCursor.getCount() == 1){
+                        if (cursor_mobilestnlist.moveToFirst()) {
                             do {
 
                                 ContentValues decodedValues = new ContentValues();
                                 decodedValues.put(DatabaseHelper.stationName, recvdStationName);
                                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
                                 decodedValues.put(DatabaseHelper.packetType, packetType);
-                                if ((num != 5) && (num != 24)) {
+                                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
                                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
                                     decodedValues.put(DatabaseHelper.sog, recvdSpeed);
@@ -203,7 +206,7 @@ public class AISDecodingService extends IntentService {
                             } while (cursor_mobilestnlist.moveToNext());
                         }
 
-                           */
+                    }
 
                 }while(cursor_stnlist.moveToNext());
 
@@ -212,7 +215,9 @@ public class AISDecodingService extends IntentService {
             cursor_stnlist.close();
             cursor_fixedstnlist.close();
             //Uncomment later
-            // cursor_mobilestnlist.close();
+            if(mobileCheckCursor.getCount() == 1){
+                cursor_mobilestnlist.close();
+            }
             //db.close();
         }catch (SQLException e)
         {

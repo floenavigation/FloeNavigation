@@ -216,7 +216,6 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
     }
 
     private void populateTabLocation(){
-        Log.d(TAG, "Tab Location" + String.valueOf(changeFormat));
         View v = getView();
         TextView latView = v.findViewById(R.id.staticStationCurrentLat);
         TextView lonView = v.findViewById(R.id.staticStationCurrentLon);
@@ -313,6 +312,8 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                 Bundle arguments = new Bundle();
                 arguments.putString(DatabaseHelper.staticStationName, stationName);
                 arguments.putString(DatabaseHelper.stationType, stationType);
+                arguments.putDouble(GPS_Service.latitude, tabletLat);
+                arguments.putDouble(GPS_Service.longitude, tabletLon);
                 stationFragment.setArguments(arguments);
                 FragmentChangeListener fc = (FragmentChangeListener) getActivity();
                 fc.replaceFragment(stationFragment);

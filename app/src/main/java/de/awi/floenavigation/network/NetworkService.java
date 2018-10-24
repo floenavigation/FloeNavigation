@@ -14,6 +14,8 @@ public class NetworkService extends IntentService {
 
     private static final String TAG = "NetworkService";
 
+    private static NetworkService instance = null;
+
 
     private NetworkMonitor monitor;
     Thread networkMonitorThread;
@@ -30,8 +32,24 @@ public class NetworkService extends IntentService {
     }
 
     @Override
+    public void onCreate(){
+        super.onCreate();
+        instance = this;
+    }
+
+    public static boolean isInstanceCreated(){
+        return instance != null;
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
 
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        instance = null;
     }
 
 

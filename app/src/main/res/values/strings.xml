@@ -14,6 +14,7 @@
     <string name="label_activity_admin_user_pwd">Add Admin User</string>
     <string name="label_activity_sample_measurement">Add Sample/Measurement</string>
     <string name="label_activity_main_activity">Sea Ice Navigation System</string>
+    <string name="label_activity_grid">Sea Ice Navigation System</string>
     <string name="label_activity_login_page">Administrator Login</string>
     <string name="label_activity_admin_page">Administration</string>
     <string name="label_activity_grid_setup">Coordinate System Setup</string>

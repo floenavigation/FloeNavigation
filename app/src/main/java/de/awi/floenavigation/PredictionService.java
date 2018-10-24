@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -26,9 +27,31 @@ public class PredictionService extends IntentService {
     public static int ERROR_THRESHOLD_VALUE;
     public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
 
+    private double distance;
+    private double xPosition;
+    private double yPosition;
+    private double alpha;
+    private double theta;
+    private double originLatitude;
+    private double originLongitude;
+    private int originMMSI;
+    private double beta;
+
+    private static PredictionService instance = null;
+
     public PredictionService() {
         super("PredictionService");
         mPredictionHandler = new Handler();
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        instance = this;
+    }
+
+    public static boolean isInstanceCreated(){
+        return instance != null;
     }
 
 
@@ -42,48 +65,56 @@ public class PredictionService extends IntentService {
                         try{
                             DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
                             SQLiteDatabase db = dbHelper.getReadableDatabase();
-                            Cursor mFixedStnCursor;
-                            double stationLatitude, stationLongitude, stationSOG, stationCOG;
-                            double[] predictedCoordinate;
-                            int mmsi;
-                            int predictionAccuracy;
-                            retrieveConfigurationParametersDatafromDB(db);
+                            if(getOriginCoordinates(db)) {
+                                Cursor mFixedStnCursor;
+                                double stationLatitude, stationLongitude, stationSOG, stationCOG;
+                                double[] predictedCoordinate;
+                                int mmsi;
+                                int predictionAccuracy;
+                                retrieveConfigurationParametersDatafromDB(db);
 
-                            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude,
-                                    DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.predictionAccuracy},null, null, null, null, null);
-                            if (mFixedStnCursor.moveToFirst()) {
-                                do {
-                                    mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
-                                    predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-                                    if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE) {
-                                        stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
-                                        stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
-                                    }else{
-                                        stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
-                                        stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
-                                    }
-                                    stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
-                                    stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
-                                    predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
-                                    ContentValues mContentValues = new ContentValues();
-                                    mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[0]);
-                                    mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[1]);
-                                    mContentValues.put(DatabaseHelper.isPredicted, 1);
-                                    db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(mmsi)});
-                                    Log.d(TAG, "Lat: " + stationLatitude + " Lon: " + stationLongitude);
-                                    Log.d(TAG, "PredLat: " + predictedCoordinate[0] + "PredLon: " + predictedCoordinate[1]);
-                                } while (mFixedStnCursor.moveToNext());
-                                mFixedStnCursor.close();
+                                mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude,
+                                        DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.predictionAccuracy}, null, null, null, null, null);
+                                if (mFixedStnCursor.moveToFirst()) {
+                                    do {
+                                        mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                                        predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
+                                        if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE) {
+                                            stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                                            stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                                        } else {
+                                            stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
+                                            stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
+                                        }
+                                        stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
+                                        stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
+                                        predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
+                                        calculateNewParams(predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                        ContentValues mContentValues = new ContentValues();
+                                        mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX]);
+                                        mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                        mContentValues.put(DatabaseHelper.xPosition, xPosition);
+                                        mContentValues.put(DatabaseHelper.yPosition, yPosition);
+                                        mContentValues.put(DatabaseHelper.distance, distance);
+                                        mContentValues.put(DatabaseHelper.alpha, alpha);
+                                        mContentValues.put(DatabaseHelper.isPredicted, 1);
+                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                                        Log.d(TAG, "Lat: " + stationLatitude + " Lon: " + stationLongitude);
+                                        Log.d(TAG, "PredLat: " + predictedCoordinate[0] + "PredLon: " + predictedCoordinate[1]);
+                                    } while (mFixedStnCursor.moveToNext());
+                                    mFixedStnCursor.close();
+                                } else {
+                                    Log.d(TAG, "FixedStationTable Cursor Error");
+                                }
+                            } else{
+                                Log.d(TAG, "Error Reading Origin Coordinates");
                             }
-                            else {
-                                Log.d(TAG, "FixedStationTable Cursor Error");
-                            }
-
                             mPredictionHandler.postDelayed(this, PREDICTION_TIME);
                         }catch (SQLException e){
                             String text = "Database unavailable";
                             Log.d(TAG, text);
                         }
+
                     }
 
                 };
@@ -121,5 +152,75 @@ public class PredictionService extends IntentService {
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();
         }
+    }
+
+    private void calculateNewParams(double latitude, double longitude ){
+        distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, latitude, longitude);
+        theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, latitude, longitude);
+        alpha = Math.abs(theta - beta);
+        xPosition = distance * Math.cos(Math.toRadians(alpha));
+        yPosition = distance * Math.sin(Math.toRadians(alpha));
+    }
+
+    private boolean getOriginCoordinates(SQLiteDatabase db){
+
+        try {
+
+            Cursor baseStationCursor = db.query(DatabaseHelper.baseStationTable,
+                    new String[] {DatabaseHelper.mmsi},
+                    null,
+                    null,
+                    null, null, null);
+            if (baseStationCursor.getCount() != DatabaseHelper.INITIALIZATION_SIZE){
+                Log.d(TAG, "Error Reading from BaseStation Table");
+                return false;
+            } else{
+                if(baseStationCursor.moveToFirst()){
+                    originMMSI = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
+                }
+            }
+            Cursor fixedStationCursor = db.query(DatabaseHelper.fixedStationTable,
+                    new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude},
+                    DatabaseHelper.mmsi +" = ?",
+                    new String[] {String.valueOf(originMMSI)},
+                    null, null, null);
+            if (fixedStationCursor.getCount() != 1){
+                Log.d(TAG, "Error Reading Origin Latitude Longitude");
+                return false;
+            } else{
+                if(fixedStationCursor.moveToFirst()){
+                    originLatitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.latitude));
+                    originLongitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.longitude));
+                }
+            }
+
+            Cursor betaCursor = db.query(DatabaseHelper.betaTable,
+                    new String[]{DatabaseHelper.beta, DatabaseHelper.updateTime},
+                    null, null,
+                    null, null, null);
+            if (betaCursor.getCount() == 1) {
+                if (betaCursor.moveToFirst()) {
+                    beta = betaCursor.getDouble(betaCursor.getColumnIndex(DatabaseHelper.beta));
+                }
+
+            } else {
+                Log.d(TAG, "Error in Beta Table");
+                return false;
+            }
+            betaCursor.close();
+            baseStationCursor.close();
+            fixedStationCursor.close();
+            return true;
+        } catch(SQLiteException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        instance = null;
     }
 }

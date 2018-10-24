@@ -41,9 +41,21 @@ public class AlphaCalculationService extends IntentService {
     private static final int TIMER_PERIOD = 10 * 1000;
     private static final int TIMER_DELAY = 0;
 
+    private static AlphaCalculationService instance = null;
+
 
     public AlphaCalculationService() {
         super("AlphaCalculationService");
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        instance = this;
+    }
+
+    public static boolean isInstanceCreated(){
+        return instance != null;
     }
 
     @Override
@@ -194,5 +206,12 @@ public class AlphaCalculationService extends IntentService {
             }
         }
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        instance = null;
+    }
+
 
 }

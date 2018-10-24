@@ -48,6 +48,8 @@ public class ValidationService extends IntentService {
     TextView validationFailedMsg, stationRemovedMsg;
     //private Context appContext;
 
+    private static ValidationService instance = null;
+
 
     public ValidationService() {
         super("ValidationService");
@@ -57,10 +59,15 @@ public class ValidationService extends IntentService {
 
     }
 
+    public static boolean isInstanceCreated(){
+        return instance != null;
+    }
+
     @Override
     public void onCreate(){
         super.onCreate();
         //alertDialog = new Dialog(this);
+        instance = this;
     }
 
     @Override
@@ -276,6 +283,12 @@ public class ValidationService extends IntentService {
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        instance = null;
     }
 
 }

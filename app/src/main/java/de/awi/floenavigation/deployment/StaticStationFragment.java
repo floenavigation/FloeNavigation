@@ -76,6 +76,8 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         layout.findViewById(R.id.static_station_finish).setClickable(false);
         stationName = getArguments().getString(DatabaseHelper.staticStationName);
         stationType = getArguments().getString(DatabaseHelper.stationType);
+        tabletLat = getArguments().getDouble(GPS_Service.latitude);
+        tabletLon = getArguments().getDouble(GPS_Service.longitude);
         if(getOriginCoordinates()) {
             calculateStaticStationParameters();
             insertStaticStation();
@@ -145,8 +147,12 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         distance = NavigationFunctions.calculateDifference(tabletLat, tabletLon, originLatitude, originLongitude);
         theta = NavigationFunctions.calculateAngleBeta(tabletLat, tabletLon, originLatitude, originLongitude);
         alpha = Math.abs(theta - beta);
+        Log.d(TAG, "StationDistance: " + String.valueOf(distance));
+        Log.d(TAG, "OriginLat: " + String.valueOf(originLatitude) + " OriginLon: " + String.valueOf(originLongitude));
+        Log.d(TAG, "TabletLat: " + String.valueOf(tabletLat) + " TabletLon: " + String.valueOf(tabletLon));
         xPosition = distance * Math.cos(Math.toRadians(alpha));
         yPosition = distance * Math.sin(Math.toRadians(alpha));
+
     }
 
     private void insertStaticStation(){
@@ -158,6 +164,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         staticStation.put(DatabaseHelper.stationType, stationType);
         staticStation.put(DatabaseHelper.xPosition, xPosition);
         staticStation.put(DatabaseHelper.yPosition, yPosition);
+
         staticStation.put(DatabaseHelper.distance, distance);
         staticStation.put(DatabaseHelper.alpha, alpha);
         db.insert(DatabaseHelper.staticStationListTable, null, staticStation);
@@ -220,6 +227,8 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         }
     }
 
+
+
     private void actionBarUpdatesFunction() {
 
         //***************ACTION BAR UPDATES*************************/
@@ -228,8 +237,9 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
-                    tabletLat = intent.getExtras().getDouble(GPS_Service.latitude);
-                    tabletLon = intent.getExtras().getDouble(GPS_Service.longitude);
+                    //setTabletLat(intent.getExtras().getDouble(GPS_Service.latitude));
+                    //setTabletLon(intent.getExtras().getDouble(GPS_Service.longitude));
+
                 }
             };
         }

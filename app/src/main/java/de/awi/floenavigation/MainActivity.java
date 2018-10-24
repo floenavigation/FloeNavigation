@@ -3,6 +3,7 @@ package de.awi.floenavigation;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,18 +36,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.UUID;
 
+import de.awi.floenavigation.aismessages.AISDecodingService;
 import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.initialsetup.CoordinateFragment;
+import de.awi.floenavigation.initialsetup.SetupActivity;
 import de.awi.floenavigation.network.NetworkService;
 import de.awi.floenavigation.sample_measurement.SampleMeasurementActivity;
 import de.awi.floenavigation.waypoint.WaypointActivity;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static boolean networkSetup = false;
-    private static boolean gpssetup = false;
+    //private static boolean networkSetup = false;
+    //private static boolean gpssetup = false;
+    //public static boolean servicesStarted = true;
     public static final int GPS_REQUEST_CODE = 10;
     private static long numOfBaseStations;
     private static final String TAG = "MainActivity";
@@ -60,17 +65,18 @@ public class MainActivity extends ActionBarActivity {
 
         //Start Network Monitor Service
 
-        if (!networkSetup) {
+        if(!NetworkService.isInstanceCreated()){
+            Log.d(TAG, "NetworkServicie not Running. Starting NetworkService");
             Intent networkServiceIntent = new Intent(this, NetworkService.class);
             startService(networkServiceIntent);
-            networkSetup = true;
         }
 
         //Start GPS Service
-        if (!gpssetup) {
+        if (!GPS_Service.isInstanceCreated()) {
+            Log.d(TAG, "GPS_SERVICE not Running. Starting GPS_SERVICE");
             checkPermission();
-            gpssetup = true;
         }
+
 
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
@@ -79,6 +85,37 @@ public class MainActivity extends ActionBarActivity {
         }catch (SQLiteException e){
             Log.d(TAG, "Error reading database");
             e.printStackTrace();
+        }
+        if(numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE){
+
+            if(!AngleCalculationService.isInstanceCreated()){
+                Log.d(TAG, "AngleCalculationService not Running. Starting AngleCalulationService");
+                Intent angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
+                startService(angleCalculationServiceIntent);
+            } else{
+                Log.d(TAG, "AngleCalculationService already Running");
+            }
+            if(!AlphaCalculationService.isInstanceCreated()){
+                Log.d(TAG, "AlphaCalculationService not Running. Starting AngleCalulationService");
+                Intent alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
+                startService(alphaCalculationServiceIntent);
+            } else{
+                Log.d(TAG, "AlphaCalculationService already Running");
+            }
+            if(!PredictionService.isInstanceCreated()){
+                Log.d(TAG, "PredictionService not Running. Starting AngleCalulationService");
+                Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
+                startService(predictionServiceIntent);
+            } else{
+                Log.d(TAG, "PredictionService already Running");
+            }
+            if(!ValidationService.isInstanceCreated()){
+                Log.d(TAG, "ValidationService not Running. Starting AngleCalulationService");
+                Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
+                startService(validationServiceIntent);
+            } else{
+                Log.d(TAG, "ValidationService already Running");
+            }
         }
 
 
@@ -111,11 +148,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("NetworkState", networkSetup);
-    }
 
     public void onClickListener(View view){
 
@@ -163,6 +195,7 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     public void onBackPressed() {

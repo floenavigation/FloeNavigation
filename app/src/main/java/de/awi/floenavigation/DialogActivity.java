@@ -32,6 +32,7 @@ public class DialogActivity extends Activity {
     private int dialogIcon;
     private boolean showDialogOptions = false;
     private boolean tabletIdDialog = false;
+    //public static boolean servicesStarted = true;
     public static final String DIALOG_BUNDLE = "dialogBundle";
     public static final String DIALOG_TITLE = "title";
     public static final String DIALOG_MSG = "message";
@@ -93,6 +94,8 @@ public class DialogActivity extends Activity {
                     new CreateTablesOnStartup().execute();
                     showNavigationBar();
                     SetupActivity.runServices(getApplicationContext());
+                    //MainActivity.servicesStarted = true;
+                    //servicesStarted = false;
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                 }
