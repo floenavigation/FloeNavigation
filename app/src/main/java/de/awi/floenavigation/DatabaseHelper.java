@@ -193,6 +193,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     stationName + " TEXT, " +
                     latitude + " REAL, " +
                     longitude + " REAL, " +
+                    sog + " REAL, " +
+                    cog + " REAL, " +
                     alpha + " REAL, " +
                     distance + " REAL, " +
                     xPosition + " REAL, " +

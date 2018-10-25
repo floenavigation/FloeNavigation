@@ -96,7 +96,7 @@ public class NavigationFunctions {
         //double fixedLon = lon2;
 
         double bearing = calculateBearing(lat1, lon1, lat2, lon2);
-        Log.d(TAG, "Bearing: " + String.valueOf(bearing));
+        //Log.d(TAG, "Bearing: " + String.valueOf(bearing));
 
         if(bearing >= 0 && bearing <= 180){
             bearing -= 90;

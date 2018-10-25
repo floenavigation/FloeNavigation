@@ -45,6 +45,7 @@ public class ListViewActivity extends ActionBarActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Intent intentOnExit;
+    private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,10 +182,48 @@ public class ListViewActivity extends ActionBarActivity {
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+            baseStationsRetrievalfromDB(db);
+            if (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex] || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
+                db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+            } else {
+                db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+            }
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+    }
+
+    private void baseStationsRetrievalfromDB(SQLiteDatabase db){
+
+        try {
+            //SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+            //SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
+                    null, null, null, null, null);
+
+            if (mBaseStnCursor.getCount() == DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                int index = 0;
+
+                if (mBaseStnCursor.moveToFirst()) {
+                    do {
+                        baseStnMMSI[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                        index++;
+                    } while (mBaseStnCursor.moveToNext());
+                }else {
+                    Log.d(TAG, "Base stn cursor error");
+                }
+
+            } else {
+                Log.d(TAG, "Error reading from base stn table");
+            }
+            mBaseStnCursor.close();
+        }catch (SQLException e){
+
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
+
     }
 
     private void deleteEntryfromStaticStnTableinDB(String stationToBeRemoved){

@@ -49,7 +49,7 @@ import de.awi.floenavigation.waypoint.WaypointActivity;
 
 public class MainActivity extends ActionBarActivity {
 
-    //private static boolean networkSetup = false;
+    private static boolean networkSetup = false;
     //private static boolean gpssetup = false;
     //public static boolean servicesStarted = true;
     public static final int GPS_REQUEST_CODE = 10;
@@ -65,16 +65,22 @@ public class MainActivity extends ActionBarActivity {
 
         //Start Network Monitor Service
 
-        if(!NetworkService.isInstanceCreated()){
+        if(!networkSetup){
             Log.d(TAG, "NetworkServicie not Running. Starting NetworkService");
+            networkSetup = true;
             Intent networkServiceIntent = new Intent(this, NetworkService.class);
             startService(networkServiceIntent);
+
+        } else{
+            Log.d(TAG, "NetworkService Already Running");
         }
 
         //Start GPS Service
         if (!GPS_Service.isInstanceCreated()) {
             Log.d(TAG, "GPS_SERVICE not Running. Starting GPS_SERVICE");
             checkPermission();
+        }else{
+            Log.d(TAG, "GPSService Already Running");
         }
 
 

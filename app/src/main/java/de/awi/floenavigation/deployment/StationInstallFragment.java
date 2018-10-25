@@ -263,6 +263,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                 Toast.makeText(getActivity(), "Duplicate MMSI, AIS Station already exists", Toast.LENGTH_LONG).show();
                 return;
             }
+
             ContentValues station = new ContentValues();
             ContentValues fixedStation = new ContentValues();
             station.put(DatabaseHelper.mmsi, mmsi);
@@ -271,10 +272,16 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             fixedStation.put(DatabaseHelper.stationName, stationName);
             fixedStation.put(DatabaseHelper.stationType, stationType);
             fixedStation.put(DatabaseHelper.isLocationReceived, DatabaseHelper.IS_LOCATION_RECEIVED_INITIAL_VALUE);
-
-            db.insert(DatabaseHelper.stationListTable, null, station);
-            db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
-
+            //Synchronize Delete from Mobile Station Table and Insertion in Station List Table so that
+            //Decoding Service would not create the MMSI in Mobile Station Table again.
+            synchronized (this) {
+                if (checkStationInMobileTable(db, mmsi)) {
+                    db.delete(DatabaseHelper.mobileStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                    Log.d(TAG, "Station Removed from Mobile Station Table");
+                }
+                db.insert(DatabaseHelper.stationListTable, null, station);
+                db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
+            }
             AISStationCoordinateFragment aisFragment = new AISStationCoordinateFragment();
             Bundle argument = new Bundle();
             argument.putInt(DatabaseHelper.mmsi, mmsi);
@@ -364,6 +371,22 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     new String[]{String.valueOf(MMSI)}, null, null, null);
 
             return mStationListCursor.moveToFirst() && mFixedStnCursor.moveToFirst();
+        }catch (SQLException e){
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean checkStationInMobileTable(SQLiteDatabase db, int MMSI){
+
+        try{
+
+            Cursor mMobileStationCursor;
+            mMobileStationCursor = db.query(DatabaseHelper.mobileStationTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
+                    new String[]{String.valueOf(MMSI)}, null, null, null);
+
+            return mMobileStationCursor.moveToFirst();
         }catch (SQLException e){
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();

@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -112,23 +113,11 @@ public class AISDecodingService extends IntentService {
             packet = intent.getExtras().getString("AISPacket");
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());;
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor_mobilestnlist = null;
-            Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
-                    new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
-                    null, null, null, null, null);
 
-            Cursor cursor_fixedstnlist = db.query(DatabaseHelper.fixedStationTable,
-                    null, null, null, null, null, null);
 
-            //Mobile Station Disabled for now. Uncomment later
             Cursor mobileCheckCursor = db.rawQuery("Select DISTINCT tbl_name from sqlite_master where tbl_name = '" + DatabaseHelper.mobileStationTable + "'", null);
-            if(mobileCheckCursor.getCount() == 1) {
-                cursor_mobilestnlist = db.query(DatabaseHelper.mobileStationTable,
-                        null,
-                        null,
-                        null,
-                        null, null, null);
-            }
+            Log.d(TAG, "MobileStationTable: " + mobileCheckCursor.getCount());
+
 
             int msgType = 0;
 
@@ -144,84 +133,69 @@ public class AISDecodingService extends IntentService {
 
             //if(recvdMMSI == 21100)
 
-
+            Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
+                    new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
+                    DatabaseHelper.mmsi + " = ?",
+                    new String[] {String.valueOf(recvdMMSI)},
+                    null, null, null);
             if(cursor_stnlist.moveToFirst())
             {
-                do{
-                    int mmsi = cursor_stnlist.getInt(cursor_stnlist.getColumnIndex(DatabaseHelper.mmsi));
-                    String aisStnName = cursor_stnlist.getString(cursor_stnlist.getColumnIndex(DatabaseHelper.stationName));
+                ContentValues decodedValues = new ContentValues();
+                if(msgType == STATIC_DATA_CLASSA || msgType == STATIC_VOYAGE_DATA_CLASSB) {
+                    decodedValues.put(DatabaseHelper.stationName, recvdStationName);
+                }
+                decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
+                decodedValues.put(DatabaseHelper.isLocationReceived, 1);
+                decodedValues.put(DatabaseHelper.packetType, packetType);
+                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
+                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
+                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
+                    decodedValues.put(DatabaseHelper.recvdLatitude, recvdLat);
+                    decodedValues.put(DatabaseHelper.recvdLongitude, recvdLon);
+                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
+                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
+                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
+                    decodedValues.put(DatabaseHelper.isPredicted, 0);
+                }
+                Log.d(TAG, "Updated DB " + String.valueOf(recvdMMSI));
+                int a = db.update(DatabaseHelper.fixedStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
+                Log.d(TAG, "Update Result: " + recvdTimeStamp);
 
-                    //Decoding logic
 
-                    if(recvdMMSI == mmsi){
+            } else if (mobileCheckCursor.getCount() == 1){
+                ContentValues decodedValues = new ContentValues();
+                if(msgType == STATIC_DATA_CLASSA || msgType == STATIC_VOYAGE_DATA_CLASSB) {
+                    decodedValues.put(DatabaseHelper.stationName, recvdStationName);
+                }
+                decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
+                //decodedValues.put(DatabaseHelper.packetType, packetType);
+                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
+                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
+                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
+                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
+                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
+                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
+                }
+                int result = db.update(DatabaseHelper.mobileStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
+                Log.d(TAG, "Mobile Station Update Result: " + String.valueOf(result));
+                Log.d(TAG, "Mobile Station MMSI: " + String.valueOf(recvdMMSI));
 
-                        //Writing to the database table AISFIXEDSTATIONPOSITION
-                        //More fields to be included
-                        if (cursor_fixedstnlist.moveToFirst()) {
-                            do {
-                                //if((cursor_fixedstnlist.getInt(cursor_fixedstnlist.getColumnIndex(DatabaseHelper.mmsi))) == mmsi) {
-                                ContentValues decodedValues = new ContentValues();
-                                decodedValues.put(DatabaseHelper.stationName, recvdStationName);
-                                decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
-                                decodedValues.put(DatabaseHelper.isLocationReceived, 1);
-                                decodedValues.put(DatabaseHelper.packetType, packetType);
-                                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
-                                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
-                                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
-                                    decodedValues.put(DatabaseHelper.recvdLatitude, recvdLat);
-                                    decodedValues.put(DatabaseHelper.recvdLongitude, recvdLon);
-                                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
-                                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
-                                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
-                                    decodedValues.put(DatabaseHelper.isPredicted, 0);
-                                }
-                                Log.d(TAG, "Updated DB " + String.valueOf(recvdMMSI));
-                                int a = db.update(DatabaseHelper.fixedStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
-                                Log.d(TAG, "Update Result: " + recvdTimeStamp);
+                if(result == 0){
+                    long a = db.insert(DatabaseHelper.mobileStationTable, null, decodedValues);
+                    Log.d(TAG, "Mobile Station Insertion Result: " + String.valueOf(a));
+                }Log.d(TAG, "Mobile Station Table Length: " + String.valueOf(DatabaseUtils.queryNumEntries(db, DatabaseHelper.mobileStationTable)));
 
-                                break;
-                                //}
-                            } while (cursor_fixedstnlist.moveToNext());
-                        }
-
-                    } else if (mobileCheckCursor.getCount() == 1){
-                        if (cursor_mobilestnlist.moveToFirst()) {
-                            do {
-
-                                ContentValues decodedValues = new ContentValues();
-                                decodedValues.put(DatabaseHelper.stationName, recvdStationName);
-                                decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
-                                decodedValues.put(DatabaseHelper.packetType, packetType);
-                                if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
-                                    decodedValues.put(DatabaseHelper.latitude, recvdLat);
-                                    decodedValues.put(DatabaseHelper.longitude, recvdLon);
-                                    decodedValues.put(DatabaseHelper.sog, recvdSpeed);
-                                    decodedValues.put(DatabaseHelper.cog, recvdCourse);
-                                    decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
-                                    decodedValues.put(DatabaseHelper.isPredicted, 0);
-                                }
-                                db.update(DatabaseHelper.mobileStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
-                                break;
-
-                            } while (cursor_mobilestnlist.moveToNext());
-                        }
-
-                    }
-
-                }while(cursor_stnlist.moveToNext());
 
             }
-
             cursor_stnlist.close();
-            cursor_fixedstnlist.close();
+            //cursor_fixedstnlist.close();
             //Uncomment later
-            if(mobileCheckCursor.getCount() == 1){
-                cursor_mobilestnlist.close();
-            }
+            mobileCheckCursor.close();
             //db.close();
         }catch (SQLException e)
         {
             String text = "Database unavailable";
+            e.printStackTrace();
             Log.d(TAG, text);
             //showText(text);
         }

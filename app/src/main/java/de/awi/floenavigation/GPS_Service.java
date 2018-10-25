@@ -29,7 +29,7 @@ public class GPS_Service extends Service {
     public static final String longitude = "LONGITUDE";
     public static final String GPSTime = "TIME";
     public static final String locationStatus = "CURRENT_LOCATION_AVAILABLE";
-    private static final int updateInterval = 1000;
+    private static final int updateInterval = 15 * 1000;
     LocationUpdates locationUpdates = new LocationUpdates();
 
     private static GPS_Service instance = null;

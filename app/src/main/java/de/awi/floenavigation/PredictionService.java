@@ -89,7 +89,14 @@ public class PredictionService extends IntentService {
                                         stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
                                         stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
                                         predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
-                                        calculateNewParams(predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                        if(mmsi == originMMSI){
+                                            xPosition = 0.0;
+                                            yPosition = 0.0;
+                                            distance = 0.0;
+                                            alpha = 0.0;
+                                        } else {
+                                            calculateNewParams(predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                        }
                                         ContentValues mContentValues = new ContentValues();
                                         mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX]);
                                         mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
