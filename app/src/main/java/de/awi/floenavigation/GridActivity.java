@@ -18,6 +18,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -27,9 +28,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+
 import android.view.View;
 import android.widget.Toast;
 
@@ -38,7 +44,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.awi.floenavigation.deployment.StationInstallFragment;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.ScaleGestureDetectorCompat;
+import android.view.ScaleGestureDetector;
+
 
 public class GridActivity extends Activity {
 
@@ -264,10 +273,112 @@ public class GridActivity extends Activity {
 
         private int numRows = DEFAULT_NUMBER_OF_ROWS, numColumns = DEFAULT_NUMBER_OF_COLUMNS;
 
+        // The current viewport. This rectangle represents the currently visible
+        // chart domain and range.
+        private static final float AXIS_X_MIN = -1f;
+        private static final float AXIS_X_MAX = 1f;
+        private static final float AXIS_Y_MIN = -1f;
+        private static final float AXIS_Y_MAX = 1f;
+        private RectF mCurrentViewport =
+                new RectF(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
+        private Rect mContentRect = new Rect();
+        private ScaleGestureDetector mScaleGestureDetector;
+        private GestureDetectorCompat mGestureDetector;
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            boolean retVal = mScaleGestureDetector.onTouchEvent(event);
+            retVal = mGestureDetector.onTouchEvent(event) || retVal;
+            return retVal || super.onTouchEvent(event);
+        }
+
+        /**
+         * The scale listener, used for handling multi-finger scale gestures.
+         */
+        private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
+                = new ScaleGestureDetector.SimpleOnScaleGestureListener(){
+
+            /**
+             * This is the active focal point in terms of the viewport. Could be a local
+             * variable but kept here to minimize per-frame allocations.
+             */
+            private PointF viewportFocus = new PointF();
+            private float lastSpanX;
+            private float lastSpanY;
+
+            // Detects that new pointers are going down.
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+                lastSpanX = mScaleGestureDetector.
+                        getCurrentSpanX();
+                lastSpanY = mScaleGestureDetector.
+                        getCurrentSpanY();
+                return true;
+            }
+
+            @Override
+            public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+
+                float spanX = scaleGestureDetector.
+                        getCurrentSpanX();
+                float spanY = scaleGestureDetector.
+                        getCurrentSpanY();
+
+                float newWidth = lastSpanX / spanX * mCurrentViewport.width();
+                float newHeight = lastSpanY / spanY * mCurrentViewport.height();
+
+                float focusX = scaleGestureDetector.getFocusX();
+                float focusY = scaleGestureDetector.getFocusY();
+                // Makes sure that the chart point is within the chart region.
+                // See the sample for the implementation of hitTest().
+                hitTest(scaleGestureDetector.getFocusX(),
+                        scaleGestureDetector.getFocusY(),
+                        viewportFocus);
+
+                mCurrentViewport.set(
+                        viewportFocus.x
+                                - newWidth * (focusX - mContentRect.left)
+                                / mContentRect.width(),
+                        viewportFocus.y
+                                - newHeight * (mContentRect.bottom - focusY)
+                                / mContentRect.height(),
+                        0,
+                        0);
+                mCurrentViewport.right = mCurrentViewport.left + newWidth;
+                mCurrentViewport.bottom = mCurrentViewport.top + newHeight;
+
+                // Invalidates the View to update the display.
+                ViewCompat.postInvalidateOnAnimation(myView.this);
+
+                lastSpanX = spanX;
+                lastSpanY = spanY;
+                return true;
+            }
+
+            private boolean hitTest(float x, float y, PointF dest) {
+                if (!mContentRect.contains((int) x, (int) y)) {
+                    return false;
+                }
+
+                dest.set(
+                        mCurrentViewport.left
+                                + mCurrentViewport.width()
+                                * (x - mContentRect.left) / mContentRect.width(),
+                        mCurrentViewport.top
+                                + mCurrentViewport.height()
+                                * (y - mContentRect.bottom) / -mContentRect.height());
+                return true;
+            }
+
+
+        };
+
         public myView(Context context)
         {
             super(context);
             paint = new Paint();
+            mScaleGestureDetector = new ScaleGestureDetector(context, mScaleGestureListener);
+            mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
             init();
         }
 
