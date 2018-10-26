@@ -104,30 +104,29 @@ public class ListViewActivity extends ActionBarActivity {
 
     private void deleteEntry(String callingActivityString, int position, long numOfStations){
 
+        boolean isRemoved = false;
         switch (callingActivityString){
             case "WaypointActivity":
-                deleteEntryfromWaypointsTableinDB(parameterObjects.get(position).getLabelID());
+                isRemoved = deleteEntryfromWaypointsTableinDB(parameterObjects.get(position).getLabelID());
                 Toast.makeText(getApplicationContext(), "Removed from waypoints table", Toast.LENGTH_SHORT).show();
                 break;
             case "AISRecoverActivity":
-                if (numOfStations <= DatabaseHelper.NUM_OF_BASE_STATIONS) {
-                    Toast.makeText(getApplicationContext(), "Cannot be removed from fixed station table", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                deleteEntryfromFixedStnTableinDB(parameterObjects.get(position).getLabelID().split(" ")[0]);
-                Toast.makeText(getApplicationContext(), "Removed from fixed station table", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Num of entries: " + numOfStations);
+                isRemoved = deleteEntryfromDBTables(parameterObjects.get(position).getLabelID().split(" ")[0]);
                 break;
             case "StaticStationRecoverActivity":
-                deleteEntryfromStaticStnTableinDB(parameterObjects.get(position).getLabelID());
+                isRemoved = deleteEntryfromStaticStnTableinDB(parameterObjects.get(position).getLabelID());
                 Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
                 break;
         }
 
-        parameterObjects.remove(position);
-        mAdapter.notifyItemRemoved(position);
-        mAdapter.notifyItemRangeChanged(position, parameterObjects.size());
-        if (parameterObjects.size() == 0){
-            startActivity(intentOnExit);
+        if (isRemoved) {
+            parameterObjects.remove(position);
+            mAdapter.notifyItemRemoved(position);
+            mAdapter.notifyItemRangeChanged(position, parameterObjects.size());
+            if (parameterObjects.size() == 0) {
+                startActivity(intentOnExit);
+            }
         }
     }
 
@@ -158,7 +157,7 @@ public class ListViewActivity extends ActionBarActivity {
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            return DatabaseUtils.queryNumEntries(db, DatabaseHelper.fixedStationTable);
+            return DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
 
         }catch (SQLiteException e){
             Log.d(TAG, "Error in reading database");
@@ -168,30 +167,114 @@ public class ListViewActivity extends ActionBarActivity {
     }
 
 
-    private void deleteEntryfromWaypointsTableinDB(String waypointToBeRemoved){
+    private boolean deleteEntryfromWaypointsTableinDB(String waypointToBeRemoved){
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            db.delete(DatabaseHelper.waypointsTable, DatabaseHelper.labelID + " = ?", new String[]{waypointToBeRemoved});
+            if (checkEntryInWaypointsTable(db, waypointToBeRemoved)) {
+                db.delete(DatabaseHelper.waypointsTable, DatabaseHelper.labelID + " = ?", new String[]{waypointToBeRemoved});
+                return true;
+            }else {
+                Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+        return false;
     }
 
-    private void deleteEntryfromFixedStnTableinDB(String mmsiToBeRemoved){
+    private boolean deleteEntryfromStaticStnTableinDB(String stationToBeRemoved){
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            if (checkEntryInStaticStnTable(db, stationToBeRemoved)) {
+                db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved});
+            }else {
+                Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            return true;
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+        return false;
+    }
+
+    private boolean deleteEntryfromDBTables(String mmsiToBeRemoved){
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             baseStationsRetrievalfromDB(db);
-            if (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex] || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
-                db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
-            } else {
-                db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
-                db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+            int numOfStations = (int) getNumOfAISStation();
+            if (checkEntryInStationListTable(db, mmsiToBeRemoved)) {
+                if (numOfStations <= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                    Toast.makeText(getApplicationContext(), "Cannot be removed from DB tables, only 2 base stations available", Toast.LENGTH_SHORT).show();
+                    return false;
+                } else {
+                    if (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]
+                            || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
+
+                        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+
+                    } else {
+                        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                    }
+                    Toast.makeText(getApplicationContext(), "Removed from DB tables", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            }else {
+                Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
+                return false;
             }
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+        return false;
+    }
+
+    private boolean checkEntryInStationListTable(SQLiteDatabase db, String mmsi){
+        boolean isPresent = false;
+        try{
+            Cursor stationListCursor = db.query(DatabaseHelper.stationListTable, new String[]{DatabaseHelper.mmsi},
+                    DatabaseHelper.mmsi + " = ?", new String[]{mmsi}, null, null, null);
+            isPresent = stationListCursor.moveToFirst();
+            stationListCursor.close();
+        }catch (SQLiteException e){
+            Log.d(TAG, "Station List Cursor error");
+            e.printStackTrace();
+        }
+        return isPresent;
+    }
+
+    private boolean checkEntryInWaypointsTable(SQLiteDatabase db, String waypointToBeRemoved){
+        boolean isPresent = false;
+        try{
+            Cursor waypointCursor = db.query(DatabaseHelper.waypointsTable, new String[]{DatabaseHelper.labelID},
+                    DatabaseHelper.labelID + " = ?", new String[]{waypointToBeRemoved}, null, null, null);
+            isPresent = waypointCursor.moveToFirst();
+            waypointCursor.close();
+        }catch (SQLiteException e){
+            Log.d(TAG, "Station List Cursor error");
+            e.printStackTrace();
+        }
+        return isPresent;
+    }
+
+    private boolean checkEntryInStaticStnTable(SQLiteDatabase db, String stationToBeRemoved){
+        boolean isPresent = false;
+        try{
+            Cursor staticStnCursor = db.query(DatabaseHelper.staticStationListTable, new String[]{DatabaseHelper.staticStationName},
+                    DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved}, null, null, null);
+            isPresent = staticStnCursor.moveToFirst();
+            staticStnCursor.close();
+        }catch (SQLiteException e){
+            Log.d(TAG, "Station List Cursor error");
+            e.printStackTrace();
+        }
+        return isPresent;
     }
 
     private void baseStationsRetrievalfromDB(SQLiteDatabase db){
@@ -226,15 +309,6 @@ public class ListViewActivity extends ActionBarActivity {
 
     }
 
-    private void deleteEntryfromStaticStnTableinDB(String stationToBeRemoved){
-        try {
-            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved});
-        } catch (SQLException e){
-            Log.d(TAG, "Error Reading from Database");
-        }
-    }
 
     private ArrayList<ParameterListObject> generateDataFromWaypointsTable(){
         try{
@@ -257,6 +331,7 @@ public class ListViewActivity extends ActionBarActivity {
             }else {
                 Log.d(TAG, "Error reading from waypointstable stn table");
             }
+            waypointsCursor.close();
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
@@ -269,11 +344,15 @@ public class ListViewActivity extends ActionBarActivity {
         try{
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor fixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
-                    new String[] {DatabaseHelper.stationName, DatabaseHelper.mmsi, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
-                    null,
-                    null,
-                    null, null, null);
+            //Cursor fixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
+            //        new String[] {DatabaseHelper.stationName, DatabaseHelper.mmsi, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
+            //        null,
+            //        null,
+            //        null, null, null);
+            Cursor fixedStnCursor = db.rawQuery("Select " + DatabaseHelper.stationName + ", " + DatabaseHelper.mmsi + ", " + DatabaseHelper.xPosition +
+                    ", " + DatabaseHelper.yPosition + " from " + DatabaseHelper.fixedStationTable
+                    + " where " + DatabaseHelper.mmsi + " in (Select " + DatabaseHelper.mmsi + " from " + DatabaseHelper.stationListTable + ")", null);
+
             if (fixedStnCursor.moveToFirst()) {
                 do {
                     int mmsi = fixedStnCursor.getInt(fixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
@@ -289,8 +368,10 @@ public class ListViewActivity extends ActionBarActivity {
             }else {
                 Log.d(TAG, "Error reading from fixed stn table");
             }
+            fixedStnCursor.close();
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
+            e.printStackTrace();
         }
         return parameterObjects;
         //arrayAdapter.notifyDataSetChanged();
@@ -318,6 +399,7 @@ public class ListViewActivity extends ActionBarActivity {
             }else {
                 Log.d(TAG, "Error reading from static stn table");
             }
+            staticStnCursor.close();
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }

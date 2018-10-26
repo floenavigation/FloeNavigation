@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
@@ -63,24 +64,102 @@ public class RecoveryActivity extends ActionBarActivity {
             TextView AISdeviceSelectedView = findViewById(R.id.AISdeviceSelected);
             TextView StaticStationSelectedView = findViewById(R.id.StaticStationSelected);
             if (aisDeviceCheck) {
-                int mmsiValue = Integer.parseInt(AISdeviceSelectedView.getText().toString());
-                if (mmsiValue == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsiValue == baseStnMMSI[DatabaseHelper.secondStationIndex]){
-                    Toast.makeText(getApplicationContext(), "cannot be recovered since its a base station", Toast.LENGTH_LONG).show();
+                if (TextUtils.isEmpty(AISdeviceSelectedView.getText().toString())){
+                    Toast.makeText(this, "Please enter a valid mmsi", Toast.LENGTH_SHORT).show();
                     return;
-                }else{
-                    db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiValue)});
-                    db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiValue)});
                 }
+                int mmsiValue = Integer.parseInt(AISdeviceSelectedView.getText().toString());
+                deleteEntryfromDBTables(String.valueOf(mmsiValue));
             } else {
                 String staticStnName = StaticStationSelectedView.getText().toString();
-                db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{staticStnName});
+                if (TextUtils.isEmpty(staticStnName)){
+                    Toast.makeText(this, "Please enter a valid station name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (checkEntryInStaticStnTable(db, staticStnName)) {
+                    db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{staticStnName});
+                    Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
+                }
             }
-            Toast.makeText(getApplicationContext(), "Device Recovered", Toast.LENGTH_LONG).show();
+
 
         }catch(SQLiteException e) {
             Log.d(TAG, "Database Error");
             e.printStackTrace();
         }
+    }
+
+    private boolean checkEntryInStaticStnTable(SQLiteDatabase db, String stationToBeRemoved){
+        boolean isPresent = false;
+        try{
+            Cursor staticStnCursor = db.query(DatabaseHelper.staticStationListTable, new String[]{DatabaseHelper.staticStationName},
+                    DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved}, null, null, null);
+            isPresent = staticStnCursor.moveToFirst();
+            staticStnCursor.close();
+        }catch (SQLiteException e){
+            Log.d(TAG, "Station List Cursor error");
+            e.printStackTrace();
+        }
+        return isPresent;
+    }
+
+    private long getNumOfAISStation() {
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            return DatabaseUtils.queryNumEntries(db, DatabaseHelper.stationListTable);
+
+        }catch (SQLiteException e){
+            Log.d(TAG, "Error in reading database");
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private void deleteEntryfromDBTables(String mmsiToBeRemoved){
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            baseStationsRetrievalfromDB(db);
+            int numOfStations = (int) getNumOfAISStation();
+            if (checkEntryInStationListTable(db, mmsiToBeRemoved)) {
+                if (numOfStations <= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+                    Toast.makeText(getApplicationContext(), "Cannot be removed from DB tables, only 2 base stations available", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]
+                            || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
+
+                        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+
+                    } else {
+                        db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                    }
+                    Toast.makeText(getApplicationContext(), "Removed from DB tables", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Device Recovered", Toast.LENGTH_SHORT).show();
+                }
+            }else {
+                Toast.makeText(this, "No Entry in DB", Toast.LENGTH_LONG).show();
+            }
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+    }
+
+    private boolean checkEntryInStationListTable(SQLiteDatabase db, String mmsi){
+        boolean isPresent = false;
+        try{
+            Cursor stationListCursor = db.query(DatabaseHelper.stationListTable, new String[]{DatabaseHelper.mmsi},
+                    DatabaseHelper.mmsi + " = ?", new String[]{mmsi}, null, null, null);
+            isPresent = stationListCursor.moveToFirst();
+            stationListCursor.close();
+        }catch (SQLiteException e){
+            Log.d(TAG, "Station List Cursor error");
+            e.printStackTrace();
+        }
+        return isPresent;
     }
 
     private void baseStationsRetrievalfromDB(SQLiteDatabase db){
@@ -127,7 +206,7 @@ public class RecoveryActivity extends ActionBarActivity {
                 if (numOfStaticStations > 0) {
                     listViewIntent.putExtra("GenerateDataOption", "StaticStationRecoverActivity");
                 }else {
-                    Toast.makeText(this, "No static station are deployed in the grid", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "No static station are deployed in the grid", Toast.LENGTH_SHORT).show();
                     return;
                 }
             }

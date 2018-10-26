@@ -270,7 +270,8 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }else {
             Log.d(TAG, "view is null");
         }
-
+        //tabletLat = (tabletLat == null) ? "0.0" : tabletLat;
+        //tabletLon = (tabletLon == null) ? "0.0" : tabletLat;
         if (tabletLat == null || tabletLat.isEmpty()){
             try {
                 //locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
