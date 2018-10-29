@@ -57,8 +57,7 @@ public class GridActivity extends Activity {
     private static final int SCREEN_REFRESH_TIMER_DELAY = 0;
     private static final String TAG = "GridActivity";
 
-    private static final int ORIGIN_X_POSITION = 0;
-    private static final int ORIGIN_Y_POSITION = 0;
+
     private BroadcastReceiver gpsBroadcastReceiver;
     private double tabletLat;
     private double tabletLon;
@@ -113,37 +112,12 @@ public class GridActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myGridView = new MapView(this);
         //setContentView(R.layout.activity_grid);
-        myGridView = new myView(this);
-        /*new ReadStaticStationsFromDB().execute();
-        new ReadWaypointsFromDB().execute();
-        new ReadOriginFromDB().execute();
-        new ReadFixedStationsFromDB().execute();
-        new ReadMobileStationsFromDB().execute();
-        asyncTaskTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                new ReadOriginFromDB().execute();
-                new ReadFixedStationsFromDB().execute();
-                new ReadMobileStationsFromDB().execute();
-
-            }
-        }, ASYNC_TASK_TIMER_DELAY, ASYNC_TASK_TIMER_PERIOD);
-
-        refreshScreenTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        myGridView.invalidate();
-                    }
-                });
-
-            }
-        }, SCREEN_REFRESH_TIMER_DELAY, SCREEN_REFRESH_TIMER_PERIOD);
-*/
-        setContentView(myGridView);
+        //myGridView = findViewById(R.id.GridView);
+        //myGridView.invalidate();
+        //setContentView(myGridView);
+        setContentView(R.layout.activity_grid);
 
     }
 
@@ -169,19 +143,19 @@ public class GridActivity extends Activity {
 
             }
         }, ASYNC_TASK_TIMER_DELAY, ASYNC_TASK_TIMER_PERIOD);
-        refreshScreenTimer.schedule(new TimerTask() {
+
+        /*refreshScreenTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        myGridView.invalidate();
+                        myGridView.postInvalidateOnAnimation();
                     }
                 });
 
             }
-        }, SCREEN_REFRESH_TIMER_DELAY, SCREEN_REFRESH_TIMER_PERIOD);
-
+        }, SCREEN_REFRESH_TIMER_DELAY, SCREEN_REFRESH_TIMER_PERIOD);*/
     }
 
 
@@ -193,7 +167,7 @@ public class GridActivity extends Activity {
         unregisterReceiver(aisPacketBroadcastReceiver);
         aisPacketBroadcastReceiver = null;
         asyncTaskTimer.cancel();
-        refreshScreenTimer.cancel();
+        MapView.refreshScreenTimer.cancel();
     }
 
     @Override
@@ -230,7 +204,7 @@ public class GridActivity extends Activity {
     public void onDestroy(){
         super.onDestroy();
         asyncTaskTimer.cancel();
-        refreshScreenTimer.cancel();
+        MapView.refreshScreenTimer.cancel();
     }
 
     private void calculateTabletGridCoordinates(){
@@ -264,254 +238,47 @@ public class GridActivity extends Activity {
         tabletY = tabletDistance * Math.sin(Math.toRadians(tabletAlpha));
     }
 
-    public class myView extends View{
-        Paint paint = null;
-        private static final int DEFAULT_PAINT_COLOR = Color.BLACK;
-        private static final int DEFAULT_NUMBER_OF_ROWS = 20;
-        private static final int DEFAULT_NUMBER_OF_COLUMNS = 40;
-        private static final int CircleSize = 5;
-
-        private int numRows = DEFAULT_NUMBER_OF_ROWS, numColumns = DEFAULT_NUMBER_OF_COLUMNS;
-
-        // The current viewport. This rectangle represents the currently visible
-        // chart domain and range.
-        private static final float AXIS_X_MIN = -1f;
-        private static final float AXIS_X_MAX = 1f;
-        private static final float AXIS_Y_MIN = -1f;
-        private static final float AXIS_Y_MAX = 1f;
-        private RectF mCurrentViewport =
-                new RectF(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
-        private Rect mContentRect = new Rect();
-        private ScaleGestureDetector mScaleGestureDetector;
-        private GestureDetectorCompat mGestureDetector;
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            boolean retVal = mScaleGestureDetector.onTouchEvent(event);
-            retVal = mGestureDetector.onTouchEvent(event) || retVal;
-            return retVal || super.onTouchEvent(event);
-        }
-
-        /**
-         * The scale listener, used for handling multi-finger scale gestures.
-         */
-        private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
-                = new ScaleGestureDetector.SimpleOnScaleGestureListener(){
-
-            /**
-             * This is the active focal point in terms of the viewport. Could be a local
-             * variable but kept here to minimize per-frame allocations.
-             */
-            private PointF viewportFocus = new PointF();
-            private float lastSpanX;
-            private float lastSpanY;
-
-            // Detects that new pointers are going down.
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-                lastSpanX = mScaleGestureDetector.
-                        getCurrentSpanX();
-                lastSpanY = mScaleGestureDetector.
-                        getCurrentSpanY();
-                return true;
-            }
-
-            @Override
-            public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-
-                float spanX = scaleGestureDetector.
-                        getCurrentSpanX();
-                float spanY = scaleGestureDetector.
-                        getCurrentSpanY();
-
-                float newWidth = lastSpanX / spanX * mCurrentViewport.width();
-                float newHeight = lastSpanY / spanY * mCurrentViewport.height();
-
-                float focusX = scaleGestureDetector.getFocusX();
-                float focusY = scaleGestureDetector.getFocusY();
-                // Makes sure that the chart point is within the chart region.
-                // See the sample for the implementation of hitTest().
-                hitTest(scaleGestureDetector.getFocusX(),
-                        scaleGestureDetector.getFocusY(),
-                        viewportFocus);
-
-                mCurrentViewport.set(
-                        viewportFocus.x
-                                - newWidth * (focusX - mContentRect.left)
-                                / mContentRect.width(),
-                        viewportFocus.y
-                                - newHeight * (mContentRect.bottom - focusY)
-                                / mContentRect.height(),
-                        0,
-                        0);
-                mCurrentViewport.right = mCurrentViewport.left + newWidth;
-                mCurrentViewport.bottom = mCurrentViewport.top + newHeight;
-
-                // Invalidates the View to update the display.
-                ViewCompat.postInvalidateOnAnimation(myView.this);
-
-                lastSpanX = spanX;
-                lastSpanY = spanY;
-                return true;
-            }
-
-            private boolean hitTest(float x, float y, PointF dest) {
-                if (!mContentRect.contains((int) x, (int) y)) {
-                    return false;
-                }
-
-                dest.set(
-                        mCurrentViewport.left
-                                + mCurrentViewport.width()
-                                * (x - mContentRect.left) / mContentRect.width(),
-                        mCurrentViewport.top
-                                + mCurrentViewport.height()
-                                * (y - mContentRect.bottom) / -mContentRect.height());
-                return true;
-            }
-
-
-        };
-
-        public myView(Context context)
-        {
-            super(context);
-            paint = new Paint();
-            mScaleGestureDetector = new ScaleGestureDetector(context, mScaleGestureListener);
-            mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
-            init();
-        }
-
-        private void init() {
-            paint.setColor(DEFAULT_PAINT_COLOR);
-            //mRectSquare = new Rect();
-        }
-
-        public void setLineColor(int color) {
-            paint.setColor(color);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-
-            int width = getMeasuredWidth();
-            int height = getMeasuredHeight();
-
-
-            // Vertical lines
-            for (int i = 1; i < numColumns; i++) {
-                canvas.drawLine(width * i / numColumns, 0, width * i / numColumns, height, paint);
-            }
-
-            // Horizontal lines
-            for (int i = 1; i < numRows; i++) {
-                canvas.drawLine(0, height * i / numRows, width, height * i / numRows, paint);
-            }
-
-            setLineColor(Color.GREEN);
-            canvas.translate(getWidth()/2f,getHeight()/2f);
-
-            //Log.d(TAG, "Translated X: " + String.valueOf(translateCoord(mFixedStationXs[0])));
-            //Log.d(TAG, "Unit Columns: " + String.valueOf(getWidth()/numColumns));
-            //Log.d(TAG, "X" + String.valueOf(getWidth() * (translateCoord(mFixedStationXs[0]) / numColumns)));
-            //Log.d(TAG, "TabletX: " + String.valueOf(tabletX) + " TabletY: " + String.valueOf(tabletY));
-            //canvas.drawCircle(translateCoord(mFixedStationXs[0]) * getWidth()/numColumns, 0, CircleSize, paint);
-
-            //canvas.drawCircle(width * 20 / numColumns, height * 10 / numRows, 15, paint);
-            //Draw Origin
-            canvas.drawCircle(ORIGIN_X_POSITION,ORIGIN_Y_POSITION, CircleSize, paint);
-
-            //Draw Tablet Position
-            setLineColor(Color.RED);
-            drawTriangle(translateCoord(tabletX) * getWidth()/numColumns, translateCoord(tabletY) * getHeight() / numRows, 10, 10, false, paint, canvas);
-            //For Loop Fixed Station
-            setLineColor(Color.GREEN);
-            for(int i = 0; i < mFixedStationMMSIs.size(); i++){
-                canvas.drawCircle(translateCoord(mFixedStationXs.get(i)) * getWidth()/numColumns, translateCoord(mFixedStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
-                Log.d(TAG, "FixedStationX: " + String.valueOf(mFixedStationXs.get(i)));
-                Log.d(TAG, "FixedStationY: " + String.valueOf(mFixedStationYs.get(i)));
-                Log.d(TAG, "Loop Counter: " + String.valueOf(i));
-                Log.d(TAG, "Length: " + String.valueOf(mFixedStationMMSIs.size()));
-                Log.d(TAG, "MMSIs: " + String.valueOf(mFixedStationMMSIs.get(i)));
-                Log.d(TAG, "FixedStation TranslatedX: " + String.valueOf(translateCoord(mFixedStationXs.get(i)) * getWidth()/numColumns));
-                Log.d(TAG, "FixedStation TranslatedY: " + String.valueOf(translateCoord(mFixedStationYs.get(i)) * getHeight()/numRows));
-            }
-            //For Loop Mobile Station
-            setLineColor(Color.BLUE);
-            for(int i = 0; i < mMobileStationMMSIs.size(); i++){  //
-                canvas.drawCircle(translateCoord(mMobileStationXs.get(i)) * getWidth()/numColumns, translateCoord(mMobileStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
-            }
-            //For Loop Static Station
-            setLineColor(Color.YELLOW);
-            for(int i = 0; i < mStaticStationNames.size(); i++){
-                canvas.drawCircle(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns, translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
-                Log.d(TAG, "StaticStation TranslatedX: " + String.valueOf(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns));
-                Log.d(TAG, "StaticStation TranslatedY: " + String.valueOf(translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows));
-            }
-            //For Loop Waypoint
-            setLineColor(Color.BLACK);
-            for(int i = 0; i < mWaypointsLabels.size(); i++){
-                drawTriangle(translateCoord(mWaypointsXs.get(i)) * getWidth()/numColumns, translateCoord(mWaypointsYs.get(i)) * getHeight()/numRows, 10, 10, true, paint, canvas);
-            }
-            setLineColor(Color.BLACK);
-        }
-
-        private void drawTriangle(float x, float y, int width, int height, boolean inverted, Paint paint, Canvas canvas){
-
-            PointF p1 = new PointF(x,y);
-            float pointX = x + width/2f;
-            float pointY = inverted?  y + height : y - height;
-
-            PointF p2 = new PointF(pointX,pointY);
-            PointF p3 = new PointF(x+width,y);
-
-
-            Path path = new Path();
-            path.setFillType(Path.FillType.EVEN_ODD);
-            path.moveTo(p1.x,p1.y);
-            path.lineTo(p2.x,p2.y);
-            path.lineTo(p3.x,p3.y);
-            path.close();
-
-            canvas.drawPath(path, paint);
-        }
-
-        private void drawStar(int width, int height, Paint paint, Canvas canvas)
-        {
-            float mid = width / 2;
-            float min = Math.min(width, height);
-            float fat = min / 17;
-            float half = min / 2;
-            mid = mid - half;
-
-            paint.setStrokeWidth(fat);
-            paint.setStyle(Paint.Style.STROKE);
-            Path path = new Path();
-
-
-            path.reset();
-
-            paint.setStyle(Paint.Style.FILL);
-
-
-            // top left
-            path.moveTo(mid + half * 0.5f, half * 0.84f);
-            // top right
-            path.lineTo(mid + half * 1.5f, half * 0.84f);
-            // bottom left
-            path.lineTo(mid + half * 0.68f, half * 1.45f);
-            // top tip
-            path.lineTo(mid + half * 1.0f, half * 0.5f);
-            // bottom right
-            path.lineTo(mid + half * 1.32f, half * 1.45f);
-            // top left
-            path.lineTo(mid + half * 0.5f, half * 0.84f);
-
-            path.close();
-            canvas.drawPath(path, paint);
-
-        }
+    public double getFixedXposition(int index){
+        return  mFixedStationXs.get(index);
     }
+
+    public double getFixedYposition(int index){
+        return  mFixedStationYs.get(index);
+    }
+
+    public double getMobileXposition(int index){
+        return  mMobileStationXs.get(index);
+    }
+
+    public double getMobileYposition(int index){
+        return  mMobileStationYs.get(index);
+    }
+
+    public double getStaticXposition(int index){
+        return  mStaticStationXs.get(index);
+    }
+
+    public double getStaticYposition(int index){
+        return  mStaticStationYs.get(index);
+    }
+
+
+    public double getWaypointXposition(int index){
+        return  mWaypointsXs.get(index);
+    }
+
+    public double getWaypointYposition(int index){
+        return  mWaypointsYs.get(index);
+    }
+
+    public double getTabletX(){
+        return tabletX;
+    }
+
+    public double getTabletY(){
+        return tabletY;
+    }
+
 
     private float translateCoord(double coordinate){
         float result = (float) (coordinate / scale);
@@ -607,7 +374,7 @@ public class GridActivity extends Activity {
                     do {
                         int mmsi = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
 
-                        Log.d(TAG, "MMSIs: " + String.valueOf(i) + " " + String.valueOf(mmsi));
+                        Log.d(TA    G, "MMSIs: " + String.valueOf(i) + " " + String.valueOf(mmsi));
                         i++;
                     } while (baseStationCursor.moveToNext());
                 }*/

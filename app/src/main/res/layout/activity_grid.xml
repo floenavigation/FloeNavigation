@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<de.awi.floenavigation.MapView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/GridView"
+    android:padding="@dimen/chart_padding"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GridActivity">
-
-    <FrameLayout
-        android:id="@+id/grid_frag_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </FrameLayout>
-
-</FrameLayout>
+    app:labelSeparation="10dp"
+    app:labelTextSize="14sp"
+    app:labelTextColor="#d000"
+    app:axisThickness="2dp"
+    app:axisColor="#d000"
+    app:gridThickness="1dp"
+    app:gridColor="#2000"
+    app:dataColor="#a6c"
+    app:dataThickness="8dp" />
