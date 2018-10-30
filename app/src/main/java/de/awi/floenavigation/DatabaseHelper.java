@@ -31,6 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int IS_LOCATION_RECEIVED_INITIAL_VALUE = 0;
     public static final int IS_LOCATION_RECEIVED = 1;
     public static final double ORIGIN_DISTANCE = 0.0;
+    public static final double ORIGIN = 1;
     public static final String error_threshold = "ERROR_THRESHOLD";
     public static final String prediction_accuracy_threshold = "PREDICTION_ACCURACY_THRESHOLD";
     public static final String lat_long_view_format = "LATITUDE_LONGITUDE_VIEW_FORMAT";
@@ -85,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String label = "LABEL";
     public static final String parameterName = "PARAMETER_NAME";
     public static final String parameterValue = "PARAMETER_VALUE";
+    public static final String isOrigin = "IS_ORIGIN";
 
     //Initial Position of Setup Points in Custom Coordinate System
     public static final long station1InitialX = 0;
@@ -150,6 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //Create Base Stations Table
         db.execSQL("CREATE TABLE " + baseStationTable + "(" + mmsi + " INTEGER PRIMARY KEY, " +
+                isOrigin + " NUMERIC, " +
                 stationName + " TEXT NOT NULL);");
 
         //Create Beta Table

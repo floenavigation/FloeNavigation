@@ -11,12 +11,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.GPS_Service;
@@ -54,8 +50,8 @@ public class AISDecodingService extends IntentService {
     private long recvdMMSI;
     private double recvdLat;
     private double recvdLon;
-    private float recvdSpeed;
-    private float recvdCourse;
+    private double recvdSpeed;
+    private double recvdCourse;
     private String recvdTimeStamp;
     private String recvdStationName;
     private int packetType;

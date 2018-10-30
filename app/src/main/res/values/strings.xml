@@ -136,6 +136,9 @@
     <string name="view_deployed_stations">View Deployed Stations</string>
     <string name="recover">Recover</string>
     <string name="ais_station_deployment">AIS Station Deployment</string>
+    <string name="menu_item_call">Call</string>
+    <string name="menu_item_text">Chat</string>
+    <string name="menu_item_email">Email</string>
 
 
 </resources>

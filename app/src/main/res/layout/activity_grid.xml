@@ -1,16 +1,35 @@
-<de.awi.floenavigation.MapView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/GridView"
-    android:padding="@dimen/chart_padding"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:labelSeparation="10dp"
-    app:labelTextSize="14sp"
-    app:labelTextColor="#d000"
-    app:axisThickness="2dp"
-    app:axisColor="#d000"
-    app:gridThickness="1dp"
-    app:gridColor="#2000"
-    app:dataColor="#a6c"
-    app:dataThickness="8dp" />
+    android:padding="16dp">
+
+    <de.awi.floenavigation.MapView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/GridView"
+        android:padding="@dimen/chart_padding"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:labelSeparation="10dp"
+        app:labelTextSize="14sp"
+        app:labelTextColor="#d000"
+        app:axisThickness="2dp"
+        app:axisColor="#d000"
+        app:gridThickness="1dp"
+        app:gridColor="#2000"
+        app:dataColor="#a6c"
+        app:dataThickness="8dp" />
+
+    <io.github.yavski.fabspeeddial.FabSpeedDial
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        app:fabGravity="bottom_end"
+        app:fabMenu="@menu/fabspeeddialmenu"
+        app:miniFabBackgroundTint="@android:color/white"
+        app:miniFabDrawableTint="@color/colorPrimaryDark"
+        app:miniFabTitleTextColor="@color/colorPrimaryDark" />
+
+
+</FrameLayout>

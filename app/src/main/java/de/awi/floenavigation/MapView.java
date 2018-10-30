@@ -21,10 +21,48 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.OverScroller;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapView extends View{
+
+    private double tabletLat;
+    private double tabletLon;
+    private double originLatitude;
+    private double originLongitude;
+    private int originMMSI;
+    private double beta;
+    private static double tabletX;
+    private static double tabletY;
+    private double tabletDistance;
+    private double tabletTheta;
+    private double tabletAlpha;
+    //private double[] mFixedStationXs;
+    /*
+    private static ArrayList<Double> mFixedStationXs = new ArrayList<>();
+    //private double[] mFixedStationYs;
+    private static ArrayList<Double> mFixedStationYs = new ArrayList<>();
+    //private int[] mFixedStationMMSIs;
+    private static ArrayList<Integer> mFixedStationMMSIs = new ArrayList<>();
+    //private double[] mMobileStationXs;
+    private static ArrayList<Double> mMobileStationXs = new ArrayList<>();
+    //private double[] mMobileStationYs;
+    private static ArrayList<Double> mMobileStationYs = new ArrayList<>();
+    //private int[] mMobileStationMMSIs;
+    private static ArrayList<Integer> mMobileStationMMSIs = new ArrayList<>();
+    //private double[] mStaticStationXs;
+    private static ArrayList<Double> mStaticStationXs = new ArrayList<>();
+    //private double[] mStaticStationYs;
+    private static ArrayList<Double> mStaticStationYs = new ArrayList<>();
+    //private String[] mStaticStationNames;
+    private static ArrayList<String> mStaticStationNames = new ArrayList<>();
+    //private double[] mWaypointsXs;
+    private static ArrayList<Double> mWaypointsXs = new ArrayList<>();
+    //private double[] mWaypointsYs;
+    private ArrayList<Double> mWaypointsYs = new ArrayList<>();
+    //private String[] mWaypointsLabels;
+    private ArrayList<String> mWaypointsLabels = new ArrayList<>();*/
 
     private static final String TAG = "MapView";
     Paint paint = null;
@@ -33,7 +71,7 @@ public class MapView extends View{
     private static final int SCREEN_REFRESH_TIMER_PERIOD = 10 * 1000;
     private static final int SCREEN_REFRESH_TIMER_DELAY = 0;
 
-    public static Timer refreshScreenTimer = new Timer();
+    public static Timer refreshScreenTimer;
 
 
     private static final int DEFAULT_PAINT_COLOR = Color.BLACK;
@@ -51,13 +89,13 @@ public class MapView extends View{
     /**
      * The number of individual points (samples) in the chart series to draw onscreen.
      */
-    private static final int DRAW_STEPS = 30;
+    private static final int DRAW_STEPS = 40;
 
     // Viewport extremes. See mCurrentViewport for a discussion of the viewport.
-    private static final float AXIS_X_MIN = -1f;
-    private static final float AXIS_X_MAX = 1f;
-    private static final float AXIS_Y_MIN = -1f;
-    private static final float AXIS_Y_MAX = 1f;
+    private static final float AXIS_X_MIN = -10000f;
+    private static final float AXIS_X_MAX = 10000f;
+    private static final float AXIS_Y_MIN = -10000f;
+    private static final float AXIS_Y_MAX = 10000f;
 
     /**
      * The scaling factor for a single zoom 'step'.
@@ -195,7 +233,8 @@ public class MapView extends View{
         mEdgeEffectBottom = new EdgeEffectCompat(context);
     }
 
-    private void initRefreshTimer(){
+    public void initRefreshTimer(){
+        refreshScreenTimer = new Timer();
         refreshScreenTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -235,7 +274,7 @@ public class MapView extends View{
         mDataPaint = new Paint();
         mDataPaint.setStrokeWidth(mDataThickness);
         mDataPaint.setColor(mDataColor);
-        mDataPaint.setStyle(Paint.Style.STROKE);
+        //mDataPaint.setStyle(Paint.Style.STROKE);
         mDataPaint.setAntiAlias(true);
 
     }
@@ -258,7 +297,7 @@ public class MapView extends View{
         //int clipRestoreCount = canvas.save();
         //canvas.clipRect(mContentRect);
 
-        drawDataSeriesUnclipped(canvas);
+        //drawDataSeriesUnclipped(canvas);
         //drawEdgeEffectsUnclipped(canvas);
 
         // Removes clipping rectangle
@@ -282,41 +321,47 @@ public class MapView extends View{
 
         //canvas.drawCircle(width * 20 / numColumns, height * 10 / numRows, 15, paint);
         //Draw Origin
-        //canvas.drawCircle(ORIGIN_X_POSITION,ORIGIN_Y_POSITION, CircleSize, mDataPaint);
+        //canvas.drawCircle(getDrawX(ORIGIN_X_POSITION), getDrawY(ORIGIN_Y_POSITION), CircleSize, mDataPaint);
+
 
         //Draw Tablet Position
-        //setLineColor(Color.RED);
-        //drawTriangle(translateCoord(gridActivity.getTabletX()) * getWidth()/numColumns, translateCoord(gridActivity.getTabletY()) * getHeight() / numRows, 10, 10, false, mDataPaint, canvas);
-        /*//For Loop Fixed Station
+        setLineColor(Color.RED);
+        Log.d(TAG, "tabletX " + this.getTabletX() + " " + "tabletY " + this.getTabletY());
+        //Log.d(TAG, "GETDRAWtabletX " + getDrawX((float) getTabletX()) + " " + "GETDRAWtabletY " + getDrawY((float)getTabletY()));
+        drawTriangle((float) getDrawX( getTabletX()), (float) getDrawY(getTabletY()), 10, 10, false, mDataPaint, canvas);
+
+        //For Loop Fixed Station
         setLineColor(Color.GREEN);
-        for(int i = 0; i < mFixedStationMMSIs.size(); i++){
-            canvas.drawCircle(translateCoord(mFixedStationXs.get(i)) * getWidth()/numColumns, translateCoord(mFixedStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
-            Log.d(TAG, "FixedStationX: " + String.valueOf(mFixedStationXs.get(i)));
-            Log.d(TAG, "FixedStationY: " + String.valueOf(mFixedStationYs.get(i)));
+        for(int i = 0; i < GridActivity.mFixedStationMMSIs.size(); i++){
+            canvas.drawCircle((float)getDrawX(GridActivity.mFixedStationXs.get(i)), (float) getDrawY(GridActivity.mFixedStationYs.get(i)), CircleSize, mDataPaint);
+            Log.d(TAG, "FixedStationX: " + String.valueOf(GridActivity.mFixedStationXs.get(i)));
+            Log.d(TAG, "FixedStationY: " + String.valueOf(GridActivity.mFixedStationYs.get(i)));
             Log.d(TAG, "Loop Counter: " + String.valueOf(i));
-            Log.d(TAG, "Length: " + String.valueOf(mFixedStationMMSIs.size()));
-            Log.d(TAG, "MMSIs: " + String.valueOf(mFixedStationMMSIs.get(i)));
-            Log.d(TAG, "FixedStation TranslatedX: " + String.valueOf(translateCoord(mFixedStationXs.get(i)) * getWidth()/numColumns));
-            Log.d(TAG, "FixedStation TranslatedY: " + String.valueOf(translateCoord(mFixedStationYs.get(i)) * getHeight()/numRows));
+            Log.d(TAG, "Length: " + String.valueOf(GridActivity.mFixedStationMMSIs.size()));
+            Log.d(TAG, "MMSIs: " + String.valueOf(GridActivity.mFixedStationMMSIs.get(i)));
+            Log.d(TAG, "FixedStation TranslatedX: " + getDrawX(GridActivity.mFixedStationXs.get(i)));
+            Log.d(TAG, "FixedStation TranslatedY: " + getDrawY(GridActivity.mFixedStationYs.get(i)));
         }
+
         //For Loop Mobile Station
         setLineColor(Color.BLUE);
-        for(int i = 0; i < mMobileStationMMSIs.size(); i++){  //
-            canvas.drawCircle(translateCoord(mMobileStationXs.get(i)) * getWidth()/numColumns, translateCoord(mMobileStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
+        for(int i = 0; i < GridActivity.mMobileStationMMSIs.size(); i++){  //
+            canvas.drawCircle((float) getDrawX(GridActivity.mMobileStationXs.get(i)), (float) getDrawY(GridActivity.mMobileStationYs.get(i)), CircleSize, mDataPaint);
         }
         //For Loop Static Station
         setLineColor(Color.YELLOW);
-        for(int i = 0; i < mStaticStationNames.size(); i++){
-            canvas.drawCircle(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns, translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows, CircleSize, paint);
-            Log.d(TAG, "StaticStation TranslatedX: " + String.valueOf(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns));
-            Log.d(TAG, "StaticStation TranslatedY: " + String.valueOf(translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows));
+        for(int i = 0; i < GridActivity.mStaticStationNames.size(); i++){
+            canvas.drawCircle((float) getDrawX(GridActivity.mStaticStationXs.get(i)), (float)getDrawY(GridActivity.mStaticStationYs.get(i)), CircleSize, mDataPaint);
+            //Log.d(TAG, "StaticStation TranslatedX: " + String.valueOf(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns));
+            //Log.d(TAG, "StaticStation TranslatedY: " + String.valueOf(translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows));
         }
         //For Loop Waypoint
         setLineColor(Color.BLACK);
-        for(int i = 0; i < mWaypointsLabels.size(); i++){
-            drawTriangle(translateCoord(mWaypointsXs.get(i)) * getWidth()/numColumns, translateCoord(mWaypointsYs.get(i)) * getHeight()/numRows, 10, 10, true, paint, canvas);
+        for(int i = 0; i < GridActivity.mWaypointsLabels.size(); i++){
+            drawTriangle((float)getDrawX(GridActivity.mWaypointsXs.get(i)), (float)getDrawY(GridActivity.mWaypointsYs.get(i)), 10, 10, true, mDataPaint, canvas);
         }
-        setLineColor(Color.BLACK);*/
+        //setLineColor(Color.BLACK);
+        mDataPaint.setColor(mDataColor);
     }
 
     private float translateCoord(double coordinate){
@@ -359,10 +404,10 @@ public class MapView extends View{
 
         // Compute positions
         for (i = 0; i < mXStopsBuffer.numStops; i++) {
-            mAxisXPositionsBuffer[i] = getDrawX(mXStopsBuffer.stops[i]);
+            mAxisXPositionsBuffer[i] = (float)getDrawX(mXStopsBuffer.stops[i]);
         }
         for (i = 0; i < mYStopsBuffer.numStops; i++) {
-            mAxisYPositionsBuffer[i] = getDrawY(mYStopsBuffer.stops[i]);
+            mAxisYPositionsBuffer[i] = (float) getDrawY(mYStopsBuffer.stops[i]);
         }
 
         // Draws grid lines using drawLines (faster than individual drawLine calls)
@@ -416,14 +461,14 @@ public class MapView extends View{
      * canvas. This method does not clip its drawing, so users should call {@link Canvas#clipRect
      * before calling this method.
      */
-    private void drawDataSeriesUnclipped(Canvas canvas) {
+    /*private void drawDataSeriesUnclipped(Canvas canvas) {
         
         mSeriesLinesBuffer[0] = getDrawX(0.5f);
         mSeriesLinesBuffer[1] = getDrawY(0.5f);
         //mSeriesLinesBuffer[1] = getDrawY(mCurrentViewport.left);
         mSeriesLinesBuffer[2] = getDrawX(0.6f);
         mSeriesLinesBuffer[3] = getDrawY(0.5f);
-        /*float x;
+        float x;
         for (int i = 1; i <= DRAW_STEPS; i++) {
             mSeriesLinesBuffer[i * 4 + 0] = mSeriesLinesBuffer[(i - 1) * 4 + 2];
             mSeriesLinesBuffer[i * 4 + 1] = mSeriesLinesBuffer[(i - 1) * 4 + 3];
@@ -431,11 +476,11 @@ public class MapView extends View{
             x = (mCurrentViewport.left + (mCurrentViewport.width() / DRAW_STEPS * i));
             mSeriesLinesBuffer[i * 4 + 2] = getDrawX(x);
             mSeriesLinesBuffer[i * 4 + 3] = getDrawY(fun(x));
-        }*/
+        }
         //canvas.drawLines(mSeriesLinesBuffer, mDataPaint);
         canvas.drawCircle(mSeriesLinesBuffer[0], mSeriesLinesBuffer[1], 15, mDataPaint);
         canvas.drawCircle(mSeriesLinesBuffer[2], mSeriesLinesBuffer[3], 15, mDataPaint);
-    }
+    }*/
 
     /**
      * Draws the overscroll "glow" at the four edges of the chart region, if necessary. The edges
@@ -779,10 +824,10 @@ public class MapView extends View{
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mContentRect.set(
-                getPaddingLeft(),
+                getPaddingLeft()  + mMaxLabelWidth + mLabelSeparation,
                 getPaddingTop(),
                 getWidth() - getPaddingRight(),
-                getHeight() - getPaddingBottom());
+                getHeight() - getPaddingBottom() - mLabelHeight - mLabelSeparation);
     }
 
     @Override
@@ -972,7 +1017,7 @@ public class MapView extends View{
     /**
      * Computes the pixel offset for the given X chart value. This may be outside the view bounds.
      */
-    private float getDrawX(float x) {
+    private double getDrawX(double x) {
         return mContentRect.left
                 + mContentRect.width()
                 * (x - mCurrentViewport.left) / mCurrentViewport.width();
@@ -993,7 +1038,7 @@ public class MapView extends View{
     /**
      * Computes the pixel offset for the given Y chart value. This may be outside the view bounds.
      */
-    private float getDrawY(float y) {
+    private double getDrawY(double y) {
         return mContentRect.bottom - mContentRect.height() * (y - mCurrentViewport.top) / mCurrentViewport.height();
     }
 
@@ -1044,4 +1089,25 @@ public class MapView extends View{
         }
         return charCount;
     }
+
+    public void setTabletX(double x){
+        tabletX = x;
+        ViewCompat.postInvalidateOnAnimation(MapView.this);
+
+    }
+
+    public void setTabletY(double y){
+        tabletY = y;
+        ViewCompat.postInvalidateOnAnimation(MapView.this);
+    }
+
+    public double getTabletX(){
+        return tabletX;
+    }
+
+    public double getTabletY(){
+        return tabletY;
+    }
+
+
 }

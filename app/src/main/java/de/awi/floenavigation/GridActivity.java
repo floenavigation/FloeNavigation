@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -40,6 +41,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,29 +73,29 @@ public class GridActivity extends Activity {
     private double tabletTheta;
     private double tabletAlpha;
     //private double[] mFixedStationXs;
-    private ArrayList<Double> mFixedStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mFixedStationXs = new HashMap<>();
     //private double[] mFixedStationYs;
-    private ArrayList<Double> mFixedStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mFixedStationYs = new HashMap<>();
     //private int[] mFixedStationMMSIs;
-    private ArrayList<Integer> mFixedStationMMSIs = new ArrayList<>();
+    public static HashMap<Integer, Integer> mFixedStationMMSIs = new HashMap<>();
     //private double[] mMobileStationXs;
-    private ArrayList<Double> mMobileStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mMobileStationXs = new HashMap<>();
     //private double[] mMobileStationYs;
-    private ArrayList<Double> mMobileStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mMobileStationYs = new HashMap<>();
     //private int[] mMobileStationMMSIs;
-    private ArrayList<Integer> mMobileStationMMSIs = new ArrayList<>();
+    public static HashMap<Integer, Integer> mMobileStationMMSIs = new HashMap<>();
     //private double[] mStaticStationXs;
-    private ArrayList<Double> mStaticStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mStaticStationXs = new HashMap<>();
     //private double[] mStaticStationYs;
-    private ArrayList<Double> mStaticStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mStaticStationYs = new HashMap<>();
     //private String[] mStaticStationNames;
-    private ArrayList<String> mStaticStationNames = new ArrayList<>();
+    public static HashMap<Integer, String> mStaticStationNames = new HashMap<>();
     //private double[] mWaypointsXs;
-    private ArrayList<Double> mWaypointsXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mWaypointsXs = new HashMap<>();
     //private double[] mWaypointsYs;
-    private ArrayList<Double> mWaypointsYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mWaypointsYs = new HashMap<>();
     //private String[] mWaypointsLabels;
-    private ArrayList<String> mWaypointsLabels = new ArrayList<>();
+    public static HashMap<Integer, String> mWaypointsLabels = new HashMap<>();
 
     private static final double scale = 500;
     private LocationManager locationManager;
@@ -106,7 +108,7 @@ public class GridActivity extends Activity {
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
     private MenuItem gpsIconItem, aisIconItem;
-    private View myGridView;
+    private MapView myGridView;
 
 
     @Override
@@ -127,6 +129,8 @@ public class GridActivity extends Activity {
     protected void onStart() {
         super.onStart();
         //Broadcast receiver for tablet location
+        myGridView.initRefreshTimer();
+        //initializeArrayList();
         actionBarUpdatesFunction();
         new ReadStaticStationsFromDB().execute();
         new ReadWaypointsFromDB().execute();
@@ -158,6 +162,18 @@ public class GridActivity extends Activity {
         }, SCREEN_REFRESH_TIMER_DELAY, SCREEN_REFRESH_TIMER_PERIOD);*/
     }
 
+    /*private void initializeArrayList() {
+        DatabaseHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        long numOfEntries = DatabaseUtils.queryNumEntries(db, DatabaseHelper.fixedStationTable);
+        for(int i = 0; i < (int)numOfEntries; i++){
+            Log.d(TAG, "FixedStnIndex " + String.valueOf(i));
+            mFixedStationMMSIs.add(i, 0);
+            mFixedStationXs.add(i, (float) 0.0);
+            mFixedStationYs.add(i, (float) 0.0);
+        }
+    }*/
+
 
     @Override
     protected void onStop() {
@@ -169,6 +185,7 @@ public class GridActivity extends Activity {
         asyncTaskTimer.cancel();
         MapView.refreshScreenTimer.cancel();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -236,14 +253,9 @@ public class GridActivity extends Activity {
         tabletAlpha = Math.abs(tabletTheta - beta);
         tabletX = tabletDistance * Math.cos(Math.toRadians(tabletAlpha));
         tabletY = tabletDistance * Math.sin(Math.toRadians(tabletAlpha));
-    }
-
-    public double getFixedXposition(int index){
-        return  mFixedStationXs.get(index);
-    }
-
-    public double getFixedYposition(int index){
-        return  mFixedStationYs.get(index);
+        Log.d(TAG, "tabletX " + tabletX);
+        myGridView.setTabletX(tabletX);
+        myGridView.setTabletY(tabletY);
     }
 
     public double getMobileXposition(int index){
@@ -269,14 +281,6 @@ public class GridActivity extends Activity {
 
     public double getWaypointYposition(int index){
         return  mWaypointsYs.get(index);
-    }
-
-    public double getTabletX(){
-        return tabletX;
-    }
-
-    public double getTabletY(){
-        return tabletY;
     }
 
 
@@ -358,10 +362,11 @@ public class GridActivity extends Activity {
                 SQLiteDatabase db = databaseHelper.getReadableDatabase();
                 Cursor baseStationCursor = db.query(DatabaseHelper.baseStationTable,
                         new String[] {DatabaseHelper.mmsi},
-                        null,
-                        null,
+                        DatabaseHelper.isOrigin + " = ?",
+                        new String[]{String.valueOf(DatabaseHelper.ORIGIN)},
                         null, null, null);
-                if (baseStationCursor.getCount() != DatabaseHelper.INITIALIZATION_SIZE){
+                Log.d(TAG, String.valueOf(baseStationCursor.getCount()));
+                if (baseStationCursor.getCount() != 1){
                     Log.d(TAG, "Error Reading from BaseStation Table");
                     return false;
                 } else{
@@ -439,27 +444,31 @@ public class GridActivity extends Activity {
                 //int mmsi;
 
                 mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
-                        DatabaseHelper.mmsi + " != ?",
-                        new String[] {String.valueOf(originMMSI)},
+                        null,
+                        null,
                         null, null, null, null);
                 //mFixedStationMMSIs = new int[mFixedStnCursor.getCount()];
                 //mFixedStationXs = new double[mFixedStnCursor.getCount()];
                 //mFixedStationYs = new double[mFixedStnCursor.getCount()];
-
-                if (mFixedStnCursor.moveToFirst()) {
-                    for(int i = 0; i < mFixedStnCursor.getCount(); i++){
-                        mFixedStationMMSIs.add(i, mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
-                        mFixedStationXs.add(i, mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.xPosition)));
-                        mFixedStationYs.add(i, mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.yPosition)));
-                        mFixedStnCursor.moveToNext();
+                synchronized (this) {
+                    mFixedStationMMSIs.clear();
+                    mFixedStationXs.clear();
+                    mFixedStationYs.clear();
+                    if (mFixedStnCursor.moveToFirst()) {
+                        for (int i = 0; i < mFixedStnCursor.getCount(); i++) {
+                            Log.d(TAG, "FixedStnIndex " + String.valueOf(i));
+                            mFixedStationMMSIs.put(i, mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
+                            mFixedStationXs.put(i, mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.xPosition)));
+                            mFixedStationYs.put(i, mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.yPosition)));
+                            mFixedStnCursor.moveToNext();
+                        }
+                        mFixedStnCursor.close();
+                        return true;
+                    } else {
+                        mFixedStnCursor.close();
+                        Log.d(TAG, "FixedStationTable Cursor Error");
+                        return false;
                     }
-                    mFixedStnCursor.close();
-                    return true;
-                }
-                else {
-                    mFixedStnCursor.close();
-                    Log.d(TAG, "FixedStationTable Cursor Error");
-                    return false;
                 }
             } catch (SQLiteException e) {
                 Log.d(TAG, "Error reading database");
@@ -494,20 +503,24 @@ public class GridActivity extends Activity {
                 //mMobileStationXs = new double[mMobileStnCursor.getCount()];
                 //mMobileStationYs = new double[mMobileStnCursor.getCount()];
                 //mMobileStationMMSIs = new int[mMobileStnCursor.getCount()];
-                if (mMobileStnCursor.moveToFirst()) {
-                    for(int i = 0; i < mMobileStnCursor.getCount(); i++){
-                        mMobileStationMMSIs.add(i, mMobileStnCursor.getInt(mMobileStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
-                        mMobileStationXs.add(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.xPosition)));
-                        mMobileStationYs.add(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.yPosition)));
-                        mMobileStnCursor.moveToNext();
+                synchronized (this) {
+                    mMobileStationMMSIs.clear();
+                    mMobileStationXs.clear();
+                    mMobileStationYs.clear();
+                    if (mMobileStnCursor.moveToFirst()) {
+                        for (int i = 0; i < mMobileStnCursor.getCount(); i++) {
+                            mMobileStationMMSIs.put(i, mMobileStnCursor.getInt(mMobileStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
+                            mMobileStationXs.put(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.xPosition)));
+                            mMobileStationYs.put(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.yPosition)));
+                            mMobileStnCursor.moveToNext();
+                        }
+                        mMobileStnCursor.close();
+                        return true;
+                    } else {
+                        mMobileStnCursor.close();
+                        Log.d(TAG, "MobileStation Cursor Error");
+                        return false;
                     }
-                    mMobileStnCursor.close();
-                    return true;
-                }
-                else {
-                    mMobileStnCursor.close();
-                    Log.d(TAG, "MobileStation Cursor Error");
-                    return false;
                 }
             } catch (SQLiteException e) {
                 Log.d(TAG, "Error reading database");
@@ -542,20 +555,25 @@ public class GridActivity extends Activity {
                 //mStaticStationXs = new double[mStaticStationCursor.getCount()];
                 //mStaticStationYs = new double[mStaticStationCursor.getCount()];
                 //mStaticStationNames = new String[mStaticStationCursor.getCount()];
-                if (mStaticStationCursor.moveToFirst()) {
-                    for(int i = 0; i < mStaticStationCursor.getCount(); i++){
-                        mStaticStationNames.add(i, mStaticStationCursor.getString(mStaticStationCursor.getColumnIndex(DatabaseHelper.staticStationName)));
-                        mStaticStationXs.add(i, mStaticStationCursor.getDouble(mStaticStationCursor.getColumnIndex(DatabaseHelper.xPosition)));
-                        mStaticStationYs.add(i, mStaticStationCursor.getDouble(mStaticStationCursor.getColumnIndex(DatabaseHelper.yPosition)));
-                        mStaticStationCursor.moveToNext();
+                synchronized (this){
+                    mStaticStationNames.clear();
+                    mStaticStationXs.clear();
+                    mStaticStationYs.clear();
+                    if (mStaticStationCursor.moveToFirst()) {
+                        for(int i = 0; i < mStaticStationCursor.getCount(); i++){
+                            mStaticStationNames.put(i, mStaticStationCursor.getString(mStaticStationCursor.getColumnIndex(DatabaseHelper.staticStationName)));
+                            mStaticStationXs.put(i, mStaticStationCursor.getDouble(mStaticStationCursor.getColumnIndex(DatabaseHelper.xPosition)));
+                            mStaticStationYs.put(i, mStaticStationCursor.getDouble(mStaticStationCursor.getColumnIndex(DatabaseHelper.yPosition)));
+                            mStaticStationCursor.moveToNext();
+                        }
+                        mStaticStationCursor.close();
+                        return true;
                     }
-                    mStaticStationCursor.close();
-                    return true;
-                }
-                else {
-                    mStaticStationCursor.close();
-                    Log.d(TAG, "StaticStation Cursor Error");
-                    return false;
+                    else {
+                        mStaticStationCursor.close();
+                        Log.d(TAG, "StaticStation Cursor Error");
+                        return false;
+                    }
                 }
             } catch (SQLiteException e) {
                 Log.d(TAG, "Error reading database");
@@ -590,20 +608,25 @@ public class GridActivity extends Activity {
                 //mWaypointsXs = new double[mWaypointsCursor.getCount()];
                 //mWaypointsYs = new double[mWaypointsCursor.getCount()];
                 //mWaypointsLabels = new String[mWaypointsCursor.getCount()];
-                if (mWaypointsCursor.moveToFirst()) {
-                    for(int i = 0; i < mWaypointsCursor.getCount(); i++){
-                        mWaypointsLabels.add(i, mWaypointsCursor.getString(mWaypointsCursor.getColumnIndex(DatabaseHelper.labelID)));
-                        mWaypointsXs.add(i, mWaypointsCursor.getDouble(mWaypointsCursor.getColumnIndex(DatabaseHelper.xPosition)));
-                        mWaypointsYs.add(i, mWaypointsCursor.getDouble(mWaypointsCursor.getColumnIndex(DatabaseHelper.yPosition)));
-                        mWaypointsCursor.moveToNext();
+                synchronized (this){
+                    mWaypointsLabels.clear();
+                    mWaypointsXs.clear();
+                    mWaypointsYs.clear();
+                    if (mWaypointsCursor.moveToFirst()) {
+                        for(int i = 0; i < mWaypointsCursor.getCount(); i++){
+                            mWaypointsLabels.put(i, mWaypointsCursor.getString(mWaypointsCursor.getColumnIndex(DatabaseHelper.labelID)));
+                            mWaypointsXs.put(i, mWaypointsCursor.getDouble(mWaypointsCursor.getColumnIndex(DatabaseHelper.xPosition)));
+                            mWaypointsYs.put(i, mWaypointsCursor.getDouble(mWaypointsCursor.getColumnIndex(DatabaseHelper.yPosition)));
+                            mWaypointsCursor.moveToNext();
+                        }
+                        mWaypointsCursor.close();
+                        return true;
                     }
-                    mWaypointsCursor.close();
-                    return true;
-                }
-                else {
-                    mWaypointsCursor.close();
-                    Log.d(TAG, "Waypoints Cursor Error");
-                    return false;
+                    else {
+                        mWaypointsCursor.close();
+                        Log.d(TAG, "Waypoints Cursor Error");
+                        return false;
+                    }
                 }
             } catch (SQLiteException e) {
                 Log.d(TAG, "Error reading database");

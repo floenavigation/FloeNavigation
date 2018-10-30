@@ -8,11 +8,11 @@ public class PostnReportClassB {
     private int repeatInd;
     private long mmsi;
     private int regReserved1;
-    private int speed;
+    private double speed;
     private boolean accuracy;
     private double lon;
     private double lat;
-    private int course;
+    private double course;
     private int heading;
     private int sec;
     private int regReserved2;
@@ -70,7 +70,7 @@ public class PostnReportClassB {
         return regReserved1;
     }
 
-    public int getSpeed()
+    public double getSpeed()
     {
         return speed;
     }
@@ -90,7 +90,7 @@ public class PostnReportClassB {
         return lat;
     }
 
-    public int getCourse()
+    public double getCourse()
     {
         return course;
     }
@@ -156,11 +156,11 @@ public class PostnReportClassB {
         repeatInd = (int)strbuildtodec(6,7,2,bin,int.class);
         mmsi =  (long)strbuildtodec(8,37,30,bin,long.class);
         regReserved1 = (int)strbuildtodec(38,45,8,bin,int.class);
-        speed = (int)strbuildtodec(46,55,10,bin,int.class);
+        speed = (long)strbuildtodec(46,55,10,bin,long.class) / 10.0;
         accuracy = (int)strbuildtodec(56,56,1,bin,int.class) > 0;
         lon = (long)strbuildtodec(57,84,28,bin,long.class) / 600000.0;
         lat = (long)strbuildtodec(85,111,27,bin,long.class) / 600000.0;
-        course = (int)strbuildtodec(112,123,12,bin,int.class);
+        course = (long)strbuildtodec(112,123,12,bin,long.class) / 10.0;
         heading = (int)strbuildtodec(124,132,9,bin,int.class);
         sec = (int)strbuildtodec(133,138,6,bin,int.class);
         regReserved2 = (int)strbuildtodec(139,140,2,bin,int.class);

@@ -137,6 +137,9 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
             ContentValues station = new ContentValues();
             station.put(DatabaseHelper.mmsi, MMSI);
             station.put(DatabaseHelper.stationName, AISStationName);
+            ContentValues baseStationContent = new ContentValues();
+            baseStationContent.put(DatabaseHelper.mmsi, MMSI);
+            baseStationContent.put(DatabaseHelper.stationName, AISStationName);
             ContentValues stationData = new ContentValues();
             stationData.put(DatabaseHelper.mmsi, MMSI);
             stationData.put(DatabaseHelper.stationName, AISStationName);
@@ -146,10 +149,13 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station1InitialY);
                 stationData.put(DatabaseHelper.alpha, DatabaseHelper.station1Alpha);
                 stationData.put(DatabaseHelper.distance, DatabaseHelper.ORIGIN_DISTANCE);
+                baseStationContent.put(DatabaseHelper.isOrigin, DatabaseHelper.ORIGIN);
+
             } else if(stationCount == 1){
                 //stationData.put(DatabaseHelper.xPosition, DatabaseHelper.station2InitialX);
                 stationData.put(DatabaseHelper.yPosition, DatabaseHelper.station2InitialY);
                 stationData.put(DatabaseHelper.alpha, DatabaseHelper.station2Alpha);
+                baseStationContent.put(DatabaseHelper.isOrigin, 0);
 
             } else{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
@@ -157,7 +163,7 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
             }
 
             db.insert(DatabaseHelper.stationListTable, null, station);
-            db.insert(DatabaseHelper.baseStationTable, null, station);
+            db.insert(DatabaseHelper.baseStationTable, null, baseStationContent);
             db.insert(DatabaseHelper.fixedStationTable, null, stationData);
 
             //db.close();

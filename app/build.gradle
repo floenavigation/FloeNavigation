@@ -20,6 +20,8 @@ android {
 }
 
 dependencies {
+
+    api 'io.github.yavski:fab-speed-dial:1.0.6'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'

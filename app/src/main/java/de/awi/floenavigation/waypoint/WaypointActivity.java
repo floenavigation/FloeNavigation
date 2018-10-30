@@ -324,10 +324,10 @@ public class WaypointActivity extends Activity implements View.OnClickListener{
 
             Cursor baseStationCursor = db.query(DatabaseHelper.baseStationTable,
                     new String[] {DatabaseHelper.mmsi},
-                    null,
-                    null,
+                    DatabaseHelper.isOrigin +" = ?",
+                    new String[]{String.valueOf(DatabaseHelper.ORIGIN)},
                     null, null, null);
-            if (baseStationCursor.getCount() != DatabaseHelper.INITIALIZATION_SIZE){
+            if (baseStationCursor.getCount() != 1){
                 Log.d(TAG, "Error Reading from BaseStation Table");
                 return false;
             } else{

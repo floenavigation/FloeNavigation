@@ -179,6 +179,7 @@ public class AdminPageActivity extends ActionBarActivity {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+            Log.d(TAG, String.valueOf(numOfBaseStations));
             if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
                 Intent recoveryActivityIntent = new Intent(this, RecoveryActivity.class);
                 startActivity(recoveryActivityIntent);
