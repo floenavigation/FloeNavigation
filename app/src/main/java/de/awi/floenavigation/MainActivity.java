@@ -102,21 +102,21 @@ public class MainActivity extends ActionBarActivity {
                 Log.d(TAG, "AngleCalculationService already Running");
             }
             if(!AlphaCalculationService.isInstanceCreated()){
-                Log.d(TAG, "AlphaCalculationService not Running. Starting AngleCalulationService");
+                Log.d(TAG, "AlphaCalculationService not Running. Starting AlphaCalulationService");
                 Intent alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
                 startService(alphaCalculationServiceIntent);
             } else{
                 Log.d(TAG, "AlphaCalculationService already Running");
             }
             if(!PredictionService.isInstanceCreated()){
-                Log.d(TAG, "PredictionService not Running. Starting AngleCalulationService");
+                Log.d(TAG, "PredictionService not Running. Starting PredictionService");
                 Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
                 startService(predictionServiceIntent);
             } else{
                 Log.d(TAG, "PredictionService already Running");
             }
             if(!ValidationService.isInstanceCreated()){
-                Log.d(TAG, "ValidationService not Running. Starting AngleCalulationService");
+                Log.d(TAG, "ValidationService not Running. Starting ValidationService");
                 Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
                 startService(validationServiceIntent);
             } else{

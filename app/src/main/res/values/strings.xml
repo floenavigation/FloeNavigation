@@ -139,6 +139,11 @@
     <string name="menu_item_call">Call</string>
     <string name="menu_item_text">Chat</string>
     <string name="menu_item_email">Email</string>
+    <string name="fixed_stations">Fixed Stations</string>
+    <string name="mobile_stations">Mobile Stations</string>
+    <string name="waypoints">Waypoints</string>
+    <string name="static_stations">Static Stations</string>
+    <string name="tablet">Tablet</string>
 
 
 </resources>

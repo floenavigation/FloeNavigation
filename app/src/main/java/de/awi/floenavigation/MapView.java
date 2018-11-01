@@ -19,9 +19,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.OverScroller;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,31 +41,44 @@ public class MapView extends View{
     private double tabletDistance;
     private double tabletTheta;
     private double tabletAlpha;
+    private float xTouch;
+    private float yTouch;
+    private boolean isBubbleShowing;
+    public static boolean showFixedStation = true;
+    public static boolean showMobileStation = true;
+    public static boolean showStaticStation = true;
+    public static boolean showWaypointStation = true;
     //private double[] mFixedStationXs;
-    /*
-    private static ArrayList<Double> mFixedStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mFixedStationXs;
     //private double[] mFixedStationYs;
-    private static ArrayList<Double> mFixedStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mFixedStationYs;
     //private int[] mFixedStationMMSIs;
-    private static ArrayList<Integer> mFixedStationMMSIs = new ArrayList<>();
+    public static HashMap<Integer, Integer> mFixedStationMMSIs;
+    public static HashMap<Integer, String> mFixedStationNames;
     //private double[] mMobileStationXs;
-    private static ArrayList<Double> mMobileStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mMobileStationXs;
     //private double[] mMobileStationYs;
-    private static ArrayList<Double> mMobileStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mMobileStationYs;
     //private int[] mMobileStationMMSIs;
-    private static ArrayList<Integer> mMobileStationMMSIs = new ArrayList<>();
+    public static HashMap<Integer, Integer> mMobileStationMMSIs;
+    public static HashMap<Integer, String> mMobileStationNames;
     //private double[] mStaticStationXs;
-    private static ArrayList<Double> mStaticStationXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mStaticStationXs;
     //private double[] mStaticStationYs;
-    private static ArrayList<Double> mStaticStationYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mStaticStationYs;
     //private String[] mStaticStationNames;
-    private static ArrayList<String> mStaticStationNames = new ArrayList<>();
+    public static HashMap<Integer, String> mStaticStationNames;
     //private double[] mWaypointsXs;
-    private static ArrayList<Double> mWaypointsXs = new ArrayList<>();
+    public static HashMap<Integer, Double> mWaypointsXs;
     //private double[] mWaypointsYs;
-    private ArrayList<Double> mWaypointsYs = new ArrayList<>();
+    public static HashMap<Integer, Double> mWaypointsYs;
     //private String[] mWaypointsLabels;
-    private ArrayList<String> mWaypointsLabels = new ArrayList<>();*/
+    public static HashMap<Integer, String> mWaypointsLabels;
+
+    private static final int FIXED_STATION = 0;
+    private static final int MOBILE_STATION = 1;
+    private static final int STATIC_STATION = 2;
+    private static final int WAYPOINT = 3;
 
     private static final String TAG = "MapView";
     Paint paint = null;
@@ -77,11 +93,14 @@ public class MapView extends View{
     private static final int DEFAULT_PAINT_COLOR = Color.BLACK;
     private static final int DEFAULT_NUMBER_OF_ROWS = 20;
     private static final int DEFAULT_NUMBER_OF_COLUMNS = 40;
-    private static final int CircleSize = 5;
+    private static final int CircleSize = 6;
 
     private int numRows = DEFAULT_NUMBER_OF_ROWS, numColumns = DEFAULT_NUMBER_OF_COLUMNS;
     private static final int ORIGIN_X_POSITION = 0;
     private static final int ORIGIN_Y_POSITION = 0;
+
+    private static LinearLayout linearLayout;
+    private static BubbleDrawable drawableBubble;
 
     //-----------------------------//
     private Rect mContentRect = new Rect();
@@ -186,6 +205,7 @@ public class MapView extends View{
         super(context, attrs, defStyle);
 
          gridActivity = new GridActivity();
+         isBubbleShowing = false;
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs, R.styleable.MapView, defStyle, defStyle);
@@ -218,6 +238,8 @@ public class MapView extends View{
 
         initPaints();
         initRefreshTimer();
+
+
 
         // Sets up interactions
         mScaleGestureDetector = new ScaleGestureDetector(context, mScaleGestureListener);
@@ -324,41 +346,66 @@ public class MapView extends View{
         //canvas.drawCircle(getDrawX(ORIGIN_X_POSITION), getDrawY(ORIGIN_Y_POSITION), CircleSize, mDataPaint);
 
 
-        //Draw Tablet Position
-        setLineColor(Color.RED);
-        Log.d(TAG, "tabletX " + this.getTabletX() + " " + "tabletY " + this.getTabletY());
-        //Log.d(TAG, "GETDRAWtabletX " + getDrawX((float) getTabletX()) + " " + "GETDRAWtabletY " + getDrawY((float)getTabletY()));
-        drawTriangle((float) getDrawX( getTabletX()), (float) getDrawY(getTabletY()), 10, 10, false, mDataPaint, canvas);
+        try {
+            //Draw Tablet Position
+            setLineColor(Color.RED);
+            Log.d(TAG, "tabletX " + this.getTabletX() + " " + "tabletY " + this.getTabletY());
+            //Log.d(TAG, "GETDRAWtabletX " + getDrawX((float) getTabletX()) + " " + "GETDRAWtabletY " + getDrawY((float)getTabletY()));
+            drawTriangle((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), 15, 15, false, mDataPaint, canvas);
 
-        //For Loop Fixed Station
-        setLineColor(Color.GREEN);
-        for(int i = 0; i < GridActivity.mFixedStationMMSIs.size(); i++){
-            canvas.drawCircle((float)getDrawX(GridActivity.mFixedStationXs.get(i)), (float) getDrawY(GridActivity.mFixedStationYs.get(i)), CircleSize, mDataPaint);
-            Log.d(TAG, "FixedStationX: " + String.valueOf(GridActivity.mFixedStationXs.get(i)));
-            Log.d(TAG, "FixedStationY: " + String.valueOf(GridActivity.mFixedStationYs.get(i)));
-            Log.d(TAG, "Loop Counter: " + String.valueOf(i));
-            Log.d(TAG, "Length: " + String.valueOf(GridActivity.mFixedStationMMSIs.size()));
-            Log.d(TAG, "MMSIs: " + String.valueOf(GridActivity.mFixedStationMMSIs.get(i)));
-            Log.d(TAG, "FixedStation TranslatedX: " + getDrawX(GridActivity.mFixedStationXs.get(i)));
-            Log.d(TAG, "FixedStation TranslatedY: " + getDrawY(GridActivity.mFixedStationYs.get(i)));
-        }
+            //For Loop Fixed Station
+            if (GridActivity.showFixedStation) {
+                setLineColor(Color.GREEN);
+                if (GridActivity.mFixedStationMMSIs != null && GridActivity.mFixedStationXs != null && GridActivity.mFixedStationYs != null) {
+                    for (int i = 0; i < getFixedStationSize(); i++) {
+                        canvas.drawCircle((float) getDrawX(getFixedStationX(i)), (float) getDrawY(getFixedStationY(i)), CircleSize, mDataPaint);
+                        Log.d(TAG, "FixedStationX: " + String.valueOf(getFixedStationX(i)));
+                        Log.d(TAG, "FixedStationY: " + String.valueOf(getFixedStationY(i)));
+                        Log.d(TAG, "Loop Counter: " + String.valueOf(i));
+                        Log.d(TAG, "Length: " + String.valueOf(getFixedStationSize()));
+                        Log.d(TAG, "MMSIs: " + String.valueOf(getFixedStationMMSI(i)));
+                        Log.d(TAG, "FixedStation TranslatedX: " + getDrawX(getFixedStationX(i)));
+                        Log.d(TAG, "FixedStation TranslatedY: " + getDrawY(getFixedStationY(i)));
+                    }
+                }
+            }
 
-        //For Loop Mobile Station
-        setLineColor(Color.BLUE);
-        for(int i = 0; i < GridActivity.mMobileStationMMSIs.size(); i++){  //
-            canvas.drawCircle((float) getDrawX(GridActivity.mMobileStationXs.get(i)), (float) getDrawY(GridActivity.mMobileStationYs.get(i)), CircleSize, mDataPaint);
-        }
-        //For Loop Static Station
-        setLineColor(Color.YELLOW);
-        for(int i = 0; i < GridActivity.mStaticStationNames.size(); i++){
-            canvas.drawCircle((float) getDrawX(GridActivity.mStaticStationXs.get(i)), (float)getDrawY(GridActivity.mStaticStationYs.get(i)), CircleSize, mDataPaint);
-            //Log.d(TAG, "StaticStation TranslatedX: " + String.valueOf(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns));
-            //Log.d(TAG, "StaticStation TranslatedY: " + String.valueOf(translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows));
-        }
-        //For Loop Waypoint
-        setLineColor(Color.BLACK);
-        for(int i = 0; i < GridActivity.mWaypointsLabels.size(); i++){
-            drawTriangle((float)getDrawX(GridActivity.mWaypointsXs.get(i)), (float)getDrawY(GridActivity.mWaypointsYs.get(i)), 10, 10, true, mDataPaint, canvas);
+
+            //For Loop Mobile Station
+            if (GridActivity.showMobileStation) {
+                setLineColor(Color.BLUE);
+                if (GridActivity.mMobileStationMMSIs != null && GridActivity.mMobileStationXs != null && GridActivity.mMobileStationYs != null) {
+                    for (int i = 0; i < getMobileStationSize(); i++) {  //
+                        canvas.drawCircle((float) getDrawX(getMobileXposition(i)), (float) getDrawY(getMobileYposition(i)), CircleSize, mDataPaint);
+                    }
+                }
+            }
+
+            //For Loop Static Station
+            if (GridActivity.showStaticStation) {
+                setLineColor(Color.YELLOW);
+                if (GridActivity.mStaticStationNames != null && GridActivity.mStaticStationXs != null && GridActivity.mStaticStationYs != null) {
+                    for (int i = 0; i < getStaticStationSize(); i++) {
+                        canvas.drawCircle((float) getDrawX(getStaticXposition(i)), (float) getDrawY(getStaticYposition(i)), CircleSize, mDataPaint);
+                        //Log.d(TAG, "StaticStation TranslatedX: " + String.valueOf(translateCoord(mStaticStationXs.get(i)) * getWidth()/numColumns));
+                        //Log.d(TAG, "StaticStation TranslatedY: " + String.valueOf(translateCoord(mStaticStationYs.get(i)) * getHeight()/numRows));
+                    }
+                }
+            }
+
+
+            //For Loop Waypoint
+            if (GridActivity.showWaypointStation) {
+                setLineColor(Color.BLACK);
+                if (GridActivity.mWaypointsLabels != null && GridActivity.mWaypointsXs != null && GridActivity.mWaypointsYs != null) {
+                    for (int i = 0; i < getWaypointSize(); i++) {
+                        drawTriangle((float) getDrawX(getWaypointXposition(i)), (float) getDrawY(getWaypointYposition(i)), 11, 11, true, mDataPaint, canvas);
+                    }
+                }
+            }
+        } catch(NullPointerException e){
+            e.printStackTrace();
+            Log.d(TAG, "Null Pointer Exception");
         }
         //setLineColor(Color.BLACK);
         mDataPaint.setColor(mDataColor);
@@ -455,6 +502,7 @@ public class MapView extends View{
                     mLabelTextPaint);
         }
     }
+
 
     /**
      * Draws the currently visible portion of the data series defined by {@link #fun(float)} to the
@@ -974,11 +1022,137 @@ public class MapView extends View{
         }
     }
 
+    public void setBubbleLayout(LinearLayout layout, BubbleDrawable bubble){
+        this.linearLayout = layout;
+        this.drawableBubble = bubble;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        int actionIndex = event.getActionIndex();
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if(isBubbleShowing){
+                    linearLayout.setVisibility(View.GONE);
+                    isBubbleShowing = false;
+                }
+                xTouch = event.getX();
+                yTouch = event.getY();
+                Log.d(TAG, "XTouch1: " + xTouch + " YTouch1: " + yTouch);
+                //Log.d(TAG, "XTouch: " + getDrawX(xTouch) + " YTouch: " + getDrawY(yTouch));
+                int[] checkValues = checkInRange(xTouch, yTouch);
+                int index = checkValues[0];
+                if(index != -1){
+                    Log.d(TAG, "Station Touched");
+                    if(checkValues[1] == FIXED_STATION) {
+                        if(GridActivity.showFixedStation) {
+                            drawableBubble.setCoordinates((float) getDrawX(getFixedStationX(index)), (float) getDrawY(getFixedStationY(index)));
+                            drawableBubble.setMessages(String.valueOf(getFixedStationMMSI(index)), getFixedStationName(index));
+                            linearLayout.setBackground(drawableBubble);
+                            linearLayout.setVisibility(View.VISIBLE);
+                            isBubbleShowing = true;
+                        }
+                    } else if(checkValues[1] == MOBILE_STATION){
+                        if(GridActivity.showMobileStation) {
+
+                            drawableBubble.setCoordinates((float) getDrawX(getMobileXposition(index)), (float) getDrawY(getMobileYposition(index)));
+                            drawableBubble.setMessages(String.valueOf(getMobileStationMMSI(index)), getMobileStationName(index));
+                            linearLayout.setBackground(drawableBubble);
+                            linearLayout.setVisibility(View.VISIBLE);
+                            isBubbleShowing = true;
+                        }
+                    } else if(checkValues[1] == STATIC_STATION){
+                        if(GridActivity.showStaticStation) {
+                            drawableBubble.setCoordinates((float) getDrawX(getStaticXposition(index)), (float) getDrawY(getStaticYposition(index)));
+                            drawableBubble.setMessages(String.valueOf(getStaticStationName(index)), null);
+                            linearLayout.setBackground(drawableBubble);
+                            linearLayout.setVisibility(View.VISIBLE);
+                            isBubbleShowing = true;
+                        }
+                    } else if (checkValues[1] == WAYPOINT){
+                        if(GridActivity.showWaypointStation) {
+                            drawableBubble.setCoordinates((float) getDrawX(getWaypointXposition(index)), (float) getDrawY(getWaypointYposition(index)));
+                            drawableBubble.setMessages(String.valueOf(getWaypointLabel(index)), null);
+                            linearLayout.setBackground(drawableBubble);
+                            linearLayout.setVisibility(View.VISIBLE);
+                            isBubbleShowing = true;
+                        }
+                    }
+
+                }
+
+        }
         boolean retVal = mScaleGestureDetector.onTouchEvent(event);
         retVal = mGestureDetector.onTouchEvent(event) || retVal;
         return retVal || super.onTouchEvent(event);
+    }
+
+    private int[] checkInRange(float touchX, float touchY){
+        int index = -1;
+
+        try {
+            //Check in Fixed Station
+            for (int i = 0; i < getFixedStationSize(); i++){
+                double xp = getFixedStationX(i);
+                double yp = getFixedStationY(i);
+                xp = getDrawX(xp);
+                yp = getDrawY(yp);
+                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
+                Log.d(TAG, "TouchDistance " + distance);
+                if(distance < CircleSize + 10){
+                    index = i;
+                    return new int[] {index, FIXED_STATION};
+                }
+            }
+
+            //Check in Mobile Stations
+            for (int i = 0; i < getMobileStationSize(); i++){
+                double xp = getMobileXposition(i);
+                double yp = getMobileYposition(i);
+                xp = getDrawX(xp);
+                yp = getDrawY(yp);
+                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
+                Log.d(TAG, "TouchDistance " + distance);
+                if(distance < CircleSize + 10){
+                    index = i;
+                    return new int[] {index, MOBILE_STATION};
+                }
+            }
+
+            //Check in Static Stations
+            for (int i = 0; i < getStaticStationSize(); i++){
+                double xp = getStaticXposition(i);
+                double yp = getStaticYposition(i);
+                xp = getDrawX(xp);
+                yp = getDrawY(yp);
+                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
+                Log.d(TAG, "TouchDistance " + distance);
+                if(distance < CircleSize + 10){
+                    index = i;
+                    return new int[] {index, STATIC_STATION};
+                }
+            }
+
+            //Check in Waypoints
+            for (int i = 0; i < getWaypointSize(); i++){
+                double xp = getWaypointXposition(i);
+                double yp = getWaypointYposition(i);
+                xp = getDrawX(xp);
+                yp = getDrawY(yp);
+                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
+                Log.d(TAG, "TouchDistance " + distance);
+                if(distance < CircleSize + 10){
+                    index = i;
+                    return new int[] {index, WAYPOINT};
+                }
+            }
+
+        } catch (NullPointerException e){
+            index = -1;
+            e.printStackTrace();
+            Log.d(TAG, "Null Pointer Exception");
+        }
+        return new int[] {index, index};
     }
 
     /**
@@ -1042,6 +1216,7 @@ public class MapView extends View{
         return mContentRect.bottom - mContentRect.height() * (y - mCurrentViewport.top) / mCurrentViewport.height();
     }
 
+
     /**
      * The simple math function Y = fun(X) to draw on the chart.
      * @param x The X value
@@ -1090,6 +1265,8 @@ public class MapView extends View{
         return charCount;
     }
 
+
+
     public void setTabletX(double x){
         tabletX = x;
         ViewCompat.postInvalidateOnAnimation(MapView.this);
@@ -1101,6 +1278,62 @@ public class MapView extends View{
         ViewCompat.postInvalidateOnAnimation(MapView.this);
     }
 
+    public void setmFixedStationMMSIs(HashMap<Integer, Integer> MMSIs){
+        mFixedStationMMSIs = MMSIs;
+    }
+
+    public void setmFixedStationXs(HashMap<Integer, Double> Xs){
+        mFixedStationXs = Xs;
+    }
+
+    public void setmFixedStationYs(HashMap<Integer, Double> Ys){
+        mFixedStationYs = Ys;
+    }
+
+    public void setmFixedStationNamess(HashMap<Integer, String> Names){
+        mFixedStationNames = Names;
+    }
+
+    public void setmMobileStationMMSIs(HashMap<Integer, Integer> MMSIs){
+        mMobileStationMMSIs = MMSIs;
+    }
+
+    public void setmMobileStationXs(HashMap<Integer, Double> Xs){
+        mMobileStationXs = Xs;
+    }
+
+    public void setmMobileStationYs(HashMap<Integer, Double> Ys){
+       mMobileStationYs = Ys;
+    }
+
+    public void setmMobileStationNamess(HashMap<Integer, String> Names){
+        mMobileStationNames = Names;
+    }
+
+    public void setmStaticStationNamess(HashMap<Integer, String> Names){
+        mStaticStationNames = Names;
+    }
+
+    public void setmStaticStationXs(HashMap<Integer, Double> Xs){
+        mStaticStationXs = Xs;
+    }
+
+    public void setmStaticStationYs(HashMap<Integer, Double> Ys){
+        mStaticStationYs = Ys;
+    }
+
+    public void setmWapointLabels(HashMap<Integer, String> Labels){
+        mWaypointsLabels = Labels;
+    }
+
+    public void setmWaypointsXs(HashMap<Integer, Double> Xs){
+        mWaypointsXs = Xs;
+    }
+
+    public void setmWapointsYs(HashMap<Integer, Double> Ys){
+        mWaypointsYs = Ys;
+    }
+
     public double getTabletX(){
         return tabletX;
     }
@@ -1109,5 +1342,78 @@ public class MapView extends View{
         return tabletY;
     }
 
+
+    public int getFixedStationSize(){
+        return mFixedStationMMSIs.size();
+    }
+
+    public int getFixedStationMMSI(int index){
+        return mFixedStationMMSIs.get(index);
+    }
+
+    public double getFixedStationX(int index){
+        return mFixedStationXs.get(index);
+    }
+
+    public double getFixedStationY(int index){
+        return mFixedStationYs.get(index);
+    }
+
+    public String getFixedStationName(int index){
+        return mFixedStationNames.get(index);
+    }
+
+    public int getMobileStationSize(){
+        return  mMobileStationMMSIs.size();
+    }
+
+    public int getMobileStationMMSI(int index){
+        return  mMobileStationMMSIs.get(index);
+    }
+
+    public double getMobileXposition(int index){
+        return  mMobileStationXs.get(index);
+    }
+
+
+    public double getMobileYposition(int index){
+        return  mMobileStationYs.get(index);
+    }
+
+    public String getMobileStationName(int index){
+        return mMobileStationNames.get(index);
+    }
+
+    public int getStaticStationSize(){
+        return  mStaticStationNames.size();
+    }
+
+    public String getStaticStationName(int index){
+        return mStaticStationNames.get(index);
+    }
+
+    public double getStaticXposition(int index){
+        return  mStaticStationXs.get(index);
+    }
+
+    public double getStaticYposition(int index){
+        return  mStaticStationYs.get(index);
+    }
+
+    public String getWaypointLabel(int index){
+        return mWaypointsLabels.get(index);
+    }
+
+    public int getWaypointSize(){
+        return  mWaypointsLabels.size();
+    }
+
+    public double getWaypointXposition(int index){
+        return  mWaypointsXs.get(index);
+    }
+
+    public double getWaypointYposition(int index){
+        return  mWaypointsYs.get(index);
+    }
 
 }

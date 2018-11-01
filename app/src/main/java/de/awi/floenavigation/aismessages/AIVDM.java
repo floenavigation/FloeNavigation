@@ -164,10 +164,16 @@ public class AIVDM {
                         decimal += Math.pow(2, length - pow);
                 }
                 decimal = (int) (long) decimal;
-                decimal += 64;
+                if(decimal >= 48 && decimal <= 56) {
+                    //do Nothing
+                } else {
+                    decimal += 64;
+                }
                 if (Character.isLetter(((char) decimal))) {
                     stringValue.append((char) decimal);
-                } else {
+                } else if(Character.isDigit((char) decimal)){
+                    stringValue.append((char) decimal);
+                }else {
                     stringValue.append(" ");
                 }
             }

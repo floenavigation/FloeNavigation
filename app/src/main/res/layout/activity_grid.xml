@@ -21,15 +21,15 @@
         app:dataColor="#a6c"
         app:dataThickness="8dp" />
 
-    <io.github.yavski.fabspeeddial.FabSpeedDial
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        app:fabGravity="bottom_end"
-        app:fabMenu="@menu/fabspeeddialmenu"
-        app:miniFabBackgroundTint="@android:color/white"
-        app:miniFabDrawableTint="@color/colorPrimaryDark"
-        app:miniFabTitleTextColor="@color/colorPrimaryDark" />
+    <LinearLayout
+        android:id="@+id/myLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" >
+    </LinearLayout>
 
 
 </FrameLayout>
+
