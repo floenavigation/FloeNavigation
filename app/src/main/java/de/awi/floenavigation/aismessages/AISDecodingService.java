@@ -112,7 +112,7 @@ public class AISDecodingService extends IntentService {
 
 
             Cursor mobileCheckCursor = db.rawQuery("Select DISTINCT tbl_name from sqlite_master where tbl_name = '" + DatabaseHelper.mobileStationTable + "'", null);
-            Log.d(TAG, "MobileStationTable: " + mobileCheckCursor.getCount());
+            //Log.d(TAG, "MobileStationTable: " + mobileCheckCursor.getCount());
 
 
             int msgType = 0;
@@ -124,7 +124,7 @@ public class AISDecodingService extends IntentService {
                 StringBuilder binary = aivdmObj.decodePayload();
                 msgType = (int) strbuildtodec(0, 5, 6, binary, int.class);
                 msgDecoding(msgType, binary);
-                Log.d(TAG, String.valueOf(recvdMMSI));
+                //Log.d(TAG, String.valueOf(recvdMMSI));
             }
 
             //if(recvdMMSI == 21100)
@@ -155,7 +155,7 @@ public class AISDecodingService extends IntentService {
                 }
                 Log.d(TAG, "Updated DB " + String.valueOf(recvdMMSI));
                 int a = db.update(DatabaseHelper.fixedStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
-                Log.d(TAG, "Update Result: " + recvdTimeStamp);
+                //Log.d(TAG, "Update Result: " + recvdTimeStamp);
 
 
             } else if (mobileCheckCursor.getCount() == 1){
@@ -173,13 +173,14 @@ public class AISDecodingService extends IntentService {
                     decodedValues.put(DatabaseHelper.updateTime, recvdTimeStamp);
                 }
                 int result = db.update(DatabaseHelper.mobileStationTable, decodedValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(recvdMMSI)});
-                Log.d(TAG, "Mobile Station Update Result: " + String.valueOf(result));
-                Log.d(TAG, "Mobile Station MMSI: " + String.valueOf(recvdMMSI));
+                //Log.d(TAG, "Mobile Station Update Result: " + String.valueOf(result));
+                //Log.d(TAG, "Mobile Station MMSI: " + String.valueOf(recvdMMSI));
 
                 if(result == 0){
                     long a = db.insert(DatabaseHelper.mobileStationTable, null, decodedValues);
-                    Log.d(TAG, "Mobile Station Insertion Result: " + String.valueOf(a));
-                }Log.d(TAG, "Mobile Station Table Length: " + String.valueOf(DatabaseUtils.queryNumEntries(db, DatabaseHelper.mobileStationTable)));
+                    //Log.d(TAG, "Mobile Station Insertion Result: " + String.valueOf(a));
+                }
+                Log.d(TAG, "Mobile Station Table Length: " + String.valueOf(DatabaseUtils.queryNumEntries(db, DatabaseHelper.mobileStationTable)));
 
 
             }

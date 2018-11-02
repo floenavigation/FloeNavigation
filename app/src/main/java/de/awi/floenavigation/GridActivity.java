@@ -544,6 +544,7 @@ public class GridActivity extends Activity {
                 mFixedStationXs.clear();
                 mFixedStationYs.clear();
                 mFixedStationNames.clear();
+                //myGridView.clearFixedStationHashTables();
                 if (mFixedStnCursor.moveToFirst()) {
                     for (int i = 0; i < mFixedStnCursor.getCount(); i++) {
                         Log.d(TAG, "FixedStnIndex " + String.valueOf(i));
@@ -603,6 +604,7 @@ public class GridActivity extends Activity {
                 mMobileStationXs.clear();
                 mMobileStationYs.clear();
                 mMobileStationNames.clear();
+                //myGridView.clearMobileStationHashTables();
                 if (mMobileStnCursor.moveToFirst()) {
                     for (int i = 0; i < mMobileStnCursor.getCount(); i++) {
                         mMobileStationMMSIs.put(i, mMobileStnCursor.getInt(mMobileStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
@@ -659,6 +661,7 @@ public class GridActivity extends Activity {
                 mStaticStationNames.clear();
                 mStaticStationXs.clear();
                 mStaticStationYs.clear();
+                //myGridView.clearStaticStationHashTables();
                 if (mStaticStationCursor.moveToFirst()) {
                     for(int i = 0; i < mStaticStationCursor.getCount(); i++){
                         mStaticStationNames.put(i, mStaticStationCursor.getString(mStaticStationCursor.getColumnIndex(DatabaseHelper.staticStationName)));
@@ -715,6 +718,7 @@ public class GridActivity extends Activity {
                 mWaypointsLabels.clear();
                 mWaypointsXs.clear();
                 mWaypointsYs.clear();
+                //myGridView.clearWaypointHashTables();
                 if (mWaypointsCursor.moveToFirst()) {
                     for(int i = 0; i < mWaypointsCursor.getCount(); i++){
                         mWaypointsLabels.put(i, mWaypointsCursor.getString(mWaypointsCursor.getColumnIndex(DatabaseHelper.labelID)));

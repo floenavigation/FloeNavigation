@@ -205,7 +205,7 @@ public class AngleCalculationService extends IntentService {
                             double stationX = distance * Math.cos(Math.toRadians(alpha));
                             double stationY = distance * Math.sin(Math.toRadians(alpha));
                             Log.d(TAG, "mmsi: " + String.valueOf(fixedStationMMSI) + " Alpha: " + String.valueOf(alpha));
-                            Log.d(TAG, "stationX: " + stationX + "stationY: " + stationY);
+                            //Log.d(TAG, "stationX: " + stationX + "stationY: " + stationY);
                             mContentValues.put(DatabaseHelper.alpha, alpha);
                             mContentValues.put(DatabaseHelper.xPosition, stationX);
                             mContentValues.put(DatabaseHelper.yPosition, stationY);

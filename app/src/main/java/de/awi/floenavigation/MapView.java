@@ -1416,4 +1416,30 @@ public class MapView extends View{
         return  mWaypointsYs.get(index);
     }
 
+    public void clearFixedStationHashTables(){
+        mFixedStationNames.clear();
+        mFixedStationMMSIs.clear();
+        mFixedStationXs.clear();
+        mFixedStationYs.clear();
+    }
+
+    public void clearMobileStationHashTables(){
+        mMobileStationNames.clear();
+        mMobileStationMMSIs.clear();
+        mMobileStationXs.clear();
+        mMobileStationYs.clear();
+    }
+
+    public void clearStaticStationHashTables(){
+        mStaticStationNames.clear();
+        mStaticStationXs.clear();
+        mStaticStationYs.clear();
+    }
+
+    public void clearWaypointHashTables(){
+        mWaypointsLabels.clear();
+        mWaypointsXs.clear();
+        mWaypointsYs.clear();
+    }
+
 }
