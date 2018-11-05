@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -54,8 +55,10 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.view.ScaleGestureDetector;
 
+import com.scalified.fab.ActionButton;
 
-public class GridActivity extends Activity {
+
+public class GridActivity extends Activity implements View.OnClickListener{
 
     private static final int ASYNC_TASK_TIMER_PERIOD = 8 * 1000;
     private static final int ASYNC_TASK_TIMER_DELAY = 0;
@@ -121,12 +124,15 @@ public class GridActivity extends Activity {
     private MenuItem gpsIconItem, aisIconItem, emptyIcon;
     private MapView myGridView;
     private View myView;
+    private ActionButton buttonView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myGridView =  new MapView(this);
+
+
+
         Log.d(TAG, "LifeCycle OnCreate");
 
         //setContentView(R.layout.activity_grid);
@@ -134,7 +140,12 @@ public class GridActivity extends Activity {
         //myGridView.invalidate();
         //setContentView(myGridView);
         setContentView(R.layout.activity_grid);
+        //myGridView =  new MapView(this);
+        myGridView = (MapView) findViewById(R.id.GridView);
         myView = this.findViewById(R.id.GridView);
+        buttonView = this.findViewById(R.id.action_button);
+        buttonView.setOnClickListener(this);
+        //myGridView.toOrigin(buttonView);
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.myLayout);
         BubbleDrawable myBubble = new BubbleDrawable(BubbleDrawable.CENTER);
         myBubble.setCornerRadius(20);
@@ -143,6 +154,8 @@ public class GridActivity extends Activity {
         myGridView.setBubbleLayout(linearLayout, myBubble);
 
     }
+
+
 
 
 
@@ -440,6 +453,25 @@ public class GridActivity extends Activity {
 
         statusHandler.postDelayed(gpsLocationRunnable, ActionBarActivity.UPDATE_TIME);
         ///******************************************/
+    }
+
+    public void onClickCenterButton(View view) {
+
+        Log.d(TAG, "Pressed Detected onClick Function");
+        //myGridView.onClickOriginButton(myView);
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.action_button:
+                Log.d(TAG,"Button Click");
+                myGridView.resetContentRect();
+                break;
+
+        }
+
     }
 
     private class ReadOriginFromDB extends AsyncTask<Void, Void, Boolean>{

@@ -1,6 +1,7 @@
 package de.awi.floenavigation;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -22,6 +23,7 @@ public class RecoveryActivity extends ActionBarActivity {
     private static final String TAG = "RecoveryActivity";
     private boolean aisDeviceCheck = true;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +134,7 @@ public class RecoveryActivity extends ActionBarActivity {
                             || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
@@ -146,6 +149,14 @@ public class RecoveryActivity extends ActionBarActivity {
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+    }
+
+    private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){
+        ContentValues mContentValues = new ContentValues();
+        mContentValues.put(DatabaseHelper.mmsi, ((originFlag) ? DatabaseHelper.BASESTN1 : DatabaseHelper.BASESTN2));
+        mContentValues.put(DatabaseHelper.stationName, ((originFlag) ? DatabaseHelper.origin : DatabaseHelper.basestn1));
+        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+        db.update(DatabaseHelper.baseStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
     }
 
     private boolean checkEntryInStationListTable(SQLiteDatabase db, String mmsi){

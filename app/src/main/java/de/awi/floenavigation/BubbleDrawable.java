@@ -27,7 +27,7 @@ public class BubbleDrawable extends Drawable {
     private int mColor;
 
     private RectF mBoxRect;
-    private int mBoxWidth = 400;
+    private int mBoxWidth = 430;
     private int mBoxHeight = 150;
     private float mCornerRad;
     private Rect mBoxPadding = new Rect();
@@ -41,6 +41,7 @@ public class BubbleDrawable extends Drawable {
     private Paint mTextPaint;
     private String firstMsg;
     private String secondMsg;
+    private String thirdMsg;
 
     // Constructors
     ////////////////////////////////////////////////////////////
@@ -116,9 +117,10 @@ public class BubbleDrawable extends Drawable {
         this.yPosition = y;
     }
 
-    public void setMessages(String title, String msg){
+    public void setMessages(String title, String msg, String postns){
         this.firstMsg = title;
         this.secondMsg = msg;
+        this.thirdMsg = postns;
     }
 
     private float pointerHorizontalStart() {
@@ -144,10 +146,14 @@ public class BubbleDrawable extends Drawable {
         canvas.translate(xPosition - mBoxWidth / 2, yPosition - mBoxHeight - mPointerHeight);
         mBoxRect = new RectF(0.0f, 0.0f, mBoxWidth, mBoxHeight);
         canvas.drawRoundRect(mBoxRect, mCornerRad, mCornerRad, mPaint);
-        canvas.drawText(firstMsg, mBoxWidth/2 - 180, mBoxHeight/2 - 25, mTextPaint);
+        canvas.drawText(firstMsg, mBoxWidth/2 - 198, mBoxHeight/2 - 25, mTextPaint);
         if(secondMsg != null) {
-            canvas.drawText(secondMsg, mBoxWidth / 2 - 180, mBoxHeight / 2 + 30, mTextPaint);
+            canvas.drawText(secondMsg, mBoxWidth / 2 - 198, mBoxHeight / 2 + 20, mTextPaint);
+            canvas.drawText(thirdMsg, mBoxWidth/2 - 198, mBoxHeight/2 + 65, mTextPaint);
+        }else {
+            canvas.drawText(thirdMsg, mBoxWidth / 2 - 198, mBoxHeight / 2 + 20, mTextPaint);
         }
+
         updatePointerPath();
         canvas.drawPath(mPointer, mPaint);
     }

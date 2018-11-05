@@ -117,6 +117,7 @@ public class AIVDM {
     static <T> Object strbuildtodec(int begin, int end, int len, StringBuilder binLocal, Class<?> type)
     {
         try{
+
             char[] array = new char[len];
             binLocal.getChars(begin,(end + 1),array,0);
 

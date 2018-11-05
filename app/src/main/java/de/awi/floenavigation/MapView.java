@@ -1,5 +1,6 @@
 package de.awi.floenavigation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -23,31 +25,22 @@ import android.widget.LinearLayout;
 import android.widget.OverScroller;
 import android.widget.TextView;
 
+import com.scalified.fab.ActionButton;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.zip.Inflater;
 
 public class MapView extends View{
 
-    private double tabletLat;
-    private double tabletLon;
-    private double originLatitude;
-    private double originLongitude;
-    private int originMMSI;
-    private double beta;
+
     private static double tabletX;
     private static double tabletY;
-    private double tabletDistance;
-    private double tabletTheta;
-    private double tabletAlpha;
     private float xTouch;
     private float yTouch;
     private boolean isBubbleShowing;
-    public static boolean showFixedStation = true;
-    public static boolean showMobileStation = true;
-    public static boolean showStaticStation = true;
-    public static boolean showWaypointStation = true;
     //private double[] mFixedStationXs;
     public static HashMap<Integer, Double> mFixedStationXs;
     //private double[] mFixedStationYs;
@@ -82,6 +75,7 @@ public class MapView extends View{
 
     private static final String TAG = "MapView";
     Paint paint = null;
+    private Context context;
 
 
     private static final int SCREEN_REFRESH_TIMER_PERIOD = 10 * 1000;
@@ -96,8 +90,7 @@ public class MapView extends View{
     private static final int CircleSize = 6;
 
     private int numRows = DEFAULT_NUMBER_OF_ROWS, numColumns = DEFAULT_NUMBER_OF_COLUMNS;
-    private static final int ORIGIN_X_POSITION = 0;
-    private static final int ORIGIN_Y_POSITION = 0;
+    private static final int DEFAULT_ZOOM_LEVEL = 5000;
 
     private static LinearLayout linearLayout;
     private static BubbleDrawable drawableBubble;
@@ -111,10 +104,10 @@ public class MapView extends View{
     private static final int DRAW_STEPS = 40;
 
     // Viewport extremes. See mCurrentViewport for a discussion of the viewport.
-    private static final float AXIS_X_MIN = -10000f;
-    private static final float AXIS_X_MAX = 10000f;
-    private static final float AXIS_Y_MIN = -10000f;
-    private static final float AXIS_Y_MAX = 10000f;
+    private static final float AXIS_X_MIN = -100000f;
+    private static final float AXIS_X_MAX = 100000f;
+    private static final float AXIS_Y_MIN = -100000f;
+    private static final float AXIS_Y_MAX = 100000f;
 
     /**
      * The scaling factor for a single zoom 'step'.
@@ -195,14 +188,18 @@ public class MapView extends View{
 
     public MapView(Context context) {
         this(context, null, 0);
+        this.context = context;
+
+
     }
+
 
     public MapView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
     public MapView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+         super(context, attrs, defStyle);
 
          gridActivity = new GridActivity();
          isBubbleShowing = false;
@@ -316,34 +313,12 @@ public class MapView extends View{
         drawAxes(canvas);
 
         // Clips the next few drawing operations to the content area
-        //int clipRestoreCount = canvas.save();
-        //canvas.clipRect(mContentRect);
+        int clipRestoreCount = canvas.save();
+        canvas.clipRect(mContentRect);
 
         //drawDataSeriesUnclipped(canvas);
-        //drawEdgeEffectsUnclipped(canvas);
+        drawEdgeEffectsUnclipped(canvas);
 
-        // Removes clipping rectangle
-       // canvas.restoreToCount(clipRestoreCount);
-
-        // Draws chart container
-        //canvas.drawRect(mContentRect, mAxisPaint);
-        //------------------------------------//
-
-
-
-
-        //setLineColor(Color.GREEN);
-        //canvas.translate(getWidth()/2f,getHeight()/2f);
-
-        //Log.d(TAG, "Translated X: " + String.valueOf(translateCoord(mFixedStationXs[0])));
-        //Log.d(TAG, "Unit Columns: " + String.valueOf(getWidth()/numColumns));
-        //Log.d(TAG, "X" + String.valueOf(getWidth() * (translateCoord(mFixedStationXs[0]) / numColumns)));
-        //Log.d(TAG, "TabletX: " + String.valueOf(tabletX) + " TabletY: " + String.valueOf(tabletY));
-        //canvas.drawCircle(translateCoord(mFixedStationXs[0]) * getWidth()/numColumns, 0, CircleSize, paint);
-
-        //canvas.drawCircle(width * 20 / numColumns, height * 10 / numRows, 15, paint);
-        //Draw Origin
-        //canvas.drawCircle(getDrawX(ORIGIN_X_POSITION), getDrawY(ORIGIN_Y_POSITION), CircleSize, mDataPaint);
 
 
         try {
@@ -407,8 +382,13 @@ public class MapView extends View{
             e.printStackTrace();
             Log.d(TAG, "Null Pointer Exception");
         }
-        //setLineColor(Color.BLACK);
-        mDataPaint.setColor(mDataColor);
+
+        // Removes clipping rectangle
+        canvas.restoreToCount(clipRestoreCount);
+
+        // Draws chart container
+        canvas.drawRect(mContentRect, mAxisPaint);
+
     }
 
     private float translateCoord(double coordinate){
@@ -426,7 +406,7 @@ public class MapView extends View{
         computeAxisStops(
                 mCurrentViewport.left,
                 mCurrentViewport.right,
-                getWidth() / mMaxLabelWidth,
+                getWidth() / mMaxLabelWidth / 2,
                 mXStopsBuffer);
         computeAxisStops(
                 mCurrentViewport.top,
@@ -477,11 +457,23 @@ public class MapView extends View{
         // Draws X labels
         int labelOffset;
         int labelLength;
+        boolean scaleXInMeters = false;
+        boolean scaleYInMeters = false;
         mLabelTextPaint.setTextAlign(Paint.Align.CENTER);
+        if(Math.abs((mXStopsBuffer.stops[1] - mXStopsBuffer.stops[0])) <= 500){
+            scaleXInMeters = true;
+        }
+
+        if(Math.abs((mYStopsBuffer.stops[1] - mYStopsBuffer.stops[0])) <= 500){
+            scaleYInMeters = true;
+        }
         for (i = 0; i < mXStopsBuffer.numStops; i++) {
             // Do not use String.format in high-performance code such as onDraw code.
+            //mXStopsBuffer.stops[i] = (mXStopsBuffer.stops[i] > 1000) ? mXStopsBuffer.stops[i] / 1000 : mXStopsBuffer.stops[i];
+            mXStopsBuffer.stops[i] = scaleXInMeters ? mXStopsBuffer.stops[i] : mXStopsBuffer.stops[i] / 1000;
             labelLength = formatFloat(mLabelBuffer, mXStopsBuffer.stops[i], mXStopsBuffer.decimals);
             labelOffset = mLabelBuffer.length - labelLength;
+            Log.d(TAG, "Stops" + String.valueOf(mXStopsBuffer.stops[i]));
             canvas.drawText(
                     mLabelBuffer, labelOffset, labelLength,
                     mAxisXPositionsBuffer[i],
@@ -493,6 +485,8 @@ public class MapView extends View{
         mLabelTextPaint.setTextAlign(Paint.Align.RIGHT);
         for (i = 0; i < mYStopsBuffer.numStops; i++) {
             // Do not use String.format in high-performance code such as onDraw code.
+            //mYStopsBuffer.stops[i] = (mYStopsBuffer.stops[i] > 1000) ? mYStopsBuffer.stops[i] / 1000 : mYStopsBuffer.stops[i];
+            mYStopsBuffer.stops[i] = scaleYInMeters ? mYStopsBuffer.stops[i] : mYStopsBuffer.stops[i] / 1000;
             labelLength = formatFloat(mLabelBuffer, mYStopsBuffer.stops[i], mYStopsBuffer.decimals);
             labelOffset = mLabelBuffer.length - labelLength;
             canvas.drawText(
@@ -504,7 +498,7 @@ public class MapView extends View{
     }
 
 
-    /**
+    /*
      * Draws the currently visible portion of the data series defined by {@link #fun(float)} to the
      * canvas. This method does not clip its drawing, so users should call {@link Canvas#clipRect
      * before calling this method.
@@ -588,6 +582,17 @@ public class MapView extends View{
         if (needsInvalidate) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
+    }
+
+    public void resetContentRect(){
+        Log.d(TAG,"onClick MapView Handler");
+        if(tabletX != 0.0 && tabletY != 0.0) {
+            mCurrentViewport.set((float) (tabletX - DEFAULT_ZOOM_LEVEL), (float) (tabletY - DEFAULT_ZOOM_LEVEL), (float) (tabletX + DEFAULT_ZOOM_LEVEL), (float) (tabletY + DEFAULT_ZOOM_LEVEL));
+        } else{
+            mCurrentViewport.set(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
+        }
+        constrainViewport();
+        ViewCompat.postInvalidateOnAnimation(MapView.this);
     }
 
     /**
@@ -892,6 +897,9 @@ public class MapView extends View{
                                 heightMeasureSpec)));
     }
 
+
+
+
     private void releaseEdgeEffects() {
         mEdgeEffectLeftActive
                 = mEdgeEffectTopActive
@@ -1027,9 +1035,11 @@ public class MapView extends View{
         this.drawableBubble = bubble;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int actionIndex = event.getActionIndex();
+        String postnMsg;
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 if(isBubbleShowing){
@@ -1047,16 +1057,17 @@ public class MapView extends View{
                     if(checkValues[1] == FIXED_STATION) {
                         if(GridActivity.showFixedStation) {
                             drawableBubble.setCoordinates((float) getDrawX(getFixedStationX(index)), (float) getDrawY(getFixedStationY(index)));
-                            drawableBubble.setMessages(String.valueOf(getFixedStationMMSI(index)), getFixedStationName(index));
+                            postnMsg = String.format("x: %1.4f y: %2.4f", getFixedStationX(index), getFixedStationY(index));
+                            drawableBubble.setMessages(String.valueOf(getFixedStationMMSI(index)), getFixedStationName(index), postnMsg);
                             linearLayout.setBackground(drawableBubble);
                             linearLayout.setVisibility(View.VISIBLE);
                             isBubbleShowing = true;
                         }
                     } else if(checkValues[1] == MOBILE_STATION){
                         if(GridActivity.showMobileStation) {
-
                             drawableBubble.setCoordinates((float) getDrawX(getMobileXposition(index)), (float) getDrawY(getMobileYposition(index)));
-                            drawableBubble.setMessages(String.valueOf(getMobileStationMMSI(index)), getMobileStationName(index));
+                            postnMsg = String.format("x: %1.4f y: %2.4f", getMobileXposition(index), getMobileYposition(index));
+                            drawableBubble.setMessages(String.valueOf(getMobileStationMMSI(index)), getMobileStationName(index), postnMsg);
                             linearLayout.setBackground(drawableBubble);
                             linearLayout.setVisibility(View.VISIBLE);
                             isBubbleShowing = true;
@@ -1064,7 +1075,8 @@ public class MapView extends View{
                     } else if(checkValues[1] == STATIC_STATION){
                         if(GridActivity.showStaticStation) {
                             drawableBubble.setCoordinates((float) getDrawX(getStaticXposition(index)), (float) getDrawY(getStaticYposition(index)));
-                            drawableBubble.setMessages(String.valueOf(getStaticStationName(index)), null);
+                            postnMsg = String.format("x: %1.4f y: %2.4f", getStaticXposition(index), getStaticYposition(index));
+                            drawableBubble.setMessages(String.valueOf(getStaticStationName(index)), null, postnMsg);
                             linearLayout.setBackground(drawableBubble);
                             linearLayout.setVisibility(View.VISIBLE);
                             isBubbleShowing = true;
@@ -1072,7 +1084,8 @@ public class MapView extends View{
                     } else if (checkValues[1] == WAYPOINT){
                         if(GridActivity.showWaypointStation) {
                             drawableBubble.setCoordinates((float) getDrawX(getWaypointXposition(index)), (float) getDrawY(getWaypointYposition(index)));
-                            drawableBubble.setMessages(String.valueOf(getWaypointLabel(index)), null);
+                            postnMsg = String.format("x: %1.4f y: %2.4f", getWaypointXposition(index), getWaypointYposition(index));
+                            drawableBubble.setMessages(String.valueOf(getWaypointLabel(index)), null, postnMsg);
                             linearLayout.setBackground(drawableBubble);
                             linearLayout.setVisibility(View.VISIBLE);
                             isBubbleShowing = true;
@@ -1092,58 +1105,66 @@ public class MapView extends View{
 
         try {
             //Check in Fixed Station
-            for (int i = 0; i < getFixedStationSize(); i++){
-                double xp = getFixedStationX(i);
-                double yp = getFixedStationY(i);
-                xp = getDrawX(xp);
-                yp = getDrawY(yp);
-                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
-                Log.d(TAG, "TouchDistance " + distance);
-                if(distance < CircleSize + 10){
-                    index = i;
-                    return new int[] {index, FIXED_STATION};
+            if(GridActivity.showFixedStation) {
+                for (int i = 0; i < getFixedStationSize(); i++) {
+                    double xp = getFixedStationX(i);
+                    double yp = getFixedStationY(i);
+                    xp = getDrawX(xp);
+                    yp = getDrawY(yp);
+                    double distance = Math.sqrt(Math.pow((xp - touchX), 2) + Math.pow((yp - touchY), 2));
+                    Log.d(TAG, "TouchDistance " + distance);
+                    if (distance < CircleSize + 10) {
+                        index = i;
+                        return new int[]{index, FIXED_STATION};
+                    }
                 }
             }
 
             //Check in Mobile Stations
-            for (int i = 0; i < getMobileStationSize(); i++){
-                double xp = getMobileXposition(i);
-                double yp = getMobileYposition(i);
-                xp = getDrawX(xp);
-                yp = getDrawY(yp);
-                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
-                Log.d(TAG, "TouchDistance " + distance);
-                if(distance < CircleSize + 10){
-                    index = i;
-                    return new int[] {index, MOBILE_STATION};
+            if(GridActivity.showMobileStation) {
+                for (int i = 0; i < getMobileStationSize(); i++) {
+                    double xp = getMobileXposition(i);
+                    double yp = getMobileYposition(i);
+                    xp = getDrawX(xp);
+                    yp = getDrawY(yp);
+                    double distance = Math.sqrt(Math.pow((xp - touchX), 2) + Math.pow((yp - touchY), 2));
+                    Log.d(TAG, "TouchDistance " + distance);
+                    if (distance < CircleSize + 10) {
+                        index = i;
+                        return new int[]{index, MOBILE_STATION};
+                    }
                 }
             }
 
             //Check in Static Stations
-            for (int i = 0; i < getStaticStationSize(); i++){
-                double xp = getStaticXposition(i);
-                double yp = getStaticYposition(i);
-                xp = getDrawX(xp);
-                yp = getDrawY(yp);
-                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
-                Log.d(TAG, "TouchDistance " + distance);
-                if(distance < CircleSize + 10){
-                    index = i;
-                    return new int[] {index, STATIC_STATION};
+            if(GridActivity.showStaticStation) {
+                for (int i = 0; i < getStaticStationSize(); i++) {
+                    double xp = getStaticXposition(i);
+                    double yp = getStaticYposition(i);
+                    xp = getDrawX(xp);
+                    yp = getDrawY(yp);
+                    double distance = Math.sqrt(Math.pow((xp - touchX), 2) + Math.pow((yp - touchY), 2));
+                    Log.d(TAG, "TouchDistance " + distance);
+                    if (distance < CircleSize + 10) {
+                        index = i;
+                        return new int[]{index, STATIC_STATION};
+                    }
                 }
             }
 
             //Check in Waypoints
-            for (int i = 0; i < getWaypointSize(); i++){
-                double xp = getWaypointXposition(i);
-                double yp = getWaypointYposition(i);
-                xp = getDrawX(xp);
-                yp = getDrawY(yp);
-                double distance = Math.sqrt(Math.pow((xp - touchX) , 2) + Math.pow((yp - touchY), 2));
-                Log.d(TAG, "TouchDistance " + distance);
-                if(distance < CircleSize + 10){
-                    index = i;
-                    return new int[] {index, WAYPOINT};
+            if(GridActivity.showWaypointStation) {
+                for (int i = 0; i < getWaypointSize(); i++) {
+                    double xp = getWaypointXposition(i);
+                    double yp = getWaypointYposition(i);
+                    xp = getDrawX(xp);
+                    yp = getDrawY(yp);
+                    double distance = Math.sqrt(Math.pow((xp - touchX), 2) + Math.pow((yp - touchY), 2));
+                    Log.d(TAG, "TouchDistance " + distance);
+                    if (distance < CircleSize + 10) {
+                        index = i;
+                        return new int[]{index, WAYPOINT};
+                    }
                 }
             }
 

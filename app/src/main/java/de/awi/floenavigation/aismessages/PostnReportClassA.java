@@ -136,7 +136,8 @@ public class PostnReportClassA {
         maneuver = (int)strbuildtodec(143,144,2,bin,int.class);
         raim = ((int) (strbuildtodec(148,148,1,bin,int.class)) > 0);
         radio = (long)strbuildtodec(149,167,19,bin,long.class);
-        /*Log.d(TAG, "msgInd " + msgInd);
+        /*
+        Log.d(TAG, "msgInd " + msgInd);
         Log.d(TAG, "repeatInd " + repeatInd);
         Log.d(TAG, "mmsi " + mmsi);
         Log.d(TAG, "status " + status);

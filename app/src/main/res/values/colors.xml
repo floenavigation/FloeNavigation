@@ -3,6 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
 
+
+    <color name="colorBlue">#42a5f5</color>
     <!--Dashboard Icons Color -->
     <color name="backgroundGradStart">#212121</color>
     <color name="backgroundGradStop">#9E9E9E</color>

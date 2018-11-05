@@ -16,6 +16,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -41,11 +42,13 @@ public class ValidationService extends IntentService {
     private static int stationMessageCount = 0;
     private static double stationpreviousUpdateTime = 0;
 
+
     private Handler uiHandler;
     private Dialog alertDialog;
     Button dialogOkBtn;
     ImageView dialogIcon;
     TextView validationFailedMsg, stationRemovedMsg;
+    //int[] isOriginMMSI;
     //private Context appContext;
 
     private static ValidationService instance = null;
@@ -121,6 +124,7 @@ public class ValidationService extends IntentService {
 
                                         if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
                                             deleteEntryfromStationListTableinDB(mmsi, db);
+                                            updataMMSIInDBTables(mmsi, db, (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex]));
                                         } else {
                                             deleteEntryfromStationListTableinDB(mmsi, db);
                                             deleteEntryfromFixedStationTableinDB(mmsi, db);
@@ -160,6 +164,14 @@ public class ValidationService extends IntentService {
 
             mValidationHandler.postDelayed(validationRunnable, VALIDATION_TIME);
         }
+    }
+
+    private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){
+        ContentValues mContentValues = new ContentValues();
+        mContentValues.put(DatabaseHelper.mmsi, ((originFlag) ? DatabaseHelper.BASESTN1 : DatabaseHelper.BASESTN2));
+        mContentValues.put(DatabaseHelper.stationName, ((originFlag) ? DatabaseHelper.origin : DatabaseHelper.basestn1));
+        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+        db.update(DatabaseHelper.baseStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
     }
 
     private void getMessageCount(SQLiteDatabase db, double updateTime) {
@@ -226,8 +238,8 @@ public class ValidationService extends IntentService {
         try {
             //SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             //SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
-                    null, null, null, null, null);
+            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.isOrigin},
+                    null, null, null, null, DatabaseHelper.isOrigin + " DESC");
 
             if (mBaseStnCursor.getCount() == DatabaseHelper.NUM_OF_BASE_STATIONS) {
                 int index = 0;
@@ -235,6 +247,7 @@ public class ValidationService extends IntentService {
                 if (mBaseStnCursor.moveToFirst()) {
                     do {
                         baseStnMMSI[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                        //isOriginMMSI[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.isOrigin));
                         index++;
                     } while (mBaseStnCursor.moveToNext());
                 }else {

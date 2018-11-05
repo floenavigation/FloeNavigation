@@ -1,6 +1,7 @@
 package de.awi.floenavigation;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -46,6 +47,7 @@ public class ListViewActivity extends ActionBarActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private Intent intentOnExit;
     private int[] baseStnMMSI = new int[DatabaseHelper.INITIALIZATION_SIZE];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,6 +219,7 @@ public class ListViewActivity extends ActionBarActivity {
                             || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
@@ -233,6 +236,14 @@ public class ListViewActivity extends ActionBarActivity {
             Log.d(TAG, "Error Reading from Database");
         }
         return false;
+    }
+
+    private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){
+        ContentValues mContentValues = new ContentValues();
+        mContentValues.put(DatabaseHelper.mmsi, ((originFlag) ? DatabaseHelper.BASESTN1 : DatabaseHelper.BASESTN2));
+        mContentValues.put(DatabaseHelper.stationName, ((originFlag) ? DatabaseHelper.origin : DatabaseHelper.basestn1));
+        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+        db.update(DatabaseHelper.baseStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
     }
 
     private boolean checkEntryInStationListTable(SQLiteDatabase db, String mmsi){
@@ -282,8 +293,8 @@ public class ListViewActivity extends ActionBarActivity {
         try {
             //SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             //SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi},
-                    null, null, null, null, null);
+            Cursor mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.isOrigin},
+                    null, null, null, null, DatabaseHelper.isOrigin + " DESC");
 
             if (mBaseStnCursor.getCount() == DatabaseHelper.NUM_OF_BASE_STATIONS) {
                 int index = 0;
