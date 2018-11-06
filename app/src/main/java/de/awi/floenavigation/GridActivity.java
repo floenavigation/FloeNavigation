@@ -576,7 +576,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 mFixedStationXs.clear();
                 mFixedStationYs.clear();
                 mFixedStationNames.clear();
-                //myGridView.clearFixedStationHashTables();
+                MapView.clearFixedStationHashTables();
                 if (mFixedStnCursor.moveToFirst()) {
                     for (int i = 0; i < mFixedStnCursor.getCount(); i++) {
                         Log.d(TAG, "FixedStnIndex " + String.valueOf(i));
@@ -636,7 +636,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 mMobileStationXs.clear();
                 mMobileStationYs.clear();
                 mMobileStationNames.clear();
-                //myGridView.clearMobileStationHashTables();
+                MapView.clearMobileStationHashTables();
                 if (mMobileStnCursor.moveToFirst()) {
                     for (int i = 0; i < mMobileStnCursor.getCount(); i++) {
                         mMobileStationMMSIs.put(i, mMobileStnCursor.getInt(mMobileStnCursor.getColumnIndex(DatabaseHelper.mmsi)));
@@ -693,7 +693,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 mStaticStationNames.clear();
                 mStaticStationXs.clear();
                 mStaticStationYs.clear();
-                //myGridView.clearStaticStationHashTables();
+                MapView.clearStaticStationHashTables();
                 if (mStaticStationCursor.moveToFirst()) {
                     for(int i = 0; i < mStaticStationCursor.getCount(); i++){
                         mStaticStationNames.put(i, mStaticStationCursor.getString(mStaticStationCursor.getColumnIndex(DatabaseHelper.staticStationName)));
@@ -750,7 +750,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 mWaypointsLabels.clear();
                 mWaypointsXs.clear();
                 mWaypointsYs.clear();
-                //myGridView.clearWaypointHashTables();
+                MapView.clearWaypointHashTables();
                 if (mWaypointsCursor.moveToFirst()) {
                     for(int i = 0; i < mWaypointsCursor.getCount(); i++){
                         mWaypointsLabels.put(i, mWaypointsCursor.getString(mWaypointsCursor.getColumnIndex(DatabaseHelper.labelID)));

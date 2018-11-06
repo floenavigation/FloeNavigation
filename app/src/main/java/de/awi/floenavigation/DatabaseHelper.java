@@ -88,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String parameterValue = "PARAMETER_VALUE";
     public static final String isOrigin = "IS_ORIGIN";
     public static final String origin = "ORIGIN";
-    public static final String basestn1 = "BASE_STN_1";
+    public static final String basestn1 = "BASE_STN";
 
     //Initial Position of Setup Points in Custom Coordinate System
     public static final long station1InitialX = 0;

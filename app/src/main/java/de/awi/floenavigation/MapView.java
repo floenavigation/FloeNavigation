@@ -72,6 +72,7 @@ public class MapView extends View{
     private static final int MOBILE_STATION = 1;
     private static final int STATIC_STATION = 2;
     private static final int WAYPOINT = 3;
+    private static final int TABLET_POSITION = 4;
 
     private static final String TAG = "MapView";
     Paint paint = null;
@@ -717,23 +718,20 @@ public class MapView extends View{
          * variable but kept here to minimize per-frame allocations.
          */
         private PointF viewportFocus = new PointF();
-        private float lastSpanX;
-        private float lastSpanY;
+        private float lastSpan;
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-            lastSpanX = scaleGestureDetector.getCurrentSpanX();
-            lastSpanY = scaleGestureDetector.getCurrentSpanY();
+            lastSpan = scaleGestureDetector.getCurrentSpan();
             return true;
         }
 
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-            float spanX = scaleGestureDetector.getCurrentSpanX();
-            float spanY = scaleGestureDetector.getCurrentSpanY();
+            float span = scaleGestureDetector.getCurrentSpan();
 
-            float newWidth = lastSpanX / spanX * mCurrentViewport.width();
-            float newHeight = lastSpanY / spanY * mCurrentViewport.height();
+            float newWidth = lastSpan / span * mCurrentViewport.width();
+            float newHeight = lastSpan / span * mCurrentViewport.height();
 
             float focusX = scaleGestureDetector.getFocusX();
             float focusY = scaleGestureDetector.getFocusY();
@@ -752,9 +750,7 @@ public class MapView extends View{
             mCurrentViewport.bottom = mCurrentViewport.top + newHeight;
             constrainViewport();
             ViewCompat.postInvalidateOnAnimation(MapView.this);
-
-            lastSpanX = spanX;
-            lastSpanY = spanY;
+            lastSpan = span;
             return true;
         }
     };
@@ -1054,11 +1050,22 @@ public class MapView extends View{
                 int index = checkValues[0];
                 if(index != -1){
                     Log.d(TAG, "Station Touched");
-                    if(checkValues[1] == FIXED_STATION) {
+                    if (checkValues[1] == TABLET_POSITION){
+                        drawableBubble.setCoordinates((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()));
+                        postnMsg = String.format("x: %1.4f y: %2.4f", getTabletX(), getTabletY());
+                        drawableBubble.setMessages("Current Position", null, postnMsg);
+                        linearLayout.setBackground(drawableBubble);
+                        linearLayout.setVisibility(View.VISIBLE);
+                        isBubbleShowing = true;
+                    } else if(checkValues[1] == FIXED_STATION) {
                         if(GridActivity.showFixedStation) {
                             drawableBubble.setCoordinates((float) getDrawX(getFixedStationX(index)), (float) getDrawY(getFixedStationY(index)));
                             postnMsg = String.format("x: %1.4f y: %2.4f", getFixedStationX(index), getFixedStationY(index));
-                            drawableBubble.setMessages(String.valueOf(getFixedStationMMSI(index)), getFixedStationName(index), postnMsg);
+                            if(getFixedStationMMSI(index) != 1000 && getFixedStationMMSI(index) != 1001) {
+                                drawableBubble.setMessages(String.valueOf(getFixedStationMMSI(index)), getFixedStationName(index), postnMsg);
+                            } else{
+                                drawableBubble.setMessages(null, getFixedStationName(index), postnMsg);
+                            }
                             linearLayout.setBackground(drawableBubble);
                             linearLayout.setVisibility(View.VISIBLE);
                             isBubbleShowing = true;
@@ -1104,6 +1111,17 @@ public class MapView extends View{
         int index = -1;
 
         try {
+
+            //Check if Tablet is Clicked
+            double xTab = getTabletX();
+            double yTab = getTabletY();
+            xTab = getDrawX(xTab);
+            yTab = getDrawY(yTab);
+            double tabDistance =  Math.sqrt(Math.pow((xTab - touchX), 2) + Math.pow((yTab - touchY), 2));
+            if(tabDistance < CircleSize + 10){
+                index = 0;
+                return new int[] {index, TABLET_POSITION};
+            }
             //Check in Fixed Station
             if(GridActivity.showFixedStation) {
                 for (int i = 0; i < getFixedStationSize(); i++) {
@@ -1437,30 +1455,58 @@ public class MapView extends View{
         return  mWaypointsYs.get(index);
     }
 
-    public void clearFixedStationHashTables(){
-        mFixedStationNames.clear();
-        mFixedStationMMSIs.clear();
-        mFixedStationXs.clear();
-        mFixedStationYs.clear();
+    public static void clearFixedStationHashTables(){
+        if(mFixedStationNames != null) {
+            mFixedStationNames.clear();
+        }
+        if(mFixedStationMMSIs != null) {
+            mFixedStationMMSIs.clear();
+        }
+        if(mFixedStationXs != null) {
+            mFixedStationXs.clear();
+        }
+        if(mFixedStationYs != null) {
+            mFixedStationYs.clear();
+        }
     }
 
-    public void clearMobileStationHashTables(){
-        mMobileStationNames.clear();
-        mMobileStationMMSIs.clear();
-        mMobileStationXs.clear();
-        mMobileStationYs.clear();
+    public static void clearMobileStationHashTables(){
+        if(mMobileStationNames != null) {
+            mMobileStationNames.clear();
+        }
+        if(mMobileStationMMSIs != null) {
+            mMobileStationMMSIs.clear();
+        }
+        if(mMobileStationXs != null) {
+            mMobileStationXs.clear();
+        }
+        if(mMobileStationYs != null) {
+            mMobileStationYs.clear();
+        }
     }
 
-    public void clearStaticStationHashTables(){
-        mStaticStationNames.clear();
-        mStaticStationXs.clear();
-        mStaticStationYs.clear();
+    public static void clearStaticStationHashTables(){
+        if(mStaticStationNames != null) {
+            mStaticStationNames.clear();
+        }
+        if(mStaticStationXs != null) {
+            mStaticStationXs.clear();
+        }
+        if(mStaticStationYs != null) {
+            mStaticStationYs.clear();
+        }
     }
 
-    public void clearWaypointHashTables(){
-        mWaypointsLabels.clear();
-        mWaypointsXs.clear();
-        mWaypointsYs.clear();
+    public static void clearWaypointHashTables(){
+        if(mWaypointsLabels != null) {
+            mWaypointsLabels.clear();
+        }
+        if(mWaypointsXs != null) {
+            mWaypointsXs.clear();
+        }
+        if(mWaypointsYs != null) {
+            mWaypointsYs.clear();
+        }
     }
 
 }

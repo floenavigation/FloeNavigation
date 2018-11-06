@@ -146,7 +146,9 @@ public class BubbleDrawable extends Drawable {
         canvas.translate(xPosition - mBoxWidth / 2, yPosition - mBoxHeight - mPointerHeight);
         mBoxRect = new RectF(0.0f, 0.0f, mBoxWidth, mBoxHeight);
         canvas.drawRoundRect(mBoxRect, mCornerRad, mCornerRad, mPaint);
-        canvas.drawText(firstMsg, mBoxWidth/2 - 198, mBoxHeight/2 - 25, mTextPaint);
+        if(firstMsg != null) {
+            canvas.drawText(firstMsg, mBoxWidth / 2 - 198, mBoxHeight / 2 - 25, mTextPaint);
+        }
         if(secondMsg != null) {
             canvas.drawText(secondMsg, mBoxWidth / 2 - 198, mBoxHeight / 2 + 20, mTextPaint);
             canvas.drawText(thirdMsg, mBoxWidth/2 - 198, mBoxHeight/2 + 65, mTextPaint);
