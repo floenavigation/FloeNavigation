@@ -239,7 +239,7 @@ public class DialogActivity extends Activity {
         try {
             ContentValues beta = new ContentValues();
             beta.put(DatabaseHelper.beta, recdBeta);
-            beta.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+            beta.put(DatabaseHelper.updateTime, System.currentTimeMillis());
             db.insert(DatabaseHelper.betaTable, null, beta);
             /*long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
             Log.d(TAG, String.valueOf(test));

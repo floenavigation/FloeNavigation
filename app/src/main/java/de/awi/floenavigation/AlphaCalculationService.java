@@ -83,6 +83,7 @@ public class AlphaCalculationService extends IntentService {
                                 alphaUpdate.put(DatabaseHelper.distance, distance);
                                 alphaUpdate.put(DatabaseHelper.xPosition, stationX);
                                 alphaUpdate.put(DatabaseHelper.yPosition, stationY);
+                                Log.d(TAG, "Alpha " + String.valueOf(alpha));
                                 db.update(DatabaseHelper.mobileStationTable, alphaUpdate, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(stationMMSI)});
 
                             }while(mobileStationCursor.moveToNext());

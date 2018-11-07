@@ -125,7 +125,7 @@ public class PredictionService extends IntentService {
                     }
 
                 };
-            mPredictionHandler.postDelayed(predictionRunnable, PREDICTION_TIME);
+            mPredictionHandler.post(predictionRunnable);
             }
         }
 

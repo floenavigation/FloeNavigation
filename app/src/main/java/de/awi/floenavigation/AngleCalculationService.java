@@ -99,7 +99,7 @@ public class AngleCalculationService extends IntentService {
             };
 
 
-            mHandler.postDelayed(betaRunnable, CALCULATION_TIME);
+            mHandler.post(betaRunnable);
         }
     }
 
@@ -165,7 +165,7 @@ public class AngleCalculationService extends IntentService {
     private void updateDataintoDatabase(SQLiteDatabase db, double beta){
         ContentValues mContentValues = new ContentValues();
         mContentValues.put(DatabaseHelper.beta, beta);
-        mContentValues.put(DatabaseHelper.updateTime, SystemClock.elapsedRealtime());
+        mContentValues.put(DatabaseHelper.updateTime, System.currentTimeMillis());
         db.update(DatabaseHelper.betaTable, mContentValues, null, null);
     }
 
