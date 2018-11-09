@@ -151,7 +151,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 isPredicted + " NUMERIC, " +
                 predictionAccuracy + " NUMERIC, " +
                 isLocationReceived + " NUMERIC, " +
-                mmsi + " INTEGER NOT NULL);");
+                mmsi + " INTEGER UNIQUE NOT NULL);");
 
         //Create Base Stations Table
         db.execSQL("CREATE TABLE " + baseStationTable + "(" + mmsi + " INTEGER PRIMARY KEY, " +
