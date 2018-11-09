@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SyncActivity">
+
+    <Button
+        android:id="@+id/readButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Read from DB"
+        android:onClick="onClickReadButton"
+        tools:layout_editor_absoluteX="37dp"
+        tools:layout_editor_absoluteY="29dp" />
+
+    <Button
+        android:id="@+id/syncButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sync with Server"
+        android:onClick="onClickSyncButton"
+        tools:layout_editor_absoluteX="37dp"
+        tools:layout_editor_absoluteY="29dp" />
+
+    <Button
+        android:id="@+id/pullButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pull Changes from Server"
+        android:onClick="onClickPullButton"
+        tools:layout_editor_absoluteX="37dp"
+        tools:layout_editor_absoluteY="29dp" />
+
+</LinearLayout>

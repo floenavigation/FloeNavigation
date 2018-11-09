@@ -79,42 +79,42 @@
         <service
             android:name=".initialsetup.SetupJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".GPS_Service"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".aismessages.AISDecodingService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".network.NetworkService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".AngleCalculationService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".AlphaCalculationService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".ValidationService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
         <service
             android:name=".PredictionService"
             android:enabled="true"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
 
         <activity
             android:name=".sample_measurement.SampleMeasurementActivity"
@@ -126,18 +126,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
         <activity
             android:name=".GridActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"
             android:label="@string/label_activity_grid"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
-         </activity>
-
+        </activity>
         <activity
             android:name=".ConfigurationActivity"
             android:configChanges="orientation"
@@ -188,8 +186,7 @@
             android:configChanges="orientation"
             android:label="@string/label_parameter_view_activity"
             android:parentActivityName=".ConfigurationActivity"
-            android:screenOrientation="landscape">
-        </activity>
+            android:screenOrientation="landscape"></activity>
         <activity android:name=".ActionBarActivity" />
 
         <service
@@ -206,10 +203,11 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity android:name=".ListViewActivity"
+        <activity
+            android:name=".ListViewActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape">
-        </activity>
+            android:screenOrientation="landscape"></activity>
+        <activity android:name=".SyncActivity"></activity>
     </application>
 
 </manifest>

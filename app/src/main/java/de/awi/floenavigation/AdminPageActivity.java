@@ -86,9 +86,6 @@ public class AdminPageActivity extends ActionBarActivity {
         handler.postDelayed(deploymentRunnable, 1100);
     }
 
-    public void onClickListener(View view) {
-    }
-
     public void onClickGridConfiguration(View view){
        if(!isSetupComplete()){
            Intent intent = new Intent(this, GridSetupActivity.class);
@@ -232,5 +229,10 @@ public class AdminPageActivity extends ActionBarActivity {
         }
 
 
+    }
+
+    public void onClickSyncListener(View view) {
+        Intent syncIntent = new Intent(this, SyncActivity.class);
+        startActivity(syncIntent);
     }
 }
