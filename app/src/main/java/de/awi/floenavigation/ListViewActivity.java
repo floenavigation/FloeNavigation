@@ -120,6 +120,11 @@ public class ListViewActivity extends ActionBarActivity {
                 isRemoved = deleteEntryfromStaticStnTableinDB(parameterObjects.get(position).getLabelID());
                 Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
                 break;
+
+            case "UsersPwdActivity":
+                isRemoved = deleteEntryfromUsersTableinDB(parameterObjects.get(position).getUserName());
+                Toast.makeText(getApplicationContext(), "User Removed", Toast.LENGTH_SHORT).show();
+                break;
         }
 
         if (isRemoved) {
@@ -150,6 +155,11 @@ public class ListViewActivity extends ActionBarActivity {
                     mAdapter = new ListViewAdapter(this, generateDataFromStaticStnTable());
                     intentOnExit = new Intent(getApplicationContext(), RecoveryActivity.class);
                     break;
+
+                case "UsersPwdActivity":
+                    mAdapter = new ListViewAdapter(this, generateDataUsersTable());
+                    intentOnExit = new Intent(getApplicationContext(), AdminUserPwdActivity.class);
+                    break;
             }
         }
         return callingActivityString;
@@ -175,6 +185,7 @@ public class ListViewActivity extends ActionBarActivity {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             if (checkEntryInWaypointsTable(db, waypointToBeRemoved)) {
                 db.delete(DatabaseHelper.waypointsTable, DatabaseHelper.labelID + " = ?", new String[]{waypointToBeRemoved});
+                insertIntoWaypointsDeletedTable(db, waypointToBeRemoved);
                 return true;
             }else {
                 Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
@@ -193,6 +204,7 @@ public class ListViewActivity extends ActionBarActivity {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             if (checkEntryInStaticStnTable(db, stationToBeRemoved)) {
                 db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved});
+                insertIntoStaticStationDeletedTable(db, stationToBeRemoved);
             }else {
                 Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
                 return false;
@@ -219,11 +231,14 @@ public class ListViewActivity extends ActionBarActivity {
                             || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
                         updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
                         db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoFixedStationDeletedTable(db, mmsiToBeRemoved);
                     }
                     Toast.makeText(getApplicationContext(), "Removed from DB tables", Toast.LENGTH_SHORT).show();
                     return true;
@@ -236,6 +251,61 @@ public class ListViewActivity extends ActionBarActivity {
             Log.d(TAG, "Error Reading from Database");
         }
         return false;
+    }
+
+    private boolean deleteEntryfromUsersTableinDB(String name){
+        try {
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            long numOfUsers = DatabaseUtils.queryNumEntries(db, DatabaseHelper.usersTable);
+            if(numOfUsers > 1) {
+                db.delete(DatabaseHelper.usersTable, DatabaseHelper.userName + " = ?", new String[]{name});
+                insertIntoUsersDeletedTable(db, name);
+                return true;
+            } else{
+                Toast.makeText(getApplicationContext(), "Atleast one Administrator is Required", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+        }
+        return false;
+    }
+
+    private void insertIntoUsersDeletedTable(SQLiteDatabase db, String user) {
+        ContentValues deletedUser = new ContentValues();
+        deletedUser.put(DatabaseHelper.userName, user);
+        deletedUser.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedUser);
+    }
+
+    private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoStaticStationDeletedTable(SQLiteDatabase db, String staticStnName) {
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.staticStationName, staticStnName);
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.staticStationDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoWaypointsDeletedTable(SQLiteDatabase db, String labelID) {
+        ContentValues deletedWaypoint = new ContentValues();
+        deletedWaypoint.put(DatabaseHelper.labelID, labelID);
+        deletedWaypoint.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.waypointDeletedTable, null, deletedWaypoint);
     }
 
     private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){
@@ -419,6 +489,40 @@ public class ListViewActivity extends ActionBarActivity {
 
     }
 
+    private ArrayList<ParameterListObject> generateDataUsersTable(){
+        try{
+            SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //Cursor fixedStnCursor = db.query(DatabaseHelper.fixedStationTable,
+            //        new String[] {DatabaseHelper.stationName, DatabaseHelper.mmsi, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
+            //        null,
+            //        null,
+            //        null, null, null);
+            Cursor usersCursor = db.query(DatabaseHelper.usersTable,
+                    new String[] {DatabaseHelper.userName},
+                    null,
+                    null,
+                    null, null, null);
+
+            if (usersCursor.moveToFirst()) {
+                do {
+                    String userName = usersCursor.getString(usersCursor.getColumnIndexOrThrow(DatabaseHelper.userName));
+                    parameterObjects.add(new ParameterListObject(userName));
+
+                } while (usersCursor.moveToNext());
+            }else {
+                Log.d(TAG, "Error reading from fixed stn table");
+            }
+            usersCursor.close();
+        } catch (SQLException e){
+            Log.d(TAG, "Error Reading from Database");
+            e.printStackTrace();
+        }
+        return parameterObjects;
+        //arrayAdapter.notifyDataSetChanged();
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -437,11 +541,19 @@ class ParameterListObject{
     private String labelID;
     private double xValue;
     private double yValue;
+    private String userName;
+    private boolean isUserActivity = false;
 
     ParameterListObject(String labelID, double xValue, double yValue){
         this.labelID = labelID;
         this.xValue = xValue;
         this.yValue = yValue;
+        this.isUserActivity = false;
+    }
+
+    ParameterListObject(String userName){
+        this.userName = userName;
+        this.isUserActivity = true;
     }
 
     public String getLabelID() {
@@ -455,6 +567,11 @@ class ParameterListObject{
     public String getyValue() {
         return String.valueOf(yValue);
     }
+
+    public String getUserName() {
+        return userName;
+    }
+    public boolean getIsUserActivity(){ return isUserActivity; }
 }
 
 class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
@@ -479,9 +596,22 @@ class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ListViewAdapter.ViewHolder holder, int position) {
         Log.d(TAG, "Parameter label: " + parameters.get(position).getLabelID());
-        holder.labelIDView.setText(parameters.get(position).getLabelID());
-        holder.xPosValue.setText(parameters.get(position).getxValue());
-        holder.yPosValue.setText(parameters.get(position).getyValue());
+        if(!parameters.get(position).getIsUserActivity()) {
+            holder.labelIDView.setText(parameters.get(position).getLabelID());
+            holder.xPosValue.setVisibility(View.VISIBLE);
+            holder.yPosValue.setVisibility(View.VISIBLE);
+            holder.xPosLabel.setVisibility(View.VISIBLE);
+            holder.yPosLabel.setVisibility(View.VISIBLE);
+            holder.xPosValue.setText(parameters.get(position).getxValue());
+            holder.yPosValue.setText(parameters.get(position).getyValue());
+
+        } else {
+            holder.labelIDView.setText(parameters.get(position).getUserName());
+            holder.xPosValue.setVisibility(View.GONE);
+            holder.yPosValue.setVisibility(View.GONE);
+            holder.xPosLabel.setVisibility(View.GONE);
+            holder.yPosLabel.setVisibility(View.GONE);
+        }
     }
 
 
@@ -495,6 +625,8 @@ class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
         TextView labelIDView;
         TextView xPosValue;
         TextView yPosValue;
+        TextView xPosLabel;
+        TextView yPosLabel;
 
         ViewHolder(View view) {
             super(view);
@@ -502,10 +634,14 @@ class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
             labelIDView = view.findViewById(R.id.labelIDView);
             xPosValue = view.findViewById(R.id.xPosView);
             yPosValue = view.findViewById(R.id.yPosView);
+            xPosLabel = view.findViewById(R.id.xPosLabel);
+            yPosLabel = view.findViewById(R.id.yPosLabel);
 
         }
 
 
 
     }
+
+
 }

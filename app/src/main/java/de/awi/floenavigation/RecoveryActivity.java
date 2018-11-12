@@ -80,6 +80,7 @@ public class RecoveryActivity extends ActionBarActivity {
                 }
                 if (checkEntryInStaticStnTable(db, staticStnName)) {
                     db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{staticStnName});
+                    insertIntoStaticStationDeletedTable(db, staticStnName);
                     Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
@@ -134,11 +135,14 @@ public class RecoveryActivity extends ActionBarActivity {
                             || Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
                         updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
                         db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
+                        insertIntoFixedStationDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
                     }
                     Toast.makeText(getApplicationContext(), "Removed from DB tables", Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), "Device Recovered", Toast.LENGTH_SHORT).show();
@@ -149,6 +153,27 @@ public class RecoveryActivity extends ActionBarActivity {
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+    }
+
+    private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoStaticStationDeletedTable(SQLiteDatabase db, String staticStnName) {
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.staticStationName, staticStnName);
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.staticStationDeletedTable, null, deletedStation);
     }
 
     private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){

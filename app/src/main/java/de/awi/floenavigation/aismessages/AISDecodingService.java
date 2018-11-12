@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -71,28 +72,33 @@ public class AISDecodingService extends IntentService {
         dataReportObj = new StaticDataReport(); //24
 
         //System.out.println(sdf.format(date));
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
         if(broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver(){
                 @Override
                 public void onReceive(Context context, Intent intent){
-                    //Log.d(TAG, "BroadCast Received");
-                    /*String coordinateString = intent.getExtras().get("coordinates").toString();
-                    String[] coordinates = coordinateString.split(",");*/
-                    //tabletLat = intent.getExtras().get(GPS_Service.latitude).toString();
-                    //tabletLon = intent.getExtras().get(GPS_Service.longitude).toString();
                     gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
-                    //Log.d(TAG, String.valueOf(new Date(tabletTime)));
                     timeDiff = System.currentTimeMillis() - gpsTime;
 
-                    //Log.d(TAG, "Tablet Loc: " + tabletLat);
-                    //Toast.makeText(getActivity(),"Received Broadcast", Toast.LENGTH_LONG).show();
-                    //populateTabLocation();
                 }
             };
         }
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {

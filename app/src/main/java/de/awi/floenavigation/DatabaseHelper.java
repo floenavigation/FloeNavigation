@@ -52,6 +52,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String baseStationTable = "BASE_STATIONS";
     public static final String betaTable = "BETA";
     public static final String staticStationListTable = "STATION_LIST";
+    public static final String stationListDeletedTable = "STATION_LIST_DELETED";
+    public static final String fixedStationDeletedTable = "FIXED_STATION_DELETED";
+    public static final String staticStationDeletedTable = "STATIC_STATION_DELETED";
+    public static final String waypointDeletedTable = "WAYPOINT_DELETED";
+    public static final String userDeletedTable = "USERS_DELETED";
+
 
 
     //Database Fields Names
@@ -89,6 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String isOrigin = "IS_ORIGIN";
     public static final String origin = "ORIGIN";
     public static final String basestn1 = "BASE_STN";
+    public static final String deleteTime = "DELETE_TIME";
 
     //Initial Position of Setup Points in Custom Coordinate System
     public static final long station1InitialX = 0;
@@ -165,7 +172,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //Create Users Table
         db.execSQL("CREATE TABLE " + usersTable + "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                userName + " TEXT NOT NULL, " +
+                userName + " TEXT UNIQUE NOT NULL, " +
                 password + " TEXT);");
 
         //Create Configuration Parameters Table
@@ -246,10 +253,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +
                     updateTime + " TEXT, " +
-                    labelID + " TEXT, " +
+                    labelID + " TEXT UNIQUE NOT NULL, " +
                     label + " TEXT); ");
 
+            db.execSQL("CREATE TABLE " + stationListDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
+                     deleteTime + " TEXT); ");
 
+            db.execSQL("CREATE TABLE " + fixedStationDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
+                    deleteTime + " TEXT); ");
+
+            db.execSQL("CREATE TABLE " + staticStationDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    staticStationName + " TEXT UNIQUE NOT NULL, " +
+                    deleteTime + " TEXT); ");
+
+            db.execSQL("CREATE TABLE " + waypointDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    labelID + " TEXT UNIQUE NOT NULL, " +
+                    deleteTime + " TEXT); ");
+
+            db.execSQL("CREATE TABLE " + userDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    userName + " TEXT UNIQUE NOT NULL, " +
+                    deleteTime + " TEXT); ");
 
             //Only for debugging purpose
             insertDeviceList(db);

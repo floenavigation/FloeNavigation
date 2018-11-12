@@ -25,6 +25,8 @@ public class ActionBarActivity extends Activity {
     public static final int UPDATE_TIME = 5 * 1000;
     public static final String colorGreen = "#00bfa5";
     public static final String colorRed = "#d32f2f";
+    private long gpsTime;
+    public long timeDiff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +98,8 @@ public class ActionBarActivity extends Activity {
                 public void onReceive(Context context, Intent intent) {
                     locationStatus = intent.getExtras().getBoolean(GPS_Service.locationStatus);
                     Log.d(TAG, "Location Status: " + String.valueOf(locationStatus));
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
                 }
             };
 

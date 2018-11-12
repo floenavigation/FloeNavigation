@@ -2,9 +2,12 @@ package de.awi.floenavigation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -44,10 +47,26 @@ public class DialogActivity extends Activity {
     private String tabletId;
     private AlertDialog alertDialog;
     private double receivedBeta = 0.0;
+    private BroadcastReceiver broadcastReceiver;
+    private long gpsTime;
+    private long timeDiff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
+
         Intent callingIntent = getIntent();
         if(callingIntent.getExtras().containsKey(DIALOG_TITLE)){
             dialogTitle = callingIntent.getExtras().getString(DIALOG_TITLE);
@@ -239,7 +258,7 @@ public class DialogActivity extends Activity {
         try {
             ContentValues beta = new ContentValues();
             beta.put(DatabaseHelper.beta, recdBeta);
-            beta.put(DatabaseHelper.updateTime, System.currentTimeMillis());
+            beta.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
             db.insert(DatabaseHelper.betaTable, null, beta);
             /*long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
             Log.d(TAG, String.valueOf(test));
@@ -256,5 +275,14 @@ public class DialogActivity extends Activity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 }

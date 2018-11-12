@@ -144,6 +144,7 @@
     <string name="waypoints">Waypoints</string>
     <string name="static_stations">Static Stations</string>
     <string name="tablet">Tablet</string>
+    <string name="admin_view_users_btn">View Users</string>
 
 
 </resources>

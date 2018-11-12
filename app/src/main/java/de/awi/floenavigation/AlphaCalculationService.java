@@ -1,8 +1,11 @@
 package de.awi.floenavigation;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -41,6 +44,10 @@ public class AlphaCalculationService extends IntentService {
     private static final int TIMER_PERIOD = 10 * 1000;
     private static final int TIMER_DELAY = 0;
 
+    private BroadcastReceiver broadcastReceiver;
+    private long gpsTime;
+    private long timeDiff;
+
     private static AlphaCalculationService instance = null;
 
 
@@ -49,9 +56,30 @@ public class AlphaCalculationService extends IntentService {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        instance = null;
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
+    }
+
+    @Override
     public void onCreate(){
         super.onCreate();
         instance = this;
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
 
     public static boolean isInstanceCreated(){
@@ -83,6 +111,7 @@ public class AlphaCalculationService extends IntentService {
                                 alphaUpdate.put(DatabaseHelper.distance, distance);
                                 alphaUpdate.put(DatabaseHelper.xPosition, stationX);
                                 alphaUpdate.put(DatabaseHelper.yPosition, stationY);
+                                alphaUpdate.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
                                 Log.d(TAG, "Alpha " + String.valueOf(alpha));
                                 db.update(DatabaseHelper.mobileStationTable, alphaUpdate, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(stationMMSI)});
 
@@ -208,12 +237,5 @@ public class AlphaCalculationService extends IntentService {
             }
         }
     }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        instance = null;
-    }
-
 
 }

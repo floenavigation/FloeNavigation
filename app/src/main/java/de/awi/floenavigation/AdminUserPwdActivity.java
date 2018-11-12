@@ -82,4 +82,9 @@ public class AdminUserPwdActivity extends ActionBarActivity {
         return true;
     }
 
+    public void onClickViewUsers(View view) {
+        Intent listViewIntent = new Intent(this, ListViewActivity.class);
+        listViewIntent.putExtra("GenerateDataOption", "UsersPwdActivity");
+        startActivity(listViewIntent);
+    }
 }

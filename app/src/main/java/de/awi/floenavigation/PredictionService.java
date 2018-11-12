@@ -24,6 +24,7 @@ public class PredictionService extends IntentService {
     private final static String TAG = "PREDICTION_SERVICE: ";
     private final Handler mPredictionHandler;
     private final int PREDICTION_TIME = 10 * 1000;
+    private static final int VALIDATION_TIME = 3 * 60 * 1000;
     public static int ERROR_THRESHOLD_VALUE;
     public static int PREDICTION_ACCURACY_THRESHOLD_VALUE;
 
@@ -35,6 +36,7 @@ public class PredictionService extends IntentService {
     private double originLatitude;
     private double originLongitude;
     private int originMMSI;
+    private int xAxisBaseStationMMSI;
     private double beta;
 
     private static PredictionService instance = null;
@@ -79,7 +81,7 @@ public class PredictionService extends IntentService {
                                     do {
                                         mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
                                         predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-                                        if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE) {
+                                        if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME) {
                                             stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
                                             stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
                                         } else {
@@ -89,14 +91,7 @@ public class PredictionService extends IntentService {
                                         stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
                                         stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
                                         predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
-                                        if(mmsi == originMMSI){
-                                            xPosition = 0.0;
-                                            yPosition = 0.0;
-                                            distance = 0.0;
-                                            alpha = 0.0;
-                                        } else {
-                                            calculateNewParams(predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
-                                        }
+                                        calculateNewParams(mmsi, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
                                         ContentValues mContentValues = new ContentValues();
                                         mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX]);
                                         mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
@@ -161,12 +156,24 @@ public class PredictionService extends IntentService {
         }
     }
 
-    private void calculateNewParams(double latitude, double longitude ){
-        distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, latitude, longitude);
-        theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, latitude, longitude);
-        alpha = Math.abs(theta - beta);
-        xPosition = distance * Math.cos(Math.toRadians(alpha));
-        yPosition = distance * Math.sin(Math.toRadians(alpha));
+    private void calculateNewParams(int mmsi, double latitude, double longitude ){
+        if(mmsi == originMMSI){
+            xPosition = 0.0;
+            yPosition = 0.0;
+            alpha = 0.0;
+            distance = 0.0;
+        } else if(mmsi == xAxisBaseStationMMSI){
+            xPosition = NavigationFunctions.calculateDifference(originLatitude, originLongitude, latitude, longitude);
+            yPosition = 0.0;
+            alpha = 0.0;
+            distance = xPosition;
+        } else {
+            distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, latitude, longitude);
+            theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, latitude, longitude);
+            alpha = Math.abs(theta - beta);
+            xPosition = distance * Math.cos(Math.toRadians(alpha));
+            yPosition = distance * Math.sin(Math.toRadians(alpha));
+        }
     }
 
     private boolean getOriginCoordinates(SQLiteDatabase db){
@@ -174,17 +181,27 @@ public class PredictionService extends IntentService {
         try {
 
             Cursor baseStationCursor = db.query(DatabaseHelper.baseStationTable,
-                    new String[] {DatabaseHelper.mmsi},
-                    DatabaseHelper.isOrigin +" = ?",
-                    new String[]{String.valueOf(DatabaseHelper.ORIGIN)},
+                    new String[] {DatabaseHelper.mmsi, DatabaseHelper.isOrigin},
+                     null,
+                    null,
                     null, null, null);
-            if (baseStationCursor.getCount() != 1){
+            if (baseStationCursor.getCount() != DatabaseHelper.INITIALIZATION_SIZE){
                 Log.d(TAG, "Error Reading from BaseStation Table");
                 return false;
             } else{
                 if(baseStationCursor.moveToFirst()){
-                    originMMSI = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
-                    Log.d(TAG," OriginMMSI " + String.valueOf(originMMSI));
+                    do {
+                        int isOrigin = baseStationCursor.getInt(baseStationCursor.getColumnIndexOrThrow(DatabaseHelper.isOrigin));
+                        if(isOrigin == 1) {
+                            originMMSI = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
+                            Log.d(TAG, " OriginMMSI " + String.valueOf(originMMSI));
+                        } else if(isOrigin == 0){
+                            xAxisBaseStationMMSI = baseStationCursor.getInt(baseStationCursor.getColumnIndex(DatabaseHelper.mmsi));
+                            Log.d(TAG, " xAxisBaseStationMMSI " + String.valueOf(xAxisBaseStationMMSI));
+                        } else{
+                            Log.d(TAG, " Error Reading Base Stations. isOrigin Value: " + String.valueOf(isOrigin));
+                        }
+                    } while (baseStationCursor.moveToNext());
                 }
             }
             Cursor fixedStationCursor = db.query(DatabaseHelper.fixedStationTable,

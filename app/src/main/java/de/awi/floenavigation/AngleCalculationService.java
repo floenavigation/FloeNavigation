@@ -1,9 +1,12 @@
 package de.awi.floenavigation;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -35,6 +38,9 @@ public class AngleCalculationService extends IntentService {
     private int mmsiInDBTable;
     private static final int CALCULATION_TIME = 10 * 1000;
     private Cursor mBaseStnCursor, mFixedStnCursor, mBetaCursor;
+    private BroadcastReceiver broadcastReceiver;
+    private long gpsTime;
+    private long timeDiff;
 
     private static AngleCalculationService instance = null;
 
@@ -46,12 +52,33 @@ public class AngleCalculationService extends IntentService {
 
         this.mHandler = new Handler();
         mmsi = new int[INITIALIZATION_SIZE];
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                }
+            };
+        }
     }
 
     @Override
     public void onCreate(){
         super.onCreate();
         instance = this;
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
 
     public static boolean isInstanceCreated(){
@@ -165,7 +192,7 @@ public class AngleCalculationService extends IntentService {
     private void updateDataintoDatabase(SQLiteDatabase db, double beta){
         ContentValues mContentValues = new ContentValues();
         mContentValues.put(DatabaseHelper.beta, beta);
-        mContentValues.put(DatabaseHelper.updateTime, System.currentTimeMillis());
+        mContentValues.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
         db.update(DatabaseHelper.betaTable, mContentValues, null, null);
     }
 
@@ -231,6 +258,10 @@ public class AngleCalculationService extends IntentService {
     public void onDestroy(){
         super.onDestroy();
         instance = null;
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 
 

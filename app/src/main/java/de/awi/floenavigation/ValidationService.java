@@ -2,10 +2,12 @@ package de.awi.floenavigation;
 
 import android.app.Dialog;
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -48,6 +50,10 @@ public class ValidationService extends IntentService {
     Button dialogOkBtn;
     ImageView dialogIcon;
     TextView validationFailedMsg, stationRemovedMsg;
+
+    private BroadcastReceiver broadcastReceiver;
+    private long gpsTime;
+    private long timeDiff;
     //int[] isOriginMMSI;
     //private Context appContext;
 
@@ -71,6 +77,17 @@ public class ValidationService extends IntentService {
         super.onCreate();
         //alertDialog = new Dialog(this);
         instance = this;
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent){
+                    gpsTime = Long.parseLong(intent.getExtras().get(GPS_Service.GPSTime).toString());
+                    timeDiff = System.currentTimeMillis() - gpsTime;
+
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
     }
 
     @Override
@@ -227,10 +244,13 @@ public class ValidationService extends IntentService {
 
     private void deleteEntryfromStationListTableinDB(int mmsiToBeRemoved, SQLiteDatabase db){
         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiToBeRemoved)});
+        insertIntoStationListDeletedTable(db, String.valueOf(mmsiToBeRemoved));
+
     }
 
     private void deleteEntryfromFixedStationTableinDB(int mmsiToBeRemoved, SQLiteDatabase db){
         db.delete(DatabaseHelper.fixedStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsiToBeRemoved)});
+        insertIntoFixedStationDeletedTable(db, String.valueOf(mmsiToBeRemoved));
     }
 
     private void baseStationsRetrievalfromDB(SQLiteDatabase db){
@@ -298,10 +318,28 @@ public class ValidationService extends IntentService {
         }
     }
 
+    private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
+        db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
+    }
+
+    private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
+        ContentValues deletedStation = new ContentValues();
+        deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
+        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
+        db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
+    }
+
     @Override
     public void onDestroy(){
         super.onDestroy();
         instance = null;
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 
 }
