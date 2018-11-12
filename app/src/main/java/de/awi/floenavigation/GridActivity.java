@@ -383,6 +383,8 @@ public class GridActivity extends Activity implements View.OnClickListener{
         Log.d(TAG, "tabletX " + tabletX);
         myGridView.setTabletX(tabletX);
         myGridView.setTabletY(tabletY);
+        myGridView.setTabletLat(tabletLat);
+        myGridView.setTabletLon(tabletLon);
     }
 
 

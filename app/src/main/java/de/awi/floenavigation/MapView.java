@@ -38,6 +38,8 @@ public class MapView extends View{
 
     private static double tabletX;
     private static double tabletY;
+    private static double tabletLat;
+    private static double tableLon;
     private float xTouch;
     private float yTouch;
     private boolean isBubbleShowing;
@@ -587,7 +589,7 @@ public class MapView extends View{
 
     public void resetContentRect(){
         Log.d(TAG,"onClick MapView Handler");
-        if(tabletX != 0.0 && tabletY != 0.0) {
+        if(tabletLat != 0.0 && tableLon != 0.0) {
             mCurrentViewport.set((float) (tabletX - DEFAULT_ZOOM_LEVEL), (float) (tabletY - DEFAULT_ZOOM_LEVEL), (float) (tabletX + DEFAULT_ZOOM_LEVEL), (float) (tabletY + DEFAULT_ZOOM_LEVEL));
         } else{
             mCurrentViewport.set(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
@@ -1214,6 +1216,14 @@ public class MapView extends View{
 
         mCurrentViewport.set(x, y - curHeight, x + curWidth, y);
         ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    public void setTabletLon(double tabletLon) {
+        tabletLon = tabletLon;
+    }
+
+    public void setTabletLat(double tabletLat) {
+        tabletLat = tabletLat;
     }
 
     /**
