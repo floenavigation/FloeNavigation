@@ -158,21 +158,21 @@ public class RecoveryActivity extends ActionBarActivity {
     private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
     }
 
     private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
     }
 
     private void insertIntoStaticStationDeletedTable(SQLiteDatabase db, String staticStnName) {
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.staticStationName, staticStnName);
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.staticStationDeletedTable, null, deletedStation);
     }
 

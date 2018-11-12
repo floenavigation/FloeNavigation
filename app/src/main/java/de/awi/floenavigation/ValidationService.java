@@ -321,14 +321,14 @@ public class ValidationService extends IntentService {
     private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - timeDiff));
         db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
     }
 
     private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - timeDiff));
         db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
     }
 

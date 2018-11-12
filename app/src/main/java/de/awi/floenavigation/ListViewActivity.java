@@ -276,14 +276,14 @@ public class ListViewActivity extends ActionBarActivity {
     private void insertIntoUsersDeletedTable(SQLiteDatabase db, String user) {
         ContentValues deletedUser = new ContentValues();
         deletedUser.put(DatabaseHelper.userName, user);
-        deletedUser.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
-        db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedUser);
+        deletedUser.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.userDeletedTable, null, deletedUser);
     }
 
     private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.fixedStationDeletedTable, null, deletedStation);
     }
 
@@ -297,14 +297,14 @@ public class ListViewActivity extends ActionBarActivity {
     private void insertIntoStaticStationDeletedTable(SQLiteDatabase db, String staticStnName) {
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.staticStationName, staticStnName);
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.staticStationDeletedTable, null, deletedStation);
     }
 
     private void insertIntoWaypointsDeletedTable(SQLiteDatabase db, String labelID) {
         ContentValues deletedWaypoint = new ContentValues();
         deletedWaypoint.put(DatabaseHelper.labelID, labelID);
-        deletedWaypoint.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedWaypoint.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.waypointDeletedTable, null, deletedWaypoint);
     }
 
