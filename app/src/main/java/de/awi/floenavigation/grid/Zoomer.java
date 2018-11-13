@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.awi.floenavigation;
+package de.awi.floenavigation.grid;
 
 import android.content.Context;
 import android.os.SystemClock;

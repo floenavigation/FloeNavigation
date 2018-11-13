@@ -1,15 +1,12 @@
 package de.awi.floenavigation;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
-import android.text.style.TtsSpan;
 import android.util.Log;
 import android.view.View;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,6 +15,7 @@ import android.widget.Toast;
 
 import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
+import de.awi.floenavigation.Synchronization.SyncActivity;
 
 public class AdminPageActivity extends ActionBarActivity {
     private static final String TAG = "AdminPageActivity";

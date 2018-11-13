@@ -1,10 +1,12 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.Synchronization;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import de.awi.floenavigation.DatabaseHelper;
 
 public class Users {
 

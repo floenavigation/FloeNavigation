@@ -127,7 +127,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".GridActivity"
+            android:name=".grid.GridActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_grid"
             android:parentActivityName=".MainActivity"
@@ -207,7 +207,7 @@
             android:name=".ListViewActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"></activity>
-        <activity android:name=".SyncActivity"></activity>
+        <activity android:name=".Synchronization.SyncActivity"></activity>
     </application>
 
 </manifest>

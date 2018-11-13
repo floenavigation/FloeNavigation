@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.grid;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

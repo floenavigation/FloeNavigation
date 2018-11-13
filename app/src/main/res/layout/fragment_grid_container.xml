@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GridContainerFragment">
+    tools:context=".grid.GridContainerFragment">
 
     <de.awi.floenavigation.GridLineView
         android:id="@+id/grid_line_view"

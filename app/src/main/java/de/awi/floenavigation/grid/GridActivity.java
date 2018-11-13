@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.grid;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -7,55 +7,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Canvas;
-import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.ScaleGestureDetectorCompat;
-import android.view.ScaleGestureDetector;
-
 import com.scalified.fab.ActionButton;
+
+import de.awi.floenavigation.ActionBarActivity;
+import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.MainActivity;
+import de.awi.floenavigation.NavigationFunctions;
+import de.awi.floenavigation.R;
 
 
 public class GridActivity extends Activity implements View.OnClickListener{

@@ -1,4 +1,4 @@
-package de.awi.floenavigation;
+package de.awi.floenavigation.grid;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,21 +17,17 @@ import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.OverScroller;
-import android.widget.TextView;
 
-import com.scalified.fab.ActionButton;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.zip.Inflater;
+
+import de.awi.floenavigation.R;
 
 public class MapView extends View{
 
