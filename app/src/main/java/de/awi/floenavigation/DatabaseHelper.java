@@ -180,6 +180,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 parameterName + " TEXT, " +
                 parameterValue + " TEXT); ");
 
+        db.execSQL("CREATE TABLE " + stationListDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
+                deleteTime + " TEXT); ");
+
+        db.execSQL("CREATE TABLE " + fixedStationDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
+                deleteTime + " TEXT); ");
+
+        db.execSQL("CREATE TABLE " + userDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                userName + " TEXT UNIQUE NOT NULL, " +
+                deleteTime + " TEXT); ");
+
         //Default config params
         insertDefaultConfigParams(db, error_threshold, "10");
         insertDefaultConfigParams(db, prediction_accuracy_threshold, String.valueOf(3 * 60 * 1000));
@@ -256,11 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     labelID + " TEXT UNIQUE NOT NULL, " +
                     label + " TEXT); ");
 
-            db.execSQL("CREATE TABLE " + stationListDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
-                     deleteTime + " TEXT); ");
 
-            db.execSQL("CREATE TABLE " + fixedStationDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
-                    deleteTime + " TEXT); ");
 
             db.execSQL("CREATE TABLE " + staticStationDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     staticStationName + " TEXT UNIQUE NOT NULL, " +
@@ -270,9 +276,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     labelID + " TEXT UNIQUE NOT NULL, " +
                     deleteTime + " TEXT); ");
 
-            db.execSQL("CREATE TABLE " + userDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    userName + " TEXT UNIQUE NOT NULL, " +
-                    deleteTime + " TEXT); ");
+
 
             //Only for debugging purpose
             insertDeviceList(db);
