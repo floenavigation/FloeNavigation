@@ -165,31 +165,31 @@ public class FixedStationSync {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
+                    Log.d(TAG, "Error : " + error.getCause());
                 }
             }){
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.stationName,stationNameData.get(index));
-                    hashMap.put(DatabaseHelper.latitude,latitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.longitude,longitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.recvdLatitude,recvdLatitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.recvdLongitude,recvdLongitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.alpha,alphaData.get(index).toString());
-                    hashMap.put(DatabaseHelper.distance,distanceData.get(index).toString());
-                    hashMap.put(DatabaseHelper.xPosition,xPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.yPosition,yPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.stationType,stationTypeData.get(index));
-                    hashMap.put(DatabaseHelper.updateTime,updateTimeData.get(index));
-                    hashMap.put(DatabaseHelper.sog,sogData.get(index).toString());
-                    hashMap.put(DatabaseHelper.cog,cogData.get(index).toString());
-                    hashMap.put(DatabaseHelper.packetType,packetTypeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.isPredicted,isPredictedData.get(index).toString());
-                    hashMap.put(DatabaseHelper.predictionAccuracy,predictionAccuracyData.get(index).toString());
-                    hashMap.put(DatabaseHelper.isLocationReceived,isLocationReceivedData.get(index).toString());
-                    hashMap.put(DatabaseHelper.mmsi,mmsiData.get(index).toString());
+                    hashMap.put(DatabaseHelper.stationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
+                    hashMap.put(DatabaseHelper.latitude,(latitudeData.get(index) == null)? "" : latitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.longitude,(longitudeData.get(index) == null)? "" : longitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.recvdLatitude,(recvdLatitudeData.get(index) == null)? "" : recvdLatitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.recvdLongitude,(recvdLongitudeData.get(index) == null)? "" : recvdLongitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.alpha,(alphaData.get(index) == null)? "" : alphaData.get(index).toString());
+                    hashMap.put(DatabaseHelper.distance,(distanceData.get(index) == null)? "" : distanceData.get(index).toString());
+                    hashMap.put(DatabaseHelper.xPosition,(xPositionData.get(index) == null)? "" : xPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.yPosition,(yPositionData.get(index) == null)? "" : yPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.stationType,(stationTypeData.get(index) == null)? "" : stationTypeData.get(index));
+                    hashMap.put(DatabaseHelper.updateTime,(updateTimeData.get(index) == null)? "" : updateTimeData.get(index));
+                    hashMap.put(DatabaseHelper.sog,(sogData.get(index) == null)? "" : sogData.get(index).toString());
+                    hashMap.put(DatabaseHelper.cog,(cogData.get(index) == null)? "" : cogData.get(index).toString());
+                    hashMap.put(DatabaseHelper.packetType,(packetTypeData.get(index) == null)? "" : packetTypeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.isPredicted,(isPredictedData.get(index) == null)? "" : isPredictedData.get(index).toString());
+                    hashMap.put(DatabaseHelper.predictionAccuracy,(predictionAccuracyData.get(index) == null)? "" : predictionAccuracyData.get(index).toString());
+                    hashMap.put(DatabaseHelper.isLocationReceived,(isLocationReceivedData.get(index) == null)? "" : isLocationReceivedData.get(index).toString());
+                    hashMap.put(DatabaseHelper.mmsi,(mmsiData.get(index) == null)? "" : mmsiData.get(index).toString());
 
                     return hashMap;
                 }
@@ -230,8 +230,8 @@ public class FixedStationSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.mmsi,deletedFixedStationData.get(delIndex).toString());
-                    Log.d(TAG, "MMSI sent to be Deleted: " + deletedFixedStationData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    hashMap.put(DatabaseHelper.mmsi,(deletedFixedStationData.get(delIndex) == null) ? "" : deletedFixedStationData.get(delIndex).toString());
+                    //Log.d(TAG, "MMSI sent to be Deleted: " + deletedFixedStationData.get(delIndex) + " Index: " + String.valueOf(delIndex));
                     return hashMap;
                 }
             };
