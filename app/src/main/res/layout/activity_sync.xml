@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Read from DB"
-        android:onClick="onClickUserReadButton"
+        android:onClick="onClickFixedStationReadButton"
         tools:layout_editor_absoluteX="37dp"
         tools:layout_editor_absoluteY="29dp" />
 
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sync with Server"
-        android:onClick="onClickUserSyncButton"
+        android:onClick="onClickFixedStationSyncButton"
         tools:layout_editor_absoluteX="37dp"
         tools:layout_editor_absoluteY="29dp" />
 
@@ -31,7 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pull Changes from Server"
-        android:onClick="onClickUserPullButton"
+        android:onClick="onClickfixedStationSyncPullButton"
         tools:layout_editor_absoluteX="37dp"
         tools:layout_editor_absoluteY="29dp" />
 

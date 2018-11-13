@@ -33,9 +33,9 @@ public class FixedStationSync {
     private static final String TAG = "FixedStnSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
-    private static final String deleteURL = "http://192.168.137.1:80/deleteUser.php";
+    private static final String URL = "http://192.168.137.1:80/FixedStation/pullStations.php";
+    private static final String pullURL = "http://192.168.137.1:80/FixedStation/pushStations.php";
+    private static final String deleteURL = "http://192.168.137.1:80/FixedStation/deleteStations.php";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
