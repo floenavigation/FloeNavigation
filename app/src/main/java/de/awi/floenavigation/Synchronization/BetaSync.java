@@ -157,7 +157,7 @@ public class BetaSync {
                                 switch (tag) {
 
                                     case DatabaseHelper.beta:
-                                        beta.setBeta(Double.parseDouble(value));
+                                        beta.setBeta(Double.valueOf(value));
                                         break;
 
                                     case DatabaseHelper.updateTime:

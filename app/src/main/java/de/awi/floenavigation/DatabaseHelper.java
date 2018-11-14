@@ -50,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String waypointsTable = "WAYPOINTS";
     public static final String configParametersTable = "CONFIGURATION_PARAMETERS";
     public static final String baseStationTable = "BASE_STATIONS";
-    public static final String betaTable = "BETA";
+    public static final String betaTable = "BETA_TABLE";
     public static final String staticStationListTable = "STATION_LIST";
     public static final String stationListDeletedTable = "STATION_LIST_DELETED";
     public static final String fixedStationDeletedTable = "FIXED_STATION_DELETED";
@@ -198,6 +198,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultConfigParams(db, initial_setup_time, String.valueOf(60 * 1000));
 
         insertUser(db, "awi", "awi");
+        createTables(db);
 
     }
 

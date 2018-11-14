@@ -110,7 +110,7 @@ public class DialogActivity extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.cancel();
-                    new CreateTablesOnStartup().execute();
+                    //new CreateTablesOnStartup().execute();
                     showNavigationBar();
                     SetupActivity.runServices(getApplicationContext());
                     //MainActivity.servicesStarted = true;
