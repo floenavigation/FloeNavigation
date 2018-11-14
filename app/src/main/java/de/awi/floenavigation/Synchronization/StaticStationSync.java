@@ -141,12 +141,12 @@ public class StaticStationSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.stationName,stationNameData.get(index));
-                    hashMap.put(DatabaseHelper.alpha,alphaData.get(index).toString());
-                    hashMap.put(DatabaseHelper.distance,distanceData.get(index).toString());
-                    hashMap.put(DatabaseHelper.xPosition,xPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.yPosition,yPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.stationType,stationTypeData.get(index));
+                    hashMap.put(DatabaseHelper.stationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
+                    hashMap.put(DatabaseHelper.alpha,(alphaData.get(index) == null)? "" : alphaData.get(index).toString());
+                    hashMap.put(DatabaseHelper.distance,(distanceData.get(index) == null)? "" : distanceData.get(index).toString());
+                    hashMap.put(DatabaseHelper.xPosition,(xPositionData.get(index) == null)? "" : xPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.yPosition,(yPositionData.get(index) == null)? "" : yPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.stationType,(stationTypeData.get(index) == null)? "" : stationTypeData.get(index));
                     return hashMap;
                 }
             };
@@ -186,8 +186,8 @@ public class StaticStationSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.staticStationName, deletedStaticStationData.get(delIndex));
-                    Log.d(TAG, "Static Station sent to be Deleted: " + deletedStaticStationData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    hashMap.put(DatabaseHelper.staticStationName, (deletedStaticStationData.get(delIndex) == null)? "" : deletedStaticStationData.get(delIndex));
+                    //Log.d(TAG, "Static Station sent to be Deleted: " + deletedStaticStationData.get(delIndex) + " Index: " + String.valueOf(delIndex));
                     return hashMap;
                 }
             };

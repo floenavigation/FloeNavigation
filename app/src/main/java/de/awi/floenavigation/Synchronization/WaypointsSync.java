@@ -150,13 +150,13 @@ public class WaypointsSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.latitude,latitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.longitude,longitudeData.get(index).toString());
-                    hashMap.put(DatabaseHelper.xPosition,xPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.yPosition,yPositionData.get(index).toString());
-                    hashMap.put(DatabaseHelper.updateTime,updateTimeData.get(index));
-                    hashMap.put(DatabaseHelper.labelID,labelIDData.get(index));
-                    hashMap.put(DatabaseHelper.label,labelData.get(index));
+                    hashMap.put(DatabaseHelper.latitude,(latitudeData.get(index) == null)? "" : latitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.longitude,(longitudeData.get(index) == null)? "" : longitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.xPosition,(xPositionData.get(index) == null)? "" : xPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.yPosition,(yPositionData.get(index) == null)? "" : yPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.updateTime,(updateTimeData.get(index) == null)? "" : updateTimeData.get(index));
+                    hashMap.put(DatabaseHelper.labelID,(labelIDData.get(index) == null)? "" : labelIDData.get(index));
+                    hashMap.put(DatabaseHelper.label,(labelData.get(index) == null)? "" : labelData.get(index));
                     return hashMap;
                 }
             };
@@ -196,8 +196,8 @@ public class WaypointsSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.labelID,deletedWaypointsData.get(delIndex));
-                    Log.d(TAG, "Waypoint sent to be Deleted: " + deletedWaypointsData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    hashMap.put(DatabaseHelper.labelID,(deletedWaypointsData.get(delIndex) == null)? "" : deletedWaypointsData.get(delIndex));
+                    //Log.d(TAG, "Waypoint sent to be Deleted: " + deletedWaypointsData.get(delIndex) + " Index: " + String.valueOf(delIndex));
                     return hashMap;
                 }
             };

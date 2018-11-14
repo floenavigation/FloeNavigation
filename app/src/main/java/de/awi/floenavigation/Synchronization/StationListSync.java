@@ -32,9 +32,9 @@ public class StationListSync {
     private static final String TAG = "StnListSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
-    private static final String deleteURL = "http://192.168.137.1:80/deleteUser.php";
+    private static final String URL = "http://192.168.137.1:80/StationList/pullStations.php";
+    private static final String pullURL = "http://192.168.137.1:80/StationList/pushStations.php";
+    private static final String deleteURL = "http://192.168.137.1:80/StationList/deleteStations.php";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -134,8 +134,8 @@ public class StationListSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.stationName,stationNameData.get(index));
-                    hashMap.put(DatabaseHelper.mmsi,mmsiData.get(index).toString());
+                    hashMap.put(DatabaseHelper.stationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
+                    hashMap.put(DatabaseHelper.mmsi,(mmsiData.get(index) == null)? "" : mmsiData.get(index).toString());
 
                     return hashMap;
                 }
@@ -176,8 +176,8 @@ public class StationListSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.mmsi,deletedStationListData.get(delIndex).toString());
-                    Log.d(TAG, "MMSI sent to be Deleted: " + deletedStationListData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    hashMap.put(DatabaseHelper.mmsi,(deletedStationListData.get(delIndex) == null)? "" : deletedStationListData.get(delIndex).toString());
+                    //Log.d(TAG, "MMSI sent to be Deleted: " + deletedStationListData.get(delIndex) + " Index: " + String.valueOf(delIndex));
                     return hashMap;
                 }
             };

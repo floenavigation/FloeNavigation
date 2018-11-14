@@ -28,6 +28,10 @@ public class SyncActivity extends Activity {
     private FixedStationSync fixedStationSync;
     private StationListSync stationListSync;
     private WaypointsSync waypointsSync;
+    private BaseStationSync baseStationSync;
+    private ConfigurationParameterSync parameterSync;
+    private BetaSync betaSync;
+    private SampleMeasurementSync sampleSync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,10 @@ public class SyncActivity extends Activity {
         fixedStationSync = new FixedStationSync(this, requestQueue, parser);
         stationListSync = new StationListSync(this, requestQueue, parser);
         waypointsSync = new WaypointsSync(this, requestQueue, parser);
+        baseStationSync = new BaseStationSync(this, requestQueue, parser);
+        parameterSync = new ConfigurationParameterSync(this, requestQueue, parser);
+        betaSync = new BetaSync(this, requestQueue, parser);
+        sampleSync = new SampleMeasurementSync(this, requestQueue, parser);
     }
 
     public void onClickUserReadButton(View view) {
@@ -59,6 +67,23 @@ public class SyncActivity extends Activity {
     public void onClickUserPullButton(View view) {
         usersSync.onClickUserPullButton();
     }
+
+    public void onClickBaseStationPullButton(View view) {
+        baseStationSync.onClickBaseStationPullButton();
+    }
+
+    public void onClickParameterPullButton(View view) {
+        parameterSync.onClickParameterPullButton();
+    }
+
+    public void onClickBetaPullButton(View view) {
+        betaSync.onClickBetaPullButton();
+    }
+
+    public void onClickSampleMeasurementPullButton(View view) {
+        sampleSync.onClickSamplePullButton();
+    }
+
 
 
     public void onClickFixedStationReadButton(View view) {
@@ -95,5 +120,37 @@ public class SyncActivity extends Activity {
 
     public void onClickWaypointsSyncPullButton(View view) {
         waypointsSync.onClickWaypointsPullButton();
+    }
+
+    public void onClickBaseStationReadButton(View view) {
+        baseStationSync.onClickBaseStationReadButton();
+    }
+
+    public void onClickBaseStationSyncButton(View view) {
+        baseStationSync.onClickBaseStationSyncButton();
+    }
+
+    public void onClickParameterReadButton(View view) {
+        parameterSync.onClickParameterReadButton();
+    }
+
+    public void onClickParameterSyncButton(View view) {
+        parameterSync.onClickParameterSyncButton();
+    }
+
+    public void onClickBetaReadButton(View view) {
+        betaSync.onClickBetaReadButton();
+    }
+
+    public void onClickBetaSyncButton(View view) {
+        betaSync.onClickBetaSyncButton();
+    }
+
+    public void onClickSampleMeasurementReadButton(View view) {
+        sampleSync.onClickSampleReadButton();
+    }
+
+    public void onClickSampleMeasurementSyncButton(View view) {
+        sampleSync.onClickSamplePullButton();
     }
 }

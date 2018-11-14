@@ -1,0 +1,272 @@
+package de.awi.floenavigation.Synchronization;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import de.awi.floenavigation.DatabaseHelper;
+
+public class SampleMeasurementSync {
+    private static final String TAG = "ConfigurationParamSync";
+    private Context mContext;
+
+    private static final String pushURL = "http://192.168.137.1:80/userControl.php";
+    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
+
+    private SQLiteDatabase db;
+    private DatabaseHelper dbHelper;
+    private StringRequest request;
+
+    private HashMap<Integer, String> deviceIDData = new HashMap<>();
+    private HashMap<Integer, String> deviceNameData = new HashMap<>();
+    private HashMap<Integer, String> deviceShortNameData = new HashMap<>();
+    private HashMap<Integer, String> operationData = new HashMap<>();
+    private HashMap<Integer, String> deviceTypeData = new HashMap<>();
+    private HashMap<Integer, Double> latitudeData = new HashMap<>();
+    private HashMap<Integer, Double> longitudeData = new HashMap<>();
+    private HashMap<Integer, Double> xPositionData = new HashMap<>();
+    private HashMap<Integer, Double> yPositionData = new HashMap<>();
+    private HashMap<Integer, String> updateTimeData = new HashMap<>();
+    private HashMap<Integer, String> labelIDData = new HashMap<>();
+    private HashMap<Integer, String> labelData = new HashMap<>();
+
+    private Cursor sampleCursor;
+    private SampleMeasurement sampleMeasurement;
+    private ArrayList<SampleMeasurement> sampleArrayList = new ArrayList<>();
+    private RequestQueue requestQueue;
+    private XmlPullParser parser;
+
+    SampleMeasurementSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
+        this.mContext = context;
+        this.requestQueue = requestQueue;
+        this.parser = xmlPullParser;
+    }
+
+    public void onClickSampleReadButton(){
+        try{
+            int i = 0;
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            sampleCursor = db.query(DatabaseHelper.sampleMeasurementTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            if(sampleCursor.moveToFirst()){
+                do{
+                    deviceIDData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.deviceID)));
+                    deviceNameData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.deviceName)));
+                    deviceShortNameData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.deviceShortName)));
+                    operationData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.operation)));
+                    deviceTypeData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.deviceType)));
+                    latitudeData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.latitude)));
+                    longitudeData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.longitude)));
+                    xPositionData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.xPosition)));
+                    yPositionData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.yPosition)));
+                    updateTimeData.put(i, formatUpdateTime(sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime))));
+                    labelIDData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
+                    labelData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.label)));
+
+                    i++;
+
+                }while (sampleCursor.moveToNext());
+            }
+            sampleCursor.close();
+            Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+    }
+
+    public void onClickSampleSyncButton() {
+        for (int i = 0; i < labelIDData.size(); i++) {
+            final int index = i;
+            request = new StringRequest(Request.Method.POST, pushURL, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        Log.d(TAG, "on receive");
+                        JSONObject jsonObject = new JSONObject(response);
+                        //Log.d(TAG, "on receive");
+                        if (jsonObject.names().get(0).equals("success")) {
+                            Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    HashMap<String, String> hashMap = new HashMap<String, String>();
+                    hashMap.put(DatabaseHelper.deviceID, (deviceIDData.get(index) == null) ? "" : deviceIDData.get(index));
+                    hashMap.put(DatabaseHelper.deviceName, (deviceNameData.get(index) == null) ? "" : deviceNameData.get(index));
+                    hashMap.put(DatabaseHelper.deviceShortName, (deviceShortNameData.get(index) == null) ? "" : deviceShortNameData.get(index));
+                    hashMap.put(DatabaseHelper.operation, (operationData.get(index) == null) ? "" : operationData.get(index));
+                    hashMap.put(DatabaseHelper.deviceType, (deviceTypeData.get(index) == null) ? "" : deviceTypeData.get(index));
+                    hashMap.put(DatabaseHelper.latitude, (latitudeData.get(index) == null) ? "" : latitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.longitude, (longitudeData.get(index) == null) ? "" : longitudeData.get(index).toString());
+                    hashMap.put(DatabaseHelper.xPosition, (xPositionData.get(index) == null) ? "" : xPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.yPosition, (yPositionData.get(index) == null) ? "" : yPositionData.get(index).toString());
+                    hashMap.put(DatabaseHelper.updateTime, (updateTimeData.get(index) == null) ? "" : updateTimeData.get(index));
+                    hashMap.put(DatabaseHelper.labelID, (labelIDData.get(index) == null) ? "" : labelIDData.get(index));
+                    hashMap.put(DatabaseHelper.label, (labelData.get(index) == null) ? "" : labelData.get(index));
+
+                    return hashMap;
+                }
+            };
+            requestQueue.add(request);
+
+        }
+    }
+
+    private String formatUpdateTime(double updateTime) {
+        Date stationTime = new Date((long) updateTime);
+        return stationTime.toString();
+    }
+
+    public void onClickSamplePullButton(){
+        dbHelper = DatabaseHelper.getDbInstance(mContext);
+        db = dbHelper.getReadableDatabase();
+        db.execSQL("Delete from " + DatabaseHelper.sampleMeasurementTable);
+        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    parser.setInput(new StringReader(response));
+                    int event = parser.getEventType();
+                    String tag = "";
+                    String value = "";
+                    while (event != XmlPullParser.END_DOCUMENT) {
+                        tag = parser.getName();
+                        switch (event) {
+                            case XmlPullParser.START_TAG:
+                                if (tag.equals(DatabaseHelper.sampleMeasurementTable)) {
+                                    sampleMeasurement = new SampleMeasurement(mContext);
+                                    sampleArrayList.add(sampleMeasurement);
+                                }
+                                break;
+
+                            case XmlPullParser.TEXT:
+                                value = parser.getText();
+                                break;
+
+                            case XmlPullParser.END_TAG:
+
+                                switch (tag) {
+
+                                    case DatabaseHelper.deviceID:
+                                        sampleMeasurement.setDeviceID(value);
+                                        break;
+
+                                    case DatabaseHelper.deviceName:
+                                        sampleMeasurement.setDeviceName(value);
+                                        break;
+
+                                    case DatabaseHelper.deviceShortName:
+                                        sampleMeasurement.setDeviceShortName(value);
+                                        break;
+
+                                    case DatabaseHelper.operation:
+                                        sampleMeasurement.setOperation(value);
+                                        break;
+
+                                    case DatabaseHelper.deviceType:
+                                        sampleMeasurement.setDeviceType(value);
+                                        break;
+
+                                    case DatabaseHelper.latitude:
+                                        sampleMeasurement.setLatitude(Double.valueOf(value));
+                                        break;
+
+                                    case DatabaseHelper.longitude:
+                                        sampleMeasurement.setLongitude(Double.valueOf(value));
+                                        break;
+
+                                    case DatabaseHelper.xPosition:
+                                        sampleMeasurement.setxPosition(Double.valueOf(value));
+                                        break;
+
+                                    case DatabaseHelper.yPosition:
+                                        sampleMeasurement.setyPosition(Double.valueOf(value));
+                                        break;
+
+                                    case DatabaseHelper.updateTime:
+                                        sampleMeasurement.setUpdateTime(value);
+                                        break;
+
+                                    case DatabaseHelper.labelID:
+                                        sampleMeasurement.setLabelID(value);
+                                        break;
+
+                                    case DatabaseHelper.label:
+                                        sampleMeasurement.setLabel(value);
+                                        break;
+                                }
+                                break;
+                        }
+                        event = parser.next();
+                    }
+                    for(SampleMeasurement sample : sampleArrayList){
+                        sample.insertSampleInDB();
+                    }
+                    Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
+                } catch (XmlPullParserException e) {
+                    Log.d(TAG, "Error Parsing XML");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.d(TAG, "IOException from Parser");
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        requestQueue.add(pullRequest);
+
+    }
+}
+
+
+

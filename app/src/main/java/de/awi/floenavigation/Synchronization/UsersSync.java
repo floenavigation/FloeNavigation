@@ -32,9 +32,9 @@ public class UsersSync {
     private static final String TAG = "UsersSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
-    private static final String deleteUserURL = "http://192.168.137.1:80/deleteUser.php";
+    private static final String URL = "http://192.168.137.1:80/Users/pullUsers.php";
+    private static final String pullURL = "http://192.168.137.1:80/Users/pushUsers.php";
+    private static final String deleteUserURL = "http://192.168.137.1:80/Users/deleteUsers.php";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -130,8 +130,8 @@ public class UsersSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.userName,userNameData.get(index));
-                    hashMap.put(DatabaseHelper.password,userPasswordData.get(index));
+                    hashMap.put(DatabaseHelper.userName,(userNameData.get(index) == null)? "" : userNameData.get(index));
+                    hashMap.put(DatabaseHelper.password,(userPasswordData.get(index) == null)? "" : userPasswordData.get(index));
                     return hashMap;
                 }
             };
@@ -171,8 +171,8 @@ public class UsersSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put("username",deletedUserData.get(delIndex));
-                    Log.d(TAG, "User sent to be Deleted: " + deletedUserData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    hashMap.put("username",(deletedUserData.get(delIndex) == null)? "" : deletedUserData.get(delIndex));
+                    //Log.d(TAG, "User sent to be Deleted: " + deletedUserData.get(delIndex) + " Index: " + String.valueOf(delIndex));
                     return hashMap;
                 }
             };
