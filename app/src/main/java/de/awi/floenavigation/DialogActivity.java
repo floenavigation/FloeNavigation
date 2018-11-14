@@ -110,7 +110,7 @@ public class DialogActivity extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.cancel();
-                    //new CreateTablesOnStartup().execute();
+                    new InsertBetaOnStartup().execute();
                     showNavigationBar();
                     SetupActivity.runServices(getApplicationContext());
                     //MainActivity.servicesStarted = true;
@@ -229,7 +229,7 @@ public class DialogActivity extends Activity {
             }
         }
     }
-    private class CreateTablesOnStartup extends AsyncTask<Void,Void,Boolean> {
+    private class InsertBetaOnStartup extends AsyncTask<Void,Void,Boolean> {
 
         @Override
         protected void onPreExecute(){
@@ -240,26 +240,26 @@ public class DialogActivity extends Activity {
         protected Boolean doInBackground(Void... voids) {
             DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            updateBetaTable(receivedBeta, db);
-            return DatabaseHelper.createTables(db);
+            return updateBetaTable(receivedBeta, db);
 
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result){
-                Log.d(TAG, "CreateTablesOnStartup Async Task: Database Error");
+                Log.d(TAG, "InsertBetaOnStartup Async Task: Database Error");
             }
         }
     }
 
-    private void updateBetaTable(double recdBeta, SQLiteDatabase db){
+    private boolean updateBetaTable(double recdBeta, SQLiteDatabase db){
 
         try {
             ContentValues beta = new ContentValues();
             beta.put(DatabaseHelper.beta, recdBeta);
             beta.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
             db.insert(DatabaseHelper.betaTable, null, beta);
+            return true;
             /*long test = DatabaseUtils.queryNumEntries(db, DatabaseHelper.betaTable);
             Log.d(TAG, String.valueOf(test));
 */
@@ -267,6 +267,7 @@ public class DialogActivity extends Activity {
         } catch(SQLException e){
             Log.d(TAG, "Error Updating Beta Table");
             e.printStackTrace();
+            return false;
         }
 
     }
