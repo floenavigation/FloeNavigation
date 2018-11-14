@@ -96,7 +96,7 @@ public class FixedStationSync {
                     xPositionData.put(i, fixedStationCursor.getDouble(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.xPosition)));
                     yPositionData.put(i, fixedStationCursor.getDouble(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.yPosition)));
                     stationTypeData.put(i, fixedStationCursor.getString(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.stationType)));
-                    updateTimeData.put(i, formatUpdateTime(fixedStationCursor.getDouble(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime))));
+                    updateTimeData.put(i, fixedStationCursor.getString(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime)));
                     sogData.put(i, fixedStationCursor.getDouble(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.sog)));
                     cogData.put(i, fixedStationCursor.getDouble(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.cog)));
                     packetTypeData.put(i, fixedStationCursor.getInt(fixedStationCursor.getColumnIndexOrThrow(DatabaseHelper.packetType)));

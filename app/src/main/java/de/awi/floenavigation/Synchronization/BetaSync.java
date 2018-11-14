@@ -69,7 +69,7 @@ public class BetaSync {
             if(betaCursor.moveToFirst()){
                 do{
                     betaData.put(i, betaCursor.getDouble(betaCursor.getColumnIndexOrThrow(DatabaseHelper.beta)));
-                    updateTimeData.put(i, formatUpdateTime(betaCursor.getDouble(betaCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime))));
+                    updateTimeData.put(i, betaCursor.getString(betaCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime)));
                     i++;
 
                 }while (betaCursor.moveToNext());
