@@ -279,6 +279,16 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     db.delete(DatabaseHelper.mobileStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
                     Log.d(TAG, "Station Removed from Mobile Station Table");
                 }
+
+                if (checkStationInFixedDeleteTable(db, mmsi)) {
+                    db.delete(DatabaseHelper.fixedStationDeletedTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                    Log.d(TAG, "Station Removed from Fixed Station Delete Table");
+                }
+
+                if (checkStationInStationListDeleteTable(db, mmsi)) {
+                    db.delete(DatabaseHelper.stationListDeletedTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                    Log.d(TAG, "Station Removed from Station List Delete Table");
+                }
                 db.insert(DatabaseHelper.stationListTable, null, station);
                 db.insert(DatabaseHelper.fixedStationTable, null, fixedStation);
             }
@@ -361,7 +371,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
     }
 
     private boolean checkStationInDBTables(SQLiteDatabase db, int MMSI){
-
+        boolean isPresent = false;
         try{
 
             Cursor mStationListCursor, mFixedStnCursor;
@@ -369,45 +379,82 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     new String[]{String.valueOf(MMSI)}, null, null, null);
             mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
                     new String[]{String.valueOf(MMSI)}, null, null, null);
-
-            return mStationListCursor.moveToFirst() && mFixedStnCursor.moveToFirst();
+            isPresent = mStationListCursor.moveToFirst() && mFixedStnCursor.moveToFirst();
+            mStationListCursor.close();
+            mFixedStnCursor.close();
+            return isPresent;
         }catch (SQLException e){
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();
-            return false;
+            return isPresent;
         }
     }
 
     private boolean checkStationInMobileTable(SQLiteDatabase db, int MMSI){
-
+        boolean isPresent = false;
         try{
 
             Cursor mMobileStationCursor;
             mMobileStationCursor = db.query(DatabaseHelper.mobileStationTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
                     new String[]{String.valueOf(MMSI)}, null, null, null);
-
-            return mMobileStationCursor.moveToFirst();
+            isPresent = mMobileStationCursor.moveToFirst();
+            mMobileStationCursor.close();
         }catch (SQLException e){
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();
-            return false;
         }
+        return isPresent;
+    }
+
+    private boolean checkStationInFixedDeleteTable(SQLiteDatabase db, int MMSI){
+        boolean isPresent = false;
+        try{
+
+            Cursor mFixedStationDeleteCursor;
+            mFixedStationDeleteCursor = db.query(DatabaseHelper.fixedStationDeletedTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
+                    new String[]{String.valueOf(MMSI)}, null, null, null);
+            isPresent = mFixedStationDeleteCursor.moveToFirst();
+            mFixedStationDeleteCursor.close();
+        }catch (SQLException e){
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
+
+        return isPresent;
+    }
+
+    private boolean checkStationInStationListDeleteTable(SQLiteDatabase db, int MMSI){
+        boolean isPresent = false;
+        try{
+
+            Cursor mStationListDeleteCursor;
+            mStationListDeleteCursor = db.query(DatabaseHelper.stationListDeletedTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
+                    new String[]{String.valueOf(MMSI)}, null, null, null);
+
+            isPresent =  mStationListDeleteCursor.moveToFirst();
+            mStationListDeleteCursor.close();
+        }catch (SQLException e){
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
+        return isPresent;
     }
 
 
     private boolean checkStaticStationInDBTables(SQLiteDatabase db, String stationName){
-
+        boolean isPresent = false;
         try{
             Cursor mStaticStationListCursor;
             mStaticStationListCursor = db.query(DatabaseHelper.staticStationListTable, new String[]{DatabaseHelper.staticStationName}, DatabaseHelper.staticStationName + " = ?",
                     new String[]{stationName}, null, null, null);
 
-            return mStaticStationListCursor.moveToFirst();
+            isPresent =  mStaticStationListCursor.moveToFirst();
+            mStaticStationListCursor.close();
         }catch (SQLException e){
             Log.d(TAG, "SQLiteException");
             e.printStackTrace();
-            return false;
         }
+        return isPresent;
     }
 
 
