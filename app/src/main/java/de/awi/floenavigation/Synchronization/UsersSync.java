@@ -212,11 +212,11 @@ public class UsersSync {
 
                                 switch (tag) {
 
-                                    case "username":
+                                    case DatabaseHelper.userName:
                                         user.setUserName(value);
                                         break;
 
-                                    case "password":
+                                    case DatabaseHelper.password:
                                         user.setPassword(value);
                                         break;
                                 }
