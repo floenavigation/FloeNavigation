@@ -66,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pull Changes from Server FS"
-            android:onClick="onClickfixedStationSyncPullButton"
+            android:onClick="onClickfixedStationPullButton"
             tools:layout_editor_absoluteX="37dp"
             tools:layout_editor_absoluteY="29dp" />
     </LinearLayout>
@@ -130,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pull Changes from Server SL"
-            android:onClick="onClickStationListSyncPullButton"
+            android:onClick="onClickStationListPullButton"
             tools:layout_editor_absoluteX="37dp"
             tools:layout_editor_absoluteY="29dp" />
     </LinearLayout>
@@ -167,4 +167,132 @@
             tools:layout_editor_absoluteY="29dp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/readWaypointsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Read from DB Waypoints"
+            android:onClick="onClickWaypointsReadButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/syncWaypointsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sync with Server Waypoints"
+            android:onClick="onClickWaypointsSyncButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/pullWaypointsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pull Changes from Server Waypoints"
+            android:onClick="onClickWaypointsPullButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/readSampleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Read from DB Sample"
+            android:onClick="onClickSampleMeasurementReadButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/syncSampleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sync with Server Sample"
+            android:onClick="onClickSampleMeasurementSyncButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/pullDeviceListButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pull Changes from Server DeviceList"
+            android:onClick="onClickDeviceListPullButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/readParametersButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Read from DB Parameters"
+            android:onClick="onClickParameterReadButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/syncParametersButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sync with Server Parameters"
+            android:onClick="onClickParameterSyncButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/pullParametersButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pull Changes from Server Parameters"
+            android:onClick="onClickParameterPullButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/readStaticStnButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Read from DB StaticStn"
+            android:onClick="onClickStaticStationReadButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/syncStaticStnButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sync with Server StaticStn"
+            android:onClick="onClickStaticStationSyncButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+
+        <Button
+            android:id="@+id/pullStaticStnButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pull Changes from Server StaticStn"
+            android:onClick="onClickStaticStationPullButton"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="29dp" />
+    </LinearLayout>
 </LinearLayout>

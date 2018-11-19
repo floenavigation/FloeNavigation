@@ -55,6 +55,8 @@ public class GridActivity extends Activity implements View.OnClickListener{
     private double tabletLon;
     private double originLatitude;
     private double originLongitude;
+    private double originX;
+    private double originY;
     private int originMMSI;
     private double beta;
     private double tabletX;
@@ -492,7 +494,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 }*/
 
                 Cursor fixedStationCursor = db.query(DatabaseHelper.fixedStationTable,
-                        new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude},
+                        new String[] {DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
                         DatabaseHelper.mmsi +" = ?",
                         new String[] {String.valueOf(originMMSI)},
                         null, null, null);
@@ -503,6 +505,10 @@ public class GridActivity extends Activity implements View.OnClickListener{
                     if(fixedStationCursor.moveToFirst()){
                         originLatitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.latitude));
                         originLongitude = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.longitude));
+                        originX = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.xPosition));
+                        originY = fixedStationCursor.getDouble(fixedStationCursor.getColumnIndex(DatabaseHelper.yPosition));
+                        myGridView.setOriginX(originX);
+                        myGridView.setOriginY(originY);
                     }
                 }
 

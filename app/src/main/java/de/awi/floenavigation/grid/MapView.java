@@ -36,6 +36,8 @@ public class MapView extends View{
     private static double tabletY;
     private static double tabletLat;
     private static double tableLon;
+    private static double originX;
+    private static double originY;
     private float xTouch;
     private float yTouch;
     private boolean isBubbleShowing;
@@ -588,7 +590,8 @@ public class MapView extends View{
         if(tabletLat != 0.0 && tableLon != 0.0) {
             mCurrentViewport.set((float) (tabletX - DEFAULT_ZOOM_LEVEL), (float) (tabletY - DEFAULT_ZOOM_LEVEL), (float) (tabletX + DEFAULT_ZOOM_LEVEL), (float) (tabletY + DEFAULT_ZOOM_LEVEL));
         } else{
-            mCurrentViewport.set(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
+            //mCurrentViewport.set(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX, AXIS_Y_MAX);
+            mCurrentViewport.set((float) (originX - DEFAULT_ZOOM_LEVEL), (float) (originY - DEFAULT_ZOOM_LEVEL), (float) (originX + DEFAULT_ZOOM_LEVEL), (float) (originY + DEFAULT_ZOOM_LEVEL));
         }
         constrainViewport();
         ViewCompat.postInvalidateOnAnimation(MapView.this);
@@ -1320,6 +1323,17 @@ public class MapView extends View{
 
     public void setTabletY(double y){
         tabletY = y;
+        ViewCompat.postInvalidateOnAnimation(MapView.this);
+    }
+
+    public void setOriginX(double x){
+        originX = x;
+        ViewCompat.postInvalidateOnAnimation(MapView.this);
+
+    }
+
+    public void setOriginY(double y){
+        originY = y;
         ViewCompat.postInvalidateOnAnimation(MapView.this);
     }
 

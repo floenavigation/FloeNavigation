@@ -33,8 +33,8 @@ public class ConfigurationParameterSync {
     private static final String TAG = "ConfigurationParamSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
+    private static final String pushURL = "http://192.168.137.1:80/ConfigurationParameter/pullParameter.php";
+    private static final String pullURL = "http://192.168.137.1:80/ConfigurationParameter/pushParameter.php";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;

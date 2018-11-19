@@ -307,8 +307,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /******************Only for debugging purpose**************************/
     private static void insertDeviceList(SQLiteDatabase db){
 
-        String[] deviceShortNames = {"2mBT", "3DCAM", "8-CTL", "AC-9", "AGSS"};
-        String[] deviceLongNames = {"2 m Blake Trawl", "3D camera", "8-Channel Temperature Lance",
+        String[] deviceShortNames = {"3DCAM", "8-CTL", "AC-9", "AGSS"};
+        String[] deviceLongNames = {"3D camera", "8-Channel Temperature Lance",
                 "Absorption and beam attenuation", "Accoustic Geodetic Seafloor Station",};
 
         for(int index = 0; index < stationTypes.length; index++) {

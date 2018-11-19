@@ -110,7 +110,6 @@ public class ListViewActivity extends ActionBarActivity {
         switch (callingActivityString){
             case "WaypointActivity":
                 isRemoved = deleteEntryfromWaypointsTableinDB(parameterObjects.get(position).getLabelID());
-                Toast.makeText(getApplicationContext(), "Removed from waypoints table", Toast.LENGTH_SHORT).show();
                 break;
             case "AISRecoverActivity":
                 Log.d(TAG, "Num of entries: " + numOfStations);
@@ -118,12 +117,10 @@ public class ListViewActivity extends ActionBarActivity {
                 break;
             case "StaticStationRecoverActivity":
                 isRemoved = deleteEntryfromStaticStnTableinDB(parameterObjects.get(position).getLabelID());
-                Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
                 break;
 
             case "UsersPwdActivity":
                 isRemoved = deleteEntryfromUsersTableinDB(parameterObjects.get(position).getUserName());
-                Toast.makeText(getApplicationContext(), "User Removed", Toast.LENGTH_SHORT).show();
                 break;
         }
 
@@ -186,6 +183,7 @@ public class ListViewActivity extends ActionBarActivity {
             if (checkEntryInWaypointsTable(db, waypointToBeRemoved)) {
                 db.delete(DatabaseHelper.waypointsTable, DatabaseHelper.labelID + " = ?", new String[]{waypointToBeRemoved});
                 insertIntoWaypointsDeletedTable(db, waypointToBeRemoved);
+                Toast.makeText(getApplicationContext(), "Removed from waypoints table", Toast.LENGTH_SHORT).show();
                 return true;
             }else {
                 Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
@@ -205,6 +203,7 @@ public class ListViewActivity extends ActionBarActivity {
             if (checkEntryInStaticStnTable(db, stationToBeRemoved)) {
                 db.delete(DatabaseHelper.staticStationListTable, DatabaseHelper.staticStationName + " = ?", new String[]{stationToBeRemoved});
                 insertIntoStaticStationDeletedTable(db, stationToBeRemoved);
+                Toast.makeText(getApplicationContext(), "Removed from static station table", Toast.LENGTH_SHORT).show();
             }else {
                 Toast.makeText(this, "No Entry in DB", Toast.LENGTH_SHORT).show();
                 return false;
@@ -261,6 +260,7 @@ public class ListViewActivity extends ActionBarActivity {
             if(numOfUsers > 1) {
                 db.delete(DatabaseHelper.usersTable, DatabaseHelper.userName + " = ?", new String[]{name});
                 insertIntoUsersDeletedTable(db, name);
+                Toast.makeText(getApplicationContext(), "User Removed", Toast.LENGTH_SHORT).show();
                 return true;
             } else{
                 Toast.makeText(getApplicationContext(), "Atleast one Administrator is Required", Toast.LENGTH_SHORT).show();

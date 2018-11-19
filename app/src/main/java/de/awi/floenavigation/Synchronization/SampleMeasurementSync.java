@@ -29,13 +29,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.DeviceList;
 
 public class SampleMeasurementSync {
     private static final String TAG = "ConfigurationParamSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
+    private static final String pushURL = "http://192.168.137.1:80/SampleMeasurement/pullSamples.php";
+    private static final String pullDeviceListURL = "http://192.168.137.1:80/SampleMeasurement/pushDevices.php";
+
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -56,7 +58,9 @@ public class SampleMeasurementSync {
 
     private Cursor sampleCursor;
     private SampleMeasurement sampleMeasurement;
+    private DeviceList deviceList;
     private ArrayList<SampleMeasurement> sampleArrayList = new ArrayList<>();
+    private ArrayList<DeviceList> devicesArrayList = new ArrayList<>();
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
@@ -87,7 +91,7 @@ public class SampleMeasurementSync {
                     longitudeData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.longitude)));
                     xPositionData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.xPosition)));
                     yPositionData.put(i, sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.yPosition)));
-                    updateTimeData.put(i, formatUpdateTime(sampleCursor.getDouble(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime))));
+                    updateTimeData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime)));
                     labelIDData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
                     labelData.put(i, sampleCursor.getString(sampleCursor.getColumnIndexOrThrow(DatabaseHelper.label)));
 
@@ -162,11 +166,11 @@ public class SampleMeasurementSync {
         return stationTime.toString();
     }
 
-    public void onClickSamplePullButton(){
+    public void onClickDeviceListPullButton(){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
         db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.sampleMeasurementTable);
-        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+        db.execSQL("Delete from " + DatabaseHelper.deviceListTable);
+        StringRequest pullRequest = new StringRequest(pullDeviceListURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
@@ -178,9 +182,9 @@ public class SampleMeasurementSync {
                         tag = parser.getName();
                         switch (event) {
                             case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.sampleMeasurementTable)) {
-                                    sampleMeasurement = new SampleMeasurement(mContext);
-                                    sampleArrayList.add(sampleMeasurement);
+                                if (tag.equals(DatabaseHelper.deviceListTable)) {
+                                    deviceList = new DeviceList(mContext);
+                                    devicesArrayList.add(deviceList);
                                 }
                                 break;
 
@@ -193,59 +197,28 @@ public class SampleMeasurementSync {
                                 switch (tag) {
 
                                     case DatabaseHelper.deviceID:
-                                        sampleMeasurement.setDeviceID(value);
+                                        deviceList.setDeviceID(value);
                                         break;
 
                                     case DatabaseHelper.deviceName:
-                                        sampleMeasurement.setDeviceName(value);
+                                        deviceList.setDeviceName(value);
                                         break;
 
                                     case DatabaseHelper.deviceShortName:
-                                        sampleMeasurement.setDeviceShortName(value);
-                                        break;
-
-                                    case DatabaseHelper.operation:
-                                        sampleMeasurement.setOperation(value);
+                                        deviceList.setDeviceShortName(value);
                                         break;
 
                                     case DatabaseHelper.deviceType:
-                                        sampleMeasurement.setDeviceType(value);
+                                        deviceList.setDeviceType(value);
                                         break;
 
-                                    case DatabaseHelper.latitude:
-                                        sampleMeasurement.setLatitude(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.longitude:
-                                        sampleMeasurement.setLongitude(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.xPosition:
-                                        sampleMeasurement.setxPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.yPosition:
-                                        sampleMeasurement.setyPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.updateTime:
-                                        sampleMeasurement.setUpdateTime(value);
-                                        break;
-
-                                    case DatabaseHelper.labelID:
-                                        sampleMeasurement.setLabelID(value);
-                                        break;
-
-                                    case DatabaseHelper.label:
-                                        sampleMeasurement.setLabel(value);
-                                        break;
                                 }
                                 break;
                         }
                         event = parser.next();
                     }
-                    for(SampleMeasurement sample : sampleArrayList){
-                        sample.insertSampleInDB();
+                    for(DeviceList deviceList : devicesArrayList){
+                        deviceList.insertDeviceListInDB();
                     }
                     Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                 } catch (XmlPullParserException e) {

@@ -32,6 +32,7 @@ public class SyncActivity extends Activity {
     private ConfigurationParameterSync parameterSync;
     private BetaSync betaSync;
     private SampleMeasurementSync sampleSync;
+    private StaticStationSync staticStationSync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,22 +69,30 @@ public class SyncActivity extends Activity {
         usersSync.onClickUserPullButton();
     }
 
+    public void onClickBaseStationReadButton(View view) {
+        baseStationSync.onClickBaseStationReadButton();
+    }
+
+    public void onClickBaseStationSyncButton(View view) {
+        baseStationSync.onClickBaseStationSyncButton();
+    }
+
     public void onClickBaseStationPullButton(View view) {
         baseStationSync.onClickBaseStationPullButton();
     }
 
-    public void onClickParameterPullButton(View view) {
-        parameterSync.onClickParameterPullButton();
+    public void onClickBetaReadButton(View view) {
+        betaSync.onClickBetaReadButton();
     }
+
+    public void onClickBetaSyncButton(View view) {
+        betaSync.onClickBetaSyncButton();
+    }
+
 
     public void onClickBetaPullButton(View view) {
         betaSync.onClickBetaPullButton();
     }
-
-    public void onClickSampleMeasurementPullButton(View view) {
-        sampleSync.onClickSamplePullButton();
-    }
-
 
 
     public void onClickFixedStationReadButton(View view) {
@@ -94,9 +103,10 @@ public class SyncActivity extends Activity {
         fixedStationSync.onClickFixedStationSyncButton();
     }
 
-    public void onClickfixedStationSyncPullButton(View view) {
+    public void onClickfixedStationPullButton(View view) {
         fixedStationSync.onClickFixedStationPullButton();
     }
+
 
     public void onClickStationListReadButton(View view) {
         stationListSync.onClickStationListReadButton();
@@ -106,7 +116,7 @@ public class SyncActivity extends Activity {
         stationListSync.onClickStationListSyncButton();
     }
 
-    public void onClickStationListSyncPullButton(View view) {
+    public void onClickStationListPullButton(View view) {
         stationListSync.onClickStationListPullButton();
     }
 
@@ -118,17 +128,10 @@ public class SyncActivity extends Activity {
         waypointsSync.onClickWaypointsSyncButton();
     }
 
-    public void onClickWaypointsSyncPullButton(View view) {
+    public void onClickWaypointsPullButton(View view) {
         waypointsSync.onClickWaypointsPullButton();
     }
 
-    public void onClickBaseStationReadButton(View view) {
-        baseStationSync.onClickBaseStationReadButton();
-    }
-
-    public void onClickBaseStationSyncButton(View view) {
-        baseStationSync.onClickBaseStationSyncButton();
-    }
 
     public void onClickParameterReadButton(View view) {
         parameterSync.onClickParameterReadButton();
@@ -138,12 +141,8 @@ public class SyncActivity extends Activity {
         parameterSync.onClickParameterSyncButton();
     }
 
-    public void onClickBetaReadButton(View view) {
-        betaSync.onClickBetaReadButton();
-    }
-
-    public void onClickBetaSyncButton(View view) {
-        betaSync.onClickBetaSyncButton();
+    public void onClickParameterPullButton(View view) {
+        parameterSync.onClickParameterPullButton();
     }
 
     public void onClickSampleMeasurementReadButton(View view) {
@@ -151,6 +150,27 @@ public class SyncActivity extends Activity {
     }
 
     public void onClickSampleMeasurementSyncButton(View view) {
-        sampleSync.onClickSamplePullButton();
+        sampleSync.onClickSampleSyncButton();
     }
+
+    public void onClickDeviceListPullButton(View view) {
+        sampleSync.onClickDeviceListPullButton();
+    }
+
+
+    public void onClickStaticStationReadButton(View view) {
+        staticStationSync.onClickStaticStationReadButton();
+    }
+
+    public void onClickStaticStationSyncButton(View view) {
+        staticStationSync.onClickStaticStationSyncButton();
+    }
+
+    public void onClickStaticStationPullButton(View view) {
+        staticStationSync.onClickStaticStationPullButton();
+    }
+
+
+
+
 }

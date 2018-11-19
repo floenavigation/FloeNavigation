@@ -33,9 +33,9 @@ public class WaypointsSync {
     private static final String TAG = "WaypointsSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/userControl.php";
-    private static final String pullURL = "http://192.168.137.1:80/pushUsers.php";
-    private static final String deleteURL = "http://192.168.137.1:80/deleteUser.php";
+    private static final String URL = "http://192.168.137.1:80/Waypoint/pullWaypoints.php";
+    private static final String pullURL = "http://192.168.137.1:80/Waypoint/pushWaypoints.php";
+    private static final String deleteURL = "http://192.168.137.1:80/Waypoint/deleteWaypoints.php";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -79,7 +79,7 @@ public class WaypointsSync {
                     longitudeData.put(i, waypointsCursor.getDouble(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.longitude)));
                     xPositionData.put(i, waypointsCursor.getDouble(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.xPosition)));
                     yPositionData.put(i, waypointsCursor.getDouble(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.yPosition)));
-                    updateTimeData.put(i, formatUpdateTime(waypointsCursor.getDouble(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime))));
+                    updateTimeData.put(i, waypointsCursor.getString(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.updateTime)));
                     labelIDData.put(i, waypointsCursor.getString(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
                     labelData.put(i, waypointsCursor.getString(waypointsCursor.getColumnIndexOrThrow(DatabaseHelper.label)));
 
