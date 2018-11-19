@@ -128,7 +128,7 @@ public class ConfigurationParameterSync {
     public void onClickParameterPullButton(){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
         db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.configParametersTable);
+        db.execSQL("Delete from " + DatabaseHelper.configParametersTable + " Where " + DatabaseHelper.parameterName + " != 'TABLET_ID'");
         StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
