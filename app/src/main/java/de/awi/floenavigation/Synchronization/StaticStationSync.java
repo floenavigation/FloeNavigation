@@ -213,7 +213,7 @@ public class StaticStationSync {
                         tag = parser.getName();
                         switch (event) {
                             case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.staticStationName)) {
+                                if (tag.equals(DatabaseHelper.staticStationListTable)) {
                                     staticStation = new StaticStation(mContext);
                                     staticStationList.add(staticStation);
                                 }
