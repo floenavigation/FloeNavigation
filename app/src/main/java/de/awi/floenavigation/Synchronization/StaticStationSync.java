@@ -72,7 +72,7 @@ public class StaticStationSync {
                     null, null, null);
             if(staticStationCursor.moveToFirst()){
                 do{
-                    stationNameData.put(i, staticStationCursor.getString(staticStationCursor.getColumnIndexOrThrow(DatabaseHelper.stationName)));
+                    stationNameData.put(i, staticStationCursor.getString(staticStationCursor.getColumnIndexOrThrow(DatabaseHelper.staticStationName)));
                     alphaData.put(i, staticStationCursor.getDouble(staticStationCursor.getColumnIndexOrThrow(DatabaseHelper.alpha)));
                     distanceData.put(i, staticStationCursor.getDouble(staticStationCursor.getColumnIndexOrThrow(DatabaseHelper.distance)));
                     xPositionData.put(i, staticStationCursor.getDouble(staticStationCursor.getColumnIndexOrThrow(DatabaseHelper.xPosition)));
@@ -141,7 +141,7 @@ public class StaticStationSync {
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put(DatabaseHelper.stationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
+                    hashMap.put(DatabaseHelper.staticStationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
                     hashMap.put(DatabaseHelper.alpha,(alphaData.get(index) == null)? "" : alphaData.get(index).toString());
                     hashMap.put(DatabaseHelper.distance,(distanceData.get(index) == null)? "" : distanceData.get(index).toString());
                     hashMap.put(DatabaseHelper.xPosition,(xPositionData.get(index) == null)? "" : xPositionData.get(index).toString());
@@ -229,6 +229,7 @@ public class StaticStationSync {
 
                                     case DatabaseHelper.staticStationName:
                                         staticStation.setStationName(value);
+                                        Log.d(TAG, "Value: " + value);
                                         break;
 
                                     case DatabaseHelper.alpha:

@@ -290,7 +290,7 @@ public class ListViewActivity extends ActionBarActivity {
     private void insertIntoStationListDeletedTable(SQLiteDatabase db, String mmsiToBeAdded){
         ContentValues deletedStation = new ContentValues();
         deletedStation.put(DatabaseHelper.mmsi, Integer.valueOf(mmsiToBeAdded));
-        deletedStation.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        deletedStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.stationListDeletedTable, null, deletedStation);
     }
 

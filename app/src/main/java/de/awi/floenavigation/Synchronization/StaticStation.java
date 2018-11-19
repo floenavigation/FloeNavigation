@@ -39,7 +39,7 @@ public class StaticStation {
 
     private void generateContentValues() {
         staticStnContent = new ContentValues();
-        staticStnContent.put(DatabaseHelper.stationName, this.stationName);
+        staticStnContent.put(DatabaseHelper.staticStationName, this.stationName);
         staticStnContent.put(DatabaseHelper.alpha, this.alpha);
         staticStnContent.put(DatabaseHelper.distance, this.distance);
         staticStnContent.put(DatabaseHelper.xPosition, this.xPosition);

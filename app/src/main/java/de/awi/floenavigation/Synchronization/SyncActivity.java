@@ -55,6 +55,7 @@ public class SyncActivity extends Activity {
         parameterSync = new ConfigurationParameterSync(this, requestQueue, parser);
         betaSync = new BetaSync(this, requestQueue, parser);
         sampleSync = new SampleMeasurementSync(this, requestQueue, parser);
+        staticStationSync = new StaticStationSync(this, requestQueue, parser);
     }
 
     public void onClickUserReadButton(View view) {
