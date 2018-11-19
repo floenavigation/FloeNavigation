@@ -62,8 +62,8 @@ public class ConfigurationParameterSync {
             db = dbHelper.getReadableDatabase();
             configParameterCursor = db.query(DatabaseHelper.configParametersTable,
                     null,
-                    null,
-                    null,
+                    DatabaseHelper.parameterName + " != ?",
+                    new String[]{"TABLET_ID"},
                     null, null, null);
             if(configParameterCursor.moveToFirst()){
                 do{
