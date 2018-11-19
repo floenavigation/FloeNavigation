@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.awi.floenavigation.DatabaseHelper;
 import de.awi.floenavigation.R;
 
 public class MapView extends View{
@@ -41,6 +42,9 @@ public class MapView extends View{
     private float xTouch;
     private float yTouch;
     private boolean isBubbleShowing;
+    private double StarMidPointX = 0.0;
+    private double StarMidPointY = 0.0;
+
     //private double[] mFixedStationXs;
     public static HashMap<Integer, Double> mFixedStationXs;
     //private double[] mFixedStationYs;
@@ -89,6 +93,7 @@ public class MapView extends View{
     private static final int DEFAULT_NUMBER_OF_ROWS = 20;
     private static final int DEFAULT_NUMBER_OF_COLUMNS = 40;
     private static final int CircleSize = 6;
+    private static final int StarSize = 35;
 
     private int numRows = DEFAULT_NUMBER_OF_ROWS, numColumns = DEFAULT_NUMBER_OF_COLUMNS;
     private static final int DEFAULT_ZOOM_LEVEL = 5000;
@@ -328,6 +333,8 @@ public class MapView extends View{
             Log.d(TAG, "tabletX " + this.getTabletX() + " " + "tabletY " + this.getTabletY());
             //Log.d(TAG, "GETDRAWtabletX " + getDrawX((float) getTabletX()) + " " + "GETDRAWtabletY " + getDrawY((float)getTabletY()));
             drawTriangle((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), 15, 15, false, mDataPaint, canvas);
+            //drawStar((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), 20, canvas);
+
 
             //For Loop Fixed Station
             if (GridActivity.showFixedStation) {
@@ -349,10 +356,16 @@ public class MapView extends View{
 
             //For Loop Mobile Station
             if (GridActivity.showMobileStation) {
-                setLineColor(Color.BLUE);
+
                 if (GridActivity.mMobileStationMMSIs != null && GridActivity.mMobileStationXs != null && GridActivity.mMobileStationYs != null) {
                     for (int i = 0; i < getMobileStationSize(); i++) {  //
-                        canvas.drawCircle((float) getDrawX(getMobileXposition(i)), (float) getDrawY(getMobileYposition(i)), CircleSize, mDataPaint);
+                        if(getMobileStationMMSI(i) != DatabaseHelper.MOTHER_SHIP_MMSI) {
+                            setLineColor(Color.BLUE);
+                            canvas.drawCircle((float) getDrawX(getMobileXposition(i)), (float) getDrawY(getMobileYposition(i)), CircleSize, mDataPaint);
+                        } else{
+                            setLineColor(Color.RED);
+                            drawStar((float) getDrawX(getMobileXposition(i)), (float) getDrawY(getMobileYposition(i)), StarSize, StarSize, mDataPaint, canvas);
+                        }
                     }
                 }
             }
@@ -673,7 +686,8 @@ public class MapView extends View{
         canvas.drawPath(path, paint);
     }
 
-    private void drawStar(int width, int height, Paint paint, Canvas canvas)
+
+    private void drawStar(float xPos, float yPos, int width, int height, Paint paint, Canvas canvas)
     {
         float mid = width / 2;
         float min = Math.min(width, height);
@@ -684,25 +698,29 @@ public class MapView extends View{
         paint.setStrokeWidth(fat);
         paint.setStyle(Paint.Style.STROKE);
         Path path = new Path();
-
-
+        Paint circlePaint = new Paint();
+        circlePaint.setColor(Color.TRANSPARENT);
+        canvas.drawCircle(xPos + mid + half, yPos + half, CircleSize, circlePaint);
+        StarMidPointX = xPos + mid + half;
+        StarMidPointY = yPos + half;
         path.reset();
 
         paint.setStyle(Paint.Style.FILL);
 
 
         // top left
-        path.moveTo(mid + half * 0.5f, half * 0.84f);
+        path.moveTo(xPos + mid + half * 0.5f, yPos + half * 0.84f);
         // top right
-        path.lineTo(mid + half * 1.5f, half * 0.84f);
+        path.lineTo(xPos + mid + half * 1.5f, yPos + half * 0.84f);
         // bottom left
-        path.lineTo(mid + half * 0.68f, half * 1.45f);
+        path.lineTo(xPos + mid + half * 0.68f, yPos + half * 1.45f);
         // top tip
-        path.lineTo(mid + half * 1.0f, half * 0.5f);
+        path.lineTo(xPos + mid + half * 1.0f, yPos + half * 0.5f);
+
         // bottom right
-        path.lineTo(mid + half * 1.32f, half * 1.45f);
+        path.lineTo(xPos + mid + half * 1.32f, yPos + half * 1.45f);
         // top left
-        path.lineTo(mid + half * 0.5f, half * 0.84f);
+        path.lineTo(xPos + mid + half * 0.5f, yPos + half * 0.84f);
 
         path.close();
         canvas.drawPath(path, paint);
@@ -1073,7 +1091,11 @@ public class MapView extends View{
                         }
                     } else if(checkValues[1] == MOBILE_STATION){
                         if(GridActivity.showMobileStation) {
-                            drawableBubble.setCoordinates((float) getDrawX(getMobileXposition(index)), (float) getDrawY(getMobileYposition(index)));
+                            if(getMobileStationMMSI(index) != DatabaseHelper.MOTHER_SHIP_MMSI) {
+                                drawableBubble.setCoordinates((float) getDrawX(getMobileXposition(index)), (float) getDrawY(getMobileYposition(index)));
+                            } else{
+                                drawableBubble.setCoordinates((float) StarMidPointX, (float) StarMidPointY);
+                            }
                             postnMsg = String.format("x: %1.4f y: %2.4f", getMobileXposition(index), getMobileYposition(index));
                             drawableBubble.setMessages(String.valueOf(getMobileStationMMSI(index)), getMobileStationName(index), postnMsg);
                             linearLayout.setBackground(drawableBubble);
@@ -1144,14 +1166,23 @@ public class MapView extends View{
                 for (int i = 0; i < getMobileStationSize(); i++) {
                     double xp = getMobileXposition(i);
                     double yp = getMobileYposition(i);
+                    int mmsi = getMobileStationMMSI(i);
                     xp = getDrawX(xp);
                     yp = getDrawY(yp);
                     double distance = Math.sqrt(Math.pow((xp - touchX), 2) + Math.pow((yp - touchY), 2));
                     Log.d(TAG, "TouchDistance " + distance);
-                    if (distance < CircleSize + 10) {
-                        index = i;
-                        return new int[]{index, MOBILE_STATION};
+                    if(mmsi != DatabaseHelper.MOTHER_SHIP_MMSI) {
+                        if (distance < CircleSize + 10) {
+                            index = i;
+                            return new int[]{index, MOBILE_STATION};
+                        }
+                    } else{
+                        if (distance < StarSize + 10) {
+                            index = i;
+                            return new int[]{index, MOBILE_STATION};
+                        }
                     }
+
                 }
             }
 

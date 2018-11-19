@@ -128,6 +128,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "TABLET_ID"
     };
 
+    //public static final int MOTHER_SHIP_MMSI = 211202460;
+    //For Testing purposes
+    public static final int MOTHER_SHIP_MMSI = 211590050;
+
 
     public DatabaseHelper(Context context){
         super(context, DB_NAME, null, DB_VERSION);
