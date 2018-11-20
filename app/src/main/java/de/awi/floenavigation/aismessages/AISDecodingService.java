@@ -133,7 +133,10 @@ public class AISDecodingService extends IntentService {
                 Log.d(TAG, String.valueOf(recvdMMSI));
             }
 
-            //if(recvdMMSI == 21100)
+            //For testing
+            if(recvdMMSI == 211280840){
+                Log.d(TAG, "211280840 : " + packet);
+            }
 
             Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
                     new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},

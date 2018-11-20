@@ -47,6 +47,12 @@
                     android:icon="@drawable/tablet_icon"
                     app:showAsAction="always|withText">
                 </item>
+                <item android:id="@+id/MotherShip"
+                    android:titleCondensed="Persist"
+                    android:title="@string/mothership"
+                    android:icon="@drawable/mothership"
+                    app:showAsAction="always|withText">
+                </item>
 
             </menu>
         </item>

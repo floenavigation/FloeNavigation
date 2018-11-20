@@ -85,6 +85,7 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         confirmButtonCoordinates.setOnClickListener(this);
         Button progressCancelButton = layout.findViewById(R.id.progressCancelBtn);
         progressCancelButton.setOnClickListener(this);
+
         changeFormat = DatabaseHelper.readCoordinateDisplaySetting(getActivity());
         numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(getActivity());
         //configureTabLocation();
@@ -93,6 +94,9 @@ public class CoordinateFragment extends Fragment implements View.OnClickListener
         }
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
         stationName = getArguments().getString(DatabaseHelper.stationName);
+        String progressMsg = getResources().getString(R.string.waitingMsg, MMSINumber);
+        TextView waitingView = layout.findViewById(R.id.waitingMsgID);
+        waitingView.setText(progressMsg);
         setHasOptionsMenu(true);
         fragRunnable = new Runnable() {
             @Override

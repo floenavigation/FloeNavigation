@@ -44,7 +44,7 @@
     <string name="mmsi">MMSI</string>
     <string name="add_point">Add Point</string>
     <string name="discard_point">Discard Point</string>
-    <string name="waitingMsg">Please wait while the AIS Station is configured. Do not close the App</string>
+    <string name="waitingMsg" formatted="true">Please wait while the AIS Station with MMSI %1$d is configured. Do not close the App</string>
     <string name="stationLat">AIS Station Latitude</string>
     <string name="stationLon">AIS Station Longitude</string>
     <string name="tabLat">Current Latitude</string>
@@ -75,7 +75,7 @@
     <string name="stationConfirmBtn">Confirm</string>
     <string name="stationFinishBtn">Finish</string>
     <string name="stationPrompt">Choose Station Type</string>
-    <string name="stationWaitingMsg">Waiting for an AIS Packet. Do not close the App</string>
+    <string name="stationWaitingMsg" formatted="true">Waiting for an AIS Packet with MMSI %1$d. Do not close the App</string>
     <string name="staticStationWaitingMsg">Inserting new Station. Do not close the App</string>
     <string name="yesChoice">Yes</string>
     <string name="noChoice">No</string>
@@ -145,6 +145,7 @@
     <string name="static_stations">Static Stations</string>
     <string name="tablet">Tablet</string>
     <string name="admin_view_users_btn">View Users</string>
+    <string name="mothership">Mother Ship</string>
 
 
 </resources>

@@ -44,6 +44,10 @@ public class MapView extends View{
     private boolean isBubbleShowing;
     private double StarMidPointX = 0.0;
     private double StarMidPointY = 0.0;
+    private static final int TabTriangleWidth = 15;
+    private static final int TabTriangleHeight = 15;
+    private static final int WayTriangleWidth = 11;
+    private static final int WayTriangleHeight = 11;
 
     //private double[] mFixedStationXs;
     public static HashMap<Integer, Double> mFixedStationXs;
@@ -332,7 +336,7 @@ public class MapView extends View{
             setLineColor(Color.RED);
             Log.d(TAG, "tabletX " + this.getTabletX() + " " + "tabletY " + this.getTabletY());
             //Log.d(TAG, "GETDRAWtabletX " + getDrawX((float) getTabletX()) + " " + "GETDRAWtabletY " + getDrawY((float)getTabletY()));
-            drawTriangle((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), 15, 15, false, mDataPaint, canvas);
+            drawTriangle((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), TabTriangleWidth, TabTriangleHeight, false, mDataPaint, canvas);
             //drawStar((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()), 20, canvas);
 
 
@@ -388,7 +392,7 @@ public class MapView extends View{
                 setLineColor(Color.BLACK);
                 if (GridActivity.mWaypointsLabels != null && GridActivity.mWaypointsXs != null && GridActivity.mWaypointsYs != null) {
                     for (int i = 0; i < getWaypointSize(); i++) {
-                        drawTriangle((float) getDrawX(getWaypointXposition(i)), (float) getDrawY(getWaypointYposition(i)), 11, 11, true, mDataPaint, canvas);
+                        drawTriangle((float) getDrawX(getWaypointXposition(i)), (float) getDrawY(getWaypointYposition(i)), WayTriangleWidth, WayTriangleHeight, true, mDataPaint, canvas);
                     }
                 }
             }
@@ -674,7 +678,6 @@ public class MapView extends View{
 
         PointF p2 = new PointF(pointX,pointY);
         PointF p3 = new PointF(x+width,y);
-
 
         Path path = new Path();
         path.setFillType(Path.FillType.EVEN_ODD);
@@ -1070,7 +1073,7 @@ public class MapView extends View{
                 if(index != -1){
                     Log.d(TAG, "Station Touched");
                     if (checkValues[1] == TABLET_POSITION){
-                        drawableBubble.setCoordinates((float) getDrawX(getTabletX()), (float) getDrawY(getTabletY()));
+                        drawableBubble.setCoordinates((float) getDrawX(getTabletX()) + TabTriangleWidth/2f, (float) getDrawY(getTabletY()) - TabTriangleHeight);
                         postnMsg = String.format("x: %1.4f y: %2.4f", getTabletX(), getTabletY());
                         drawableBubble.setMessages("Current Position", null, postnMsg);
                         linearLayout.setBackground(drawableBubble);
@@ -1113,7 +1116,7 @@ public class MapView extends View{
                         }
                     } else if (checkValues[1] == WAYPOINT){
                         if(GridActivity.showWaypointStation) {
-                            drawableBubble.setCoordinates((float) getDrawX(getWaypointXposition(index)), (float) getDrawY(getWaypointYposition(index)));
+                            drawableBubble.setCoordinates((float) getDrawX(getWaypointXposition(index)) + WayTriangleWidth/2f, (float) getDrawY(getWaypointYposition(index)));
                             postnMsg = String.format("x: %1.4f y: %2.4f", getWaypointXposition(index), getWaypointYposition(index));
                             drawableBubble.setMessages(String.valueOf(getWaypointLabel(index)), null, postnMsg);
                             linearLayout.setBackground(drawableBubble);
