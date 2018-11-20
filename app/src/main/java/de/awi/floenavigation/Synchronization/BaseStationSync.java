@@ -33,8 +33,8 @@ public class BaseStationSync {
     private static final String TAG = "BaseStationSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/BaseStation/pullStations.php";
-    private static final String pullURL = "http://192.168.137.1:80/BaseStation/pushStations.php";
+    private String pushURL = "";
+    private String pullURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -198,6 +198,12 @@ public class BaseStationSync {
         requestQueue.add(pullRequest);
 
     }
+
+    public void setBaseUrl(String baseUrl, String port){
+        pushURL = "http://" + baseUrl + ":" + port + "/BaseStation/pullStations.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/BaseStation/pushStations.php";
+
+    }
 }
 
 class BaseStation{
@@ -263,4 +269,6 @@ class BaseStation{
     public void setMmsi(int mmsi) {
         this.mmsi = mmsi;
     }
+
+
 }

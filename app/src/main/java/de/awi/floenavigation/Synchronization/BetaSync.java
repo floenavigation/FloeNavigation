@@ -34,8 +34,8 @@ public class BetaSync {
     private static final String TAG = "BetaSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/Beta/pullBeta.php";
-    private static final String pullURL = "http://192.168.137.1:80/Beta/pushBeta.php";
+    private String pushURL = "";
+    private String pullURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -194,6 +194,12 @@ public class BetaSync {
     private String formatUpdateTime(double updateTime) {
         Date stationTime = new Date((long) updateTime);
         return stationTime.toString();
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        pushURL = "http://" + baseUrl + ":" + port + "/Beta/pullBeta.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/Beta/pushBeta.php";
+
     }
 }
 

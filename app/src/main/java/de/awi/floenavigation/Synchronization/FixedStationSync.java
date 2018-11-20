@@ -33,9 +33,13 @@ public class FixedStationSync {
     private static final String TAG = "FixedStnSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/FixedStation/pullStations.php";
-    private static final String pullURL = "http://192.168.137.1:80/FixedStation/pushStations.php";
-    private static final String deleteURL = "http://192.168.137.1:80/FixedStation/deleteStations.php";
+    //private static final String URL = "http://192.168.137.1:80/FixedStation/pullStations.php";
+    //private static final String pullURL = "http://192.168.137.1:80/FixedStation/pushStations.php";
+    //private static final String deleteURL = "http://192.168.137.1:80/FixedStation/deleteStations.php";
+
+    private String URL;
+    private String pullURL;
+    private String deleteURL;
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -369,6 +373,13 @@ public class FixedStationSync {
         });
 
         requestQueue.add(pullRequest);
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/FixedStation/pullStations.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/FixedStation/pushStations.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/FixedStation/deleteStations.php";
 
     }
 

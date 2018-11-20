@@ -35,8 +35,8 @@ public class SampleMeasurementSync {
     private static final String TAG = "ConfigurationParamSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/SampleMeasurement/pullSamples.php";
-    private static final String pullDeviceListURL = "http://192.168.137.1:80/SampleMeasurement/pushDevices.php";
+    private String pushURL = "";
+    private String pullDeviceListURL = "";
 
 
     private SQLiteDatabase db;
@@ -237,6 +237,12 @@ public class SampleMeasurementSync {
         });
 
         requestQueue.add(pullRequest);
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        pushURL = "http://" + baseUrl + ":" + port + "/SampleMeasurement/pullSamples.php";
+        pullDeviceListURL = "http://" + baseUrl + ":" + port + "/SampleMeasurement/pushDevices.php";
 
     }
 }

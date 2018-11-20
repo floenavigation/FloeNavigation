@@ -8,11 +8,16 @@
     android:background="@drawable/background_bg"
     tools:context=".Synchronization.SyncActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        android:id="@+id/syncParametersSet"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="15dp"
-        android:background="@drawable/background_bg">
+        android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,20 +27,60 @@
             android:padding="15dp"
             android:background="@drawable/rectangleboxbg">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/syncActivityServerHostname"
-                android:textColor="@color/white"
-                android:textAllCaps="true"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:layout_marginRight="20dp" />
+                android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/syncActivityServerHostname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/syncActivityServerHostname"
+                    android:textAllCaps="true"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/serverHostname"
+                    android:layout_width="500dp"
+                    android:layout_height="40sp"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"
+                    android:inputType="textVisiblePassword|textNoSuggestions"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/et_bg"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/syncActivityServerPort"
+                    android:textAllCaps="true"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/serverPort"
+                    android:layout_width="500dp"
+                    android:layout_height="40sp"
+                    android:textSize="15sp"
+                    android:inputType="numberDecimal"
+                    android:digits="0123456789"
+                    android:imeOptions="actionDone"
+                    android:textColor="@color/white"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/et_bg"/>
+            </LinearLayout>
 
 
         </LinearLayout>
@@ -51,6 +96,155 @@
             android:textColor="@color/white"/>
 
     </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:padding="15dp"
+            android:background="@drawable/rectangleboxbg">
+
+            <CheckBox
+                android:id="@+id/SyncUsers"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchronize_users"
+                android:onClick="onClickSyncUser"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <CheckBox
+                android:id="@+id/SyncFixedStations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchronize_fixed_stations"
+                android:onClick="onClickSyncFixedStations"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <CheckBox
+                android:id="@+id/SyncStaticStations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchronize_static_stations"
+                android:onClick="onClickSyncStaticStations"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <CheckBox
+                android:id="@+id/SyncSamples"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchronize_sample_measurements"
+                android:onClick="onClickSyncSamples"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <CheckBox
+                android:id="@+id/SyncWaypoints"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchronize_waypoints"
+                android:onClick="onClickSyncWaypoints"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <CheckBox
+                android:id="@+id/SyncConfigParams"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/synchonrize_config_params"
+                android:onClick="onClickSyncConfigParams"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:padding="5dp"
+            android:text="@string/syncActivityCheckboxes"
+            android:layout_marginLeft="15dp"
+            android:textSize="30sp"
+            android:textColor="@color/white"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linear"
+        android:text="@string/syncActivityStartSync"
+        android:background="@drawable/btn_bg"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_margin="20dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="50dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onClickStartSync"
+        android:foreground="?android:attr/selectableItemBackground"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/syncWaitingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/syncWaitingMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="@color/darkBrown"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:paddingTop="150dp"/>
+
+        <ProgressBar
+            android:id="@+id/syncProgressBar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:foregroundGravity="center"
+            android:indeterminate="true"
+            android:theme="@style/ProgressBarTheme" />
+
+        <Button
+            android:id="@+id/syncFinishBtn"
+            android:layout_marginTop="320dp"
+            android:layout_marginStart="770dp"
+            android:layout_width="500dp"
+            android:elevation="5dp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:text="@string/syncFinish"
+            android:background="@color/white"
+            android:onClick="onClickFinishButton"
+            android:textSize="30sp"
+            android:textAllCaps="true"
+            android:enabled="true"
+            android:clickable="true"
+            android:layout_gravity="bottom"
+            android:focusable="true" />
+    </LinearLayout>
 
 
 </LinearLayout>

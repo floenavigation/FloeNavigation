@@ -32,9 +32,9 @@ public class StationListSync {
     private static final String TAG = "StnListSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/StationList/pullStations.php";
-    private static final String pullURL = "http://192.168.137.1:80/StationList/pushStations.php";
-    private static final String deleteURL = "http://192.168.137.1:80/StationList/deleteStations.php";
+    private String URL = "";
+    private String pullURL = "";
+    private String deleteURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -251,6 +251,13 @@ public class StationListSync {
         });
 
         requestQueue.add(pullRequest);
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/StationList/pullStations.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/StationList/pushStations.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/StationList/deleteStations.php";
 
     }
 

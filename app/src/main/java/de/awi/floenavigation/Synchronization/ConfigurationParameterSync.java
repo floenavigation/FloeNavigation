@@ -33,8 +33,8 @@ public class ConfigurationParameterSync {
     private static final String TAG = "ConfigurationParamSync";
     private Context mContext;
 
-    private static final String pushURL = "http://192.168.137.1:80/ConfigurationParameter/pullParameter.php";
-    private static final String pullURL = "http://192.168.137.1:80/ConfigurationParameter/pushParameter.php";
+    private String pushURL = "";
+    private String pullURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -187,6 +187,12 @@ public class ConfigurationParameterSync {
         });
 
         requestQueue.add(pullRequest);
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        pushURL = "http://" + baseUrl + ":" + port + "/ConfigurationParameter/pullParameter.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/ConfigurationParameter/pushParameter.php";
 
     }
 }

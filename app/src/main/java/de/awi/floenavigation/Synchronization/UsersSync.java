@@ -32,9 +32,9 @@ public class UsersSync {
     private static final String TAG = "UsersSyncActivity";
     private Context mContext;
 
-    private static final String URL = "http://192.168.137.1:80/Users/pullUsers.php";
-    private static final String pullURL = "http://192.168.137.1:80/Users/pushUsers.php";
-    private static final String deleteUserURL = "http://192.168.137.1:80/Users/deleteUsers.php";
+    private String URL = "";
+    private String pullURL = "";
+    private String deleteUserURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -244,6 +244,13 @@ public class UsersSync {
         });
 
         requestQueue.add(pullRequest);
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/Users/pullUsers.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/Users/pushUsers.php";
+        deleteUserURL = "http://" + baseUrl + ":" + port + "/Users/deleteUsers.php";
 
     }
 
