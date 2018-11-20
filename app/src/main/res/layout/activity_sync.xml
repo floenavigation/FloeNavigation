@@ -5,294 +5,52 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_bg"
     tools:context=".Synchronization.SyncActivity">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readUButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB User"
-            android:onClick="onClickUserReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:background="@drawable/background_bg">
 
-        <Button
-            android:id="@+id/syncUButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sync with Server User"
-            android:onClick="onClickUserSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
+            android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:padding="15dp"
+            android:background="@drawable/rectangleboxbg">
 
-        <Button
-            android:id="@+id/pullUButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server User"
-            android:onClick="onClickUserPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syncActivityServerHostname"
+                android:textColor="@color/white"
+                android:textAllCaps="true"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:layout_marginRight="20dp" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readFButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB FS"
-            android:onClick="onClickFixedStationReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncFButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server FS"
-            android:onClick="onClickFixedStationSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullFButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server FS"
-            android:onClick="onClickfixedStationPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readBSButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB BS"
-            android:onClick="onClickBaseStationReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncBSButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server BS"
-            android:onClick="onClickBaseStationSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullBSButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server BS"
-            android:onClick="onClickBaseStationPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readSLButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB SL"
-            android:onClick="onClickStationListReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncSLButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server SL"
-            android:onClick="onClickStationListSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullSLButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server SL"
-            android:onClick="onClickStationListPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readBetaButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB Beta"
-            android:onClick="onClickBetaReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncBetaButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server Beta"
-            android:onClick="onClickBetaSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullBetaButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server Beta"
-            android:onClick="onClickBetaPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readWaypointsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB Waypoints"
-            android:onClick="onClickWaypointsReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncWaypointsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server Waypoints"
-            android:onClick="onClickWaypointsSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullWaypointsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server Waypoints"
-            android:onClick="onClickWaypointsPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readSampleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB Sample"
-            android:onClick="onClickSampleMeasurementReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/syncSampleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server Sample"
-            android:onClick="onClickSampleMeasurementSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullDeviceListButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server DeviceList"
-            android:onClick="onClickDeviceListPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
+            <EditText
+                android:id="@+id/syncActivityServerHostname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readParametersButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB Parameters"
-            android:onClick="onClickParameterReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/syncParametersButton"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sync with Server Parameters"
-            android:onClick="onClickParameterSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
+            android:layout_alignParentTop="true"
+            android:padding="5dp"
+            android:text="@string/syncActivity_server_details"
+            android:layout_marginLeft="15dp"
+            android:textSize="30sp"
+            android:textColor="@color/white"/>
 
-        <Button
-            android:id="@+id/pullParametersButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server Parameters"
-            android:onClick="onClickParameterPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
+    </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/readStaticStnButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read from DB StaticStn"
-            android:onClick="onClickStaticStationReadButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
 
-        <Button
-            android:id="@+id/syncStaticStnButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sync with Server StaticStn"
-            android:onClick="onClickStaticStationSyncButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-
-        <Button
-            android:id="@+id/pullStaticStnButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pull Changes from Server StaticStn"
-            android:onClick="onClickStaticStationPullButton"
-            tools:layout_editor_absoluteX="37dp"
-            tools:layout_editor_absoluteY="29dp" />
-    </LinearLayout>
 </LinearLayout>

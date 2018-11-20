@@ -24,6 +24,7 @@
     <string name="label_activity_recovery">Recover Station</string>
     <string name="label_activity_waypoint">Add New Waypoint</string>
     <string name="label_activity_parameter_view">System Parameters</string>
+    <string name="label_activity_synchronization">Synchronization</string>
 
     <!--Login Screen -->
     <string name="login">Login</string>
@@ -146,6 +147,8 @@
     <string name="tablet">Tablet</string>
     <string name="admin_view_users_btn">View Users</string>
     <string name="mothership">Mother Ship</string>
+    <string name="syncActivityServerHostname">Hostname</string>
+    <string name="syncActivity_server_details">Server Details</string>
 
 
 </resources>
