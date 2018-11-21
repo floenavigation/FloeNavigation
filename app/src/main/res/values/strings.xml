@@ -109,16 +109,11 @@
     <string name="latLonDegMinSec">Degree° Minute\' Second\'\'</string>
 
     <!--Synchronization Screens -->
-    <string name="syncActivityServerHostname">Hostname</string>
-    <string name="syncActivity_server_details">Server Details</string>
-    <string name="syncActivityServerPort">Port</string>
-    <string name="synchronize_users">Users</string>
-    <string name="synchronize_fixed_stations">Fixed Stations</string>
-    <string name="synchronize_static_stations">Static Stations</string>
-    <string name="synchronize_sample_measurements">Sample/Measurements</string>
-    <string name="synchronize_waypoints">Waypoints</string>
-    <string name="synchonrize_config_params">Configuration Parameters</string>
-    <string name="syncActivityCheckboxes">Select Tables</string>
+    <string name="syncActivityStartSync">Start Sync</string>
+    <string name="syncFinish">Finish</string>
+    <string name="syncPull">Start Pull from Server</string>
+    <string name="syncWelcomeMsg">Welcome to FloeNavigation Synchronization Tool.\nPlease press Start Sync Button to begin Synchronization.\nPlease remember to Sync all Data from all Tablets before Pulling new Data from the Server </string>
+
 
 
     <string name="device_name">Device Name</string>
@@ -159,8 +154,6 @@
     <string name="tablet">Tablet</string>
     <string name="admin_view_users_btn">View Users</string>
     <string name="mothership">Mother Ship</string>
-    <string name="syncActivityStartSync">Start Sync</string>
-    <string name="syncFinish">Finish</string>
 
 
 </resources>

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -48,6 +49,8 @@ public class ConfigurationActivity extends ActionBarActivity {
     private int progressValue = MIN_VALUE;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +80,21 @@ public class ConfigurationActivity extends ActionBarActivity {
             }
         });
 
+
+        paramType.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                //EditText paramValue = findViewById(R.id.parameterValue);
+                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                //hideSoftKeyboard(getCallingActivity());
+                Log.d(TAG, "OnTouch");
+
+                return false;
+            }
+        });
         paramType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -119,10 +137,22 @@ public class ConfigurationActivity extends ActionBarActivity {
                     initialTimeRange.setMax(SIGNIFICANT_FIGURES_MAX_VALUE);
                     units = " ";
                     progressBarValue.setText(String.valueOf(SIGNIFICANT_FIGURES_MIN_VALUE) + " " + units);
+                } else if(position == 6){
+                    findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
+                    findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
+                    findViewById(R.id.normalInitialRangeParam).setVisibility(View.GONE);
+                    EditText paramValue = findViewById(R.id.parameterValue);
+                    paramValue.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    spinnerItem = position;
+                    isTimeRangeParam = false;
+                    isDistanceRangeParam = false;
+                    isNormalParam = true;
                 } else {
                     findViewById(R.id.normalParam).setVisibility(View.VISIBLE);
                     findViewById(R.id.latLonViewParam).setVisibility(View.GONE);
                     findViewById(R.id.normalInitialRangeParam).setVisibility(View.GONE);
+                    EditText paramValue = findViewById(R.id.parameterValue);
+                    paramValue.setInputType(InputType.TYPE_CLASS_TEXT);
                     spinnerItem = position;
                     isTimeRangeParam = false;
                     isDistanceRangeParam = false;
@@ -153,6 +183,7 @@ public class ConfigurationActivity extends ActionBarActivity {
                     String paramName = DatabaseHelper.configurationParameters[spinnerItem];
                     String paramValue = valueField.getText().toString();
                     updateDatabaseTable(db, paramName, paramValue);
+                    Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_SHORT).show();
 
                 }else {
                     Toast.makeText(this, "Please Enter a Correct Parameter Value", Toast.LENGTH_SHORT).show();
@@ -164,10 +195,12 @@ public class ConfigurationActivity extends ActionBarActivity {
                 String paramName = DatabaseHelper.configurationParameters[spinnerItem];
                 Log.d(TAG, String.valueOf(progressValue * 60 * 1000));
                 updateDatabaseTable(db, paramName, String.valueOf(progressValue * 60 * 1000));
+                Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_SHORT).show();
 
             } else if (isDistanceRangeParam){
                 String paramName = DatabaseHelper.configurationParameters[spinnerItem];
                 updateDatabaseTable(db, paramName, String.valueOf(progressValue));
+                Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_SHORT).show();
 
             }
             else{
@@ -183,9 +216,10 @@ public class ConfigurationActivity extends ActionBarActivity {
                 Log.d(TAG, paramName);
                 Log.d(TAG, paramValue);
                 updateDatabaseTable(db, paramName, paramValue);
+                Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_SHORT).show();
             }
 
-            Toast.makeText(getApplicationContext(), "Configuration Saved", Toast.LENGTH_SHORT).show();
+
 
 
 

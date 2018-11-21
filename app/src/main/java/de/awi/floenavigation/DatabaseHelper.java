@@ -38,6 +38,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String decimal_number_significant_figures = "DECIMAL_NUMBER_SIGNIFICANT_FIGURES";
     public static final String initial_setup_time = "INITIAL_SETUP_TIME";
     public static final String tabletId = "TABLET_ID";
+    public static final String sync_server_hostname = "SYNC_SERVER_HOSTNAME";
+    public static final String sync_server_port = "SYNC_SERVER_PORT";
 
 
     //Database Tables Names
@@ -125,6 +127,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "LATITUDE_LONGITUDE_VIEW_FORMAT",
             "DECIMAL_NUMBER_SIGNIFICANT_FIGURES",
             "INITIAL_SETUP_TIME",
+            "SYNC_SERVER_HOSTNAME",
+            "SYNC_SERVER_PORT",
             "TABLET_ID"
     };
 
@@ -200,6 +204,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultConfigParams(db, lat_long_view_format, "1");
         insertDefaultConfigParams(db, decimal_number_significant_figures, "5");
         insertDefaultConfigParams(db, initial_setup_time, String.valueOf(60 * 1000));
+        insertDefaultConfigParams(db, sync_server_hostname, "192.168.137.1");
+        insertDefaultConfigParams(db, sync_server_port, String.valueOf(80));
 
         insertUser(db, "awi", "awi");
         createTables(db);

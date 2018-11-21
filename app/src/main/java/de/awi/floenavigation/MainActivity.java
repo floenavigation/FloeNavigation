@@ -27,7 +27,8 @@ public class MainActivity extends ActionBarActivity {
     //private static boolean gpssetup = false;
     //public static boolean servicesStarted = true;
     public static final int GPS_REQUEST_CODE = 10;
-    private static long numOfBaseStations;
+    public static long numOfBaseStations;
+    private static long numOfDeviceList;
     private static final String TAG = "MainActivity";
 
 
@@ -62,6 +63,7 @@ public class MainActivity extends ActionBarActivity {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+            numOfDeviceList = DatabaseUtils.queryNumEntries(db, DatabaseHelper.deviceListTable);
         }catch (SQLiteException e){
             Log.d(TAG, "Error reading database");
             e.printStackTrace();
@@ -149,7 +151,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onClickSampleMeasureBtn(View view) {
-        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS && numOfDeviceList != 0) {
             Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
             startActivity(sampleMeasureIntent);
         }else {
