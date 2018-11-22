@@ -3,6 +3,7 @@ package de.awi.floenavigation.Synchronization;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -69,6 +70,8 @@ public class SyncActivity extends Activity {
     private TextView waitingMsg ;
     boolean isPullCompleted = false;
 
+    public long numOfBaseStations;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,97 +99,102 @@ public class SyncActivity extends Activity {
     }
 
     public void onClickStartSync(View view) {
-        if(readParamsfromDatabase()){
+        if(readParamsfromDatabase()) {
             hideNavigationBar();
             backButtonEnabled = false;
-            stopServices();
-            if(pingRequest(hostname)){
-                findViewById(R.id.syncWelcomeScreen).setVisibility(View.GONE);
-                findViewById(R.id.syncWaitingView).setVisibility(View.VISIBLE);
-                msg = "Contacting Server....";
-                waitingMsg.setText(msg);
-                msg = "Stopping Services and Clearing Metadata";
-                waitingMsg.setText(msg);
-
-                clearMobileStationTable();
-                setBaseUrl(hostname, port);
-                if(MainActivity.numOfBaseStations == 2){
-                    msg = "Reading Fixed Stations from Database and Pushing it to the Server";
+            dbHelper = DatabaseHelper.getDbInstance(this);
+            db = dbHelper.getReadableDatabase();
+            numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
+            if (stopServices()) {
+                if (pingRequest(hostname)) {
+                    findViewById(R.id.syncWelcomeScreen).setVisibility(View.GONE);
+                    findViewById(R.id.syncWaitingView).setVisibility(View.VISIBLE);
+                    msg = "Contacting Server....";
                     waitingMsg.setText(msg);
-                    fixedStationSync.onClickFixedStationReadButton();
-                    fixedStationSync.onClickFixedStationSyncButton();
-
-                    msg = "Reading Base Stations from Database and Pushing it to the Server";
+                    msg = "Stopping Services and Clearing Metadata";
                     waitingMsg.setText(msg);
-                    baseStationSync.onClickBaseStationReadButton();
-                    baseStationSync.onClickBaseStationSyncButton();
+                    clearMobileStationTable();
+                    setBaseUrl(hostname, port);
+                    if (numOfBaseStations == 2) {
+                        msg = "Reading Fixed Stations from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        fixedStationSync.onClickFixedStationReadButton();
+                        fixedStationSync.onClickFixedStationSyncButton();
 
-                    msg = "Reading AIS Station List from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    stationListSync.onClickStationListReadButton();
-                    stationListSync.onClickStationListSyncButton();
+                        msg = "Reading Base Stations from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        baseStationSync.onClickBaseStationReadButton();
+                        baseStationSync.onClickBaseStationSyncButton();
 
-                    msg = "Reading Beta Table from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    betaSync.onClickBetaReadButton();
-                    betaSync.onClickBetaSyncButton();
+                        msg = "Reading AIS Station List from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        stationListSync.onClickStationListReadButton();
+                        stationListSync.onClickStationListSyncButton();
 
-                    msg = "Reading Users from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    usersSync.setBaseUrl(hostname, port);
-                    usersSync.onClickUserReadButton();
-                    usersSync.onClickUserSyncButton();
+                        msg = "Reading Beta Table from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        betaSync.onClickBetaReadButton();
+                        betaSync.onClickBetaSyncButton();
 
-                    msg = "Reading Samples from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    sampleSync.onClickSampleReadButton();
-                    sampleSync.onClickSampleSyncButton();
+                        msg = "Reading Users from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        usersSync.setBaseUrl(hostname, port);
+                        usersSync.onClickUserReadButton();
+                        usersSync.onClickUserSyncButton();
 
-                    msg = "Reading Static Stations from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    staticStationSync.onClickStaticStationReadButton();
-                    staticStationSync.onClickStaticStationSyncButton();
+                        msg = "Reading Samples from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        sampleSync.onClickSampleReadButton();
+                        sampleSync.onClickSampleSyncButton();
 
-                    msg = "Reading Waypoints from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    waypointsSync.onClickWaypointsReadButton();
-                    waypointsSync.onClickWaypointsSyncButton();
+                        msg = "Reading Static Stations from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        staticStationSync.onClickStaticStationReadButton();
+                        staticStationSync.onClickStaticStationSyncButton();
 
-                    msg = "Reading Configuration Parameters from Database and Pushing it to the Server";
-                    waitingMsg.setText(msg);
-                    parameterSync.onClickParameterReadButton();
-                    parameterSync.onClickParameterSyncButton();
+                        msg = "Reading Waypoints from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        waypointsSync.onClickWaypointsReadButton();
+                        waypointsSync.onClickWaypointsSyncButton();
 
-                    //findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
-                    msg = "Push to Server Completed. Press Pull from Server only after Pushing Data from all tablets to the Server";
-                    waitingMsg.setText(msg);
-                    Button confirmBtn = findViewById(R.id.syncFinishBtn);
-                    confirmBtn.setVisibility(View.VISIBLE);
-                    confirmBtn.setClickable(true);
-                    confirmBtn.setEnabled(true);
-                    isPushCompleted = true;
+                        msg = "Reading Configuration Parameters from Database and Pushing it to the Server";
+                        waitingMsg.setText(msg);
+                        parameterSync.onClickParameterReadButton();
+                        parameterSync.onClickParameterSyncButton();
 
-                } else{
-                    //Pull Request only
-                    pullDatafromServer();
-                    isPullCompleted = true;
-                    isPushCompleted = false;
-                    Button confirmBtn = findViewById(R.id.syncFinishBtn);
-                    confirmBtn.setVisibility(View.VISIBLE);
-                    confirmBtn.setClickable(true);
-                    confirmBtn.setEnabled(true);
-                    confirmBtn.setText(R.string.syncFinish);
-                    msg = "Sync Completed";
-                    waitingMsg.setText(msg);
-                    findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
+                        //findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
+                        msg = "Push to Server Completed. Press Pull from Server only after Pushing Data from all tablets to the Server";
+                        waitingMsg.setText(msg);
+                        Button confirmBtn = findViewById(R.id.syncFinishBtn);
+                        confirmBtn.setVisibility(View.VISIBLE);
+                        confirmBtn.setClickable(true);
+                        confirmBtn.setEnabled(true);
+                        isPushCompleted = true;
+                        isPullCompleted = false;
+
+                    } else {
+                        //Pull Request only
+                        pullDatafromServer();
+                        isPullCompleted = true;
+                        isPushCompleted = false;
+                        Button confirmBtn = findViewById(R.id.syncFinishBtn);
+                        confirmBtn.setVisibility(View.VISIBLE);
+                        confirmBtn.setClickable(true);
+                        confirmBtn.setEnabled(true);
+                        confirmBtn.setText(R.string.syncFinish);
+                        msg = "Sync Completed";
+                        waitingMsg.setText(msg);
+                        findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
+                    }
+
+                } else {
+                    findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
+                    findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
+                    Toast.makeText(this, "Could not contact the Server. Please check the Connection", Toast.LENGTH_SHORT).show();
                 }
-
-            } else{
-                findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
-                findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
-                Toast.makeText(this, "Could not contact the Server. Please check the Connection", Toast.LENGTH_SHORT).show();
             }
-        } else{
+        }
+        else{
             findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
             findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
             Toast.makeText(this, "Error Reading Server Details from Database", Toast.LENGTH_SHORT).show();
@@ -198,19 +206,33 @@ public class SyncActivity extends Activity {
 
 
 
-    private void stopServices(){
+    private boolean stopServices(){
         Intent angleCalcServiceIntent = new Intent(this, AngleCalculationService.class);
         Intent alphaCalcServiceIntent = new Intent (this, AlphaCalculationService.class);
         Intent predictionServiceIntent = new Intent(this, PredictionService.class);
         Intent validationServiceIntent = new Intent(this, ValidationService.class);
         Intent decodoingServiceIntent = new Intent(this, AISDecodingService.class);
         Intent networkServiceIntent = new Intent(this, NetworkService.class);
-        stopService(angleCalcServiceIntent);
-        stopService(alphaCalcServiceIntent);
-        stopService(predictionServiceIntent);
-        stopService(validationServiceIntent);
-        stopService(decodoingServiceIntent);
-        stopService(networkServiceIntent);
+        boolean isServiceRunning;
+        do{
+          isServiceRunning = stopService(angleCalcServiceIntent);
+        } while(!isServiceRunning);
+        do{
+            isServiceRunning = stopService(alphaCalcServiceIntent);
+        } while(!isServiceRunning);
+        do{
+            isServiceRunning = stopService(predictionServiceIntent);
+        } while(!isServiceRunning);
+        do{
+            isServiceRunning = stopService(validationServiceIntent);
+        } while(!isServiceRunning);
+        do{
+            isServiceRunning = stopService(decodoingServiceIntent);
+        } while(!isServiceRunning);
+        do{
+            isServiceRunning = stopService(networkServiceIntent);
+        } while(!isServiceRunning);
+        return isServiceRunning;
     }
 
     private void clearMobileStationTable(){
@@ -382,6 +404,6 @@ public class SyncActivity extends Activity {
 
         msg = "Clearing Database and Pulling Configuration Parameters from the Server";
         waitingMsg.setText(msg);
-        parameterSync.onClickParameterPullButton();
+        parameterSync.onClickParameterPullButton(numOfBaseStations);
     }
 }

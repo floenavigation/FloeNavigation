@@ -128,10 +128,10 @@ public class ConfigurationParameterSync {
         }
     }
 
-    public void onClickParameterPullButton(){
+    public void onClickParameterPullButton(long baseStations){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
         db = dbHelper.getReadableDatabase();
-        if(MainActivity.numOfBaseStations == 2) {
+        if(baseStations == 2) {
             db.execSQL("Delete from " + DatabaseHelper.configParametersTable + " Where " + DatabaseHelper.parameterName + " NOT IN ('TABLET_ID', 'SYNC_SERVER_HOSTNAME', 'SYNC_SERVER_PORT')");
         }
         StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
