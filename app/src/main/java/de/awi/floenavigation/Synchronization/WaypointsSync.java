@@ -2,6 +2,7 @@ package de.awi.floenavigation.Synchronization;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -88,23 +89,7 @@ public class WaypointsSync {
                 }while (waypointsCursor.moveToNext());
             }
             waypointsCursor.close();
-
-            Cursor deletedWaypointsCursor = db.query(DatabaseHelper.waypointDeletedTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);
-            i = 0;
-            if(deletedWaypointsCursor.moveToFirst()){
-                do{
-                    deletedWaypointsData.put(i, deletedWaypointsCursor.getString(deletedWaypointsCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
-                    Log.d(TAG, "Waypoint to be Deleted: " + deletedWaypointsCursor.getString(deletedWaypointsCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
-                    i++;
-
-                }while (deletedWaypointsCursor.moveToNext());
-            }
             Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
-            deletedWaypointsCursor.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -125,13 +110,13 @@ public class WaypointsSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -164,6 +149,132 @@ public class WaypointsSync {
 
         }
 
+
+    }
+
+    public void onClickWaypointsPullButton(){
+        try {
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            sendWaypointDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
+            db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
+            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        parser.setInput(new StringReader(response));
+                        int event = parser.getEventType();
+                        String tag = "";
+                        String value = "";
+                        while (event != XmlPullParser.END_DOCUMENT) {
+                            tag = parser.getName();
+                            switch (event) {
+                                case XmlPullParser.START_TAG:
+                                    if (tag.equals(DatabaseHelper.waypointsTable)) {
+                                        waypoints = new Waypoints(mContext);
+                                        waypointsList.add(waypoints);
+                                    }
+                                    break;
+
+                                case XmlPullParser.TEXT:
+                                    value = parser.getText();
+                                    break;
+
+                                case XmlPullParser.END_TAG:
+
+                                    switch (tag) {
+
+                                        case DatabaseHelper.latitude:
+                                            waypoints.setLatitude(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.longitude:
+                                            waypoints.setLongitude(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.xPosition:
+                                            waypoints.setxPosition(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.yPosition:
+                                            waypoints.setyPosition(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.updateTime:
+                                            waypoints.setUpdateTime(value);
+                                            break;
+
+                                        case DatabaseHelper.labelID:
+                                            waypoints.setLabelID(value);
+                                            break;
+
+                                        case DatabaseHelper.label:
+                                            waypoints.setLabel(value);
+                                            break;
+
+
+                                    }
+                                    break;
+                            }
+                            event = parser.next();
+                        }
+                        for (Waypoints currentWaypoint : waypointsList) {
+                            currentWaypoint.insertWaypointsInDB();
+                        }
+                        Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
+                    } catch (XmlPullParserException e) {
+                        Log.d(TAG, "Error Parsing XML");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.d(TAG, "IOException from Parser");
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+
+            requestQueue.add(pullRequest);
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/Waypoint/pullWaypoints.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/Waypoint/pushWaypoints.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/Waypoint/deleteWaypoints.php";
+
+    }
+
+    private void sendWaypointDeleteRequest(SQLiteDatabase db){
+        try{
+            Cursor deletedWaypointsCursor = db.query(DatabaseHelper.waypointDeletedTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            int i = 0;
+            if(deletedWaypointsCursor.moveToFirst()){
+                do{
+                    deletedWaypointsData.put(i, deletedWaypointsCursor.getString(deletedWaypointsCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
+                    Log.d(TAG, "Waypoint to be Deleted: " + deletedWaypointsCursor.getString(deletedWaypointsCursor.getColumnIndexOrThrow(DatabaseHelper.labelID)));
+                    i++;
+
+                }while (deletedWaypointsCursor.moveToNext());
+            }
+            deletedWaypointsCursor.close();
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
         for(int j = 0; j < deletedWaypointsData.size(); j++){
             final int delIndex = j;
             request = new StringRequest(Request.Method.POST, deleteURL, new Response.Listener<String>() {
@@ -171,13 +282,13 @@ public class WaypointsSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -204,101 +315,6 @@ public class WaypointsSync {
             requestQueue.add(request);
 
         }
-    }
-
-    public void onClickWaypointsPullButton(){
-        dbHelper = DatabaseHelper.getDbInstance(mContext);
-        db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
-        db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
-        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    parser.setInput(new StringReader(response));
-                    int event = parser.getEventType();
-                    String tag = "";
-                    String value = "";
-                    while (event != XmlPullParser.END_DOCUMENT) {
-                        tag = parser.getName();
-                        switch (event) {
-                            case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.waypointsTable)) {
-                                    waypoints = new Waypoints(mContext);
-                                    waypointsList.add(waypoints);
-                                }
-                                break;
-
-                            case XmlPullParser.TEXT:
-                                value = parser.getText();
-                                break;
-
-                            case XmlPullParser.END_TAG:
-
-                                switch (tag) {
-
-                                    case DatabaseHelper.latitude:
-                                        waypoints.setLatitude(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.longitude:
-                                        waypoints.setLongitude(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.xPosition:
-                                        waypoints.setxPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.yPosition:
-                                        waypoints.setyPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.updateTime:
-                                        waypoints.setUpdateTime(value);
-                                        break;
-
-                                    case DatabaseHelper.labelID:
-                                        waypoints.setLabelID(value);
-                                        break;
-
-                                    case DatabaseHelper.label:
-                                        waypoints.setLabel(value);
-                                        break;
-
-
-                                }
-                                break;
-                        }
-                        event = parser.next();
-                    }
-                    for(Waypoints currentWaypoint : waypointsList){
-                        currentWaypoint.insertWaypointsInDB();
-                    }
-                    Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
-                } catch (XmlPullParserException e) {
-                    Log.d(TAG, "Error Parsing XML");
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException from Parser");
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(pullRequest);
-
-    }
-
-    public void setBaseUrl(String baseUrl, String port){
-        URL = "http://" + baseUrl + ":" + port + "/Waypoint/pullWaypoints.php";
-        pullURL = "http://" + baseUrl + ":" + port + "/Waypoint/pushWaypoints.php";
-        deleteURL = "http://" + baseUrl + ":" + port + "/Waypoint/deleteWaypoints.php";
-
     }
 
 }

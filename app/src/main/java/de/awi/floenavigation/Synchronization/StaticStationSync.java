@@ -2,6 +2,7 @@ package de.awi.floenavigation.Synchronization;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -83,23 +84,8 @@ public class StaticStationSync {
                 }while (staticStationCursor.moveToNext());
             }
             staticStationCursor.close();
-
-            Cursor deletedStaticStationCursor = db.query(DatabaseHelper.staticStationDeletedTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);
-            i = 0;
-            if(deletedStaticStationCursor.moveToFirst()){
-                do{
-                    deletedStaticStationData.put(i, deletedStaticStationCursor.getString(deletedStaticStationCursor.getColumnIndexOrThrow(DatabaseHelper.staticStationName)));
-                    Log.d(TAG, "Static Station to be Deleted: " + deletedStaticStationCursor.getString(deletedStaticStationCursor.getColumnIndexOrThrow(DatabaseHelper.staticStationName)));
-                    i++;
-
-                }while (deletedStaticStationCursor.moveToNext());
-            }
             Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
-            deletedStaticStationCursor.close();
+
         } catch (SQLiteException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -116,13 +102,13 @@ public class StaticStationSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -154,6 +140,129 @@ public class StaticStationSync {
 
         }
 
+
+    }
+
+    public void onClickStaticStationPullButton(){
+        try {
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            sendSSDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
+            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        parser.setInput(new StringReader(response));
+                        int event = parser.getEventType();
+                        String tag = "";
+                        String value = "";
+                        while (event != XmlPullParser.END_DOCUMENT) {
+                            tag = parser.getName();
+                            switch (event) {
+                                case XmlPullParser.START_TAG:
+                                    if (tag.equals(DatabaseHelper.staticStationListTable)) {
+                                        staticStation = new StaticStation(mContext);
+                                        staticStationList.add(staticStation);
+                                    }
+                                    break;
+
+                                case XmlPullParser.TEXT:
+                                    value = parser.getText();
+                                    break;
+
+                                case XmlPullParser.END_TAG:
+
+                                    switch (tag) {
+
+                                        case DatabaseHelper.staticStationName:
+                                            staticStation.setStationName(value);
+                                            Log.d(TAG, "Value: " + value);
+                                            break;
+
+                                        case DatabaseHelper.alpha:
+                                            staticStation.setAlpha(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.distance:
+                                            staticStation.setDistance(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.xPosition:
+                                            staticStation.setxPosition(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.yPosition:
+                                            staticStation.setyPosition(Double.valueOf(value));
+                                            break;
+
+                                        case DatabaseHelper.stationType:
+                                            staticStation.setStationType(value);
+                                            break;
+
+                                    }
+                                    break;
+                            }
+                            event = parser.next();
+                        }
+                        for (StaticStation currentStn : staticStationList) {
+                            currentStn.insertStaticStationInDB();
+                        }
+                        Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
+                    } catch (XmlPullParserException e) {
+                        Log.d(TAG, "Error Parsing XML");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.d(TAG, "IOException from Parser");
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+
+            requestQueue.add(pullRequest);
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/StaticStation/pullStations.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/StaticStation/pushStations.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/StaticStation/deleteStations.php";
+
+    }
+
+    private void sendSSDeleteRequest(SQLiteDatabase db){
+        try {
+            Cursor deletedStaticStationCursor = db.query(DatabaseHelper.staticStationDeletedTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            int i = 0;
+            if (deletedStaticStationCursor.moveToFirst()) {
+                do {
+                    deletedStaticStationData.put(i, deletedStaticStationCursor.getString(deletedStaticStationCursor.getColumnIndexOrThrow(DatabaseHelper.staticStationName)));
+                    Log.d(TAG, "Static Station to be Deleted: " + deletedStaticStationCursor.getString(deletedStaticStationCursor.getColumnIndexOrThrow(DatabaseHelper.staticStationName)));
+                    i++;
+
+                } while (deletedStaticStationCursor.moveToNext());
+            }
+            deletedStaticStationCursor.close();
+
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
         for(int j = 0; j < deletedStaticStationData.size(); j++){
             final int delIndex = j;
             request = new StringRequest(Request.Method.POST, deleteURL, new Response.Listener<String>() {
@@ -161,13 +270,13 @@ public class StaticStationSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -194,97 +303,6 @@ public class StaticStationSync {
             requestQueue.add(request);
 
         }
-    }
-
-    public void onClickStaticStationPullButton(){
-        dbHelper = DatabaseHelper.getDbInstance(mContext);
-        db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
-        db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
-        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    parser.setInput(new StringReader(response));
-                    int event = parser.getEventType();
-                    String tag = "";
-                    String value = "";
-                    while (event != XmlPullParser.END_DOCUMENT) {
-                        tag = parser.getName();
-                        switch (event) {
-                            case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.staticStationListTable)) {
-                                    staticStation = new StaticStation(mContext);
-                                    staticStationList.add(staticStation);
-                                }
-                                break;
-
-                            case XmlPullParser.TEXT:
-                                value = parser.getText();
-                                break;
-
-                            case XmlPullParser.END_TAG:
-
-                                switch (tag) {
-
-                                    case DatabaseHelper.staticStationName:
-                                        staticStation.setStationName(value);
-                                        Log.d(TAG, "Value: " + value);
-                                        break;
-
-                                    case DatabaseHelper.alpha:
-                                        staticStation.setAlpha(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.distance:
-                                        staticStation.setDistance(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.xPosition:
-                                        staticStation.setxPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.yPosition:
-                                        staticStation.setyPosition(Double.valueOf(value));
-                                        break;
-
-                                    case DatabaseHelper.stationType:
-                                        staticStation.setStationType(value);
-                                        break;
-
-                                }
-                                break;
-                        }
-                        event = parser.next();
-                    }
-                    for(StaticStation currentStn : staticStationList){
-                        currentStn.insertStaticStationInDB();
-                    }
-                    Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
-                } catch (XmlPullParserException e) {
-                    Log.d(TAG, "Error Parsing XML");
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException from Parser");
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(pullRequest);
-
-    }
-
-    public void setBaseUrl(String baseUrl, String port){
-        URL = "http://" + baseUrl + ":" + port + "/StaticStation/pullStations.php";
-        pullURL = "http://" + baseUrl + ":" + port + "/StaticStation/pushStations.php";
-        deleteURL = "http://" + baseUrl + ":" + port + "/StaticStation/deleteStations.php";
-
     }
 
 }

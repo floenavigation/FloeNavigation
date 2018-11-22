@@ -2,6 +2,7 @@ package de.awi.floenavigation.Synchronization;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -77,23 +78,7 @@ public class StationListSync {
                 }while (stationListCursor.moveToNext());
             }
             stationListCursor.close();
-
-            Cursor deletedStationListCursor = db.query(DatabaseHelper.stationListDeletedTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);
-            i = 0;
-            if(deletedStationListCursor.moveToFirst()){
-                do{
-                    deletedStationListData.put(i, deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
-                    Log.d(TAG, "MMSI to be Deleted: " + deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
-                    i++;
-
-                }while (deletedStationListCursor.moveToNext());
-            }
             Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
-            deletedStationListCursor.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -109,13 +94,13 @@ public class StationListSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -143,6 +128,111 @@ public class StationListSync {
             requestQueue.add(request);
 
         }
+    }
+
+    public void onClickStationListPullButton(){
+        try {
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            sendSLDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.stationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
+            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        parser.setInput(new StringReader(response));
+                        int event = parser.getEventType();
+                        String tag = "";
+                        String value = "";
+                        while (event != XmlPullParser.END_DOCUMENT) {
+                            tag = parser.getName();
+                            switch (event) {
+                                case XmlPullParser.START_TAG:
+                                    if (tag.equals(DatabaseHelper.stationListTable)) {
+                                        stationList = new StationList(mContext);
+                                        stationArrayList.add(stationList);
+                                    }
+                                    break;
+
+                                case XmlPullParser.TEXT:
+                                    value = parser.getText();
+                                    break;
+
+                                case XmlPullParser.END_TAG:
+
+                                    switch (tag) {
+
+                                        case DatabaseHelper.stationName:
+                                            stationList.setStationName(value);
+                                            break;
+
+                                        case DatabaseHelper.mmsi:
+                                            stationList.setMmsi(Integer.parseInt(value));
+                                            break;
+
+
+                                    }
+                                    break;
+                            }
+                            event = parser.next();
+                        }
+                        for (StationList currentStn : stationArrayList) {
+                            currentStn.insertStationInDB();
+                        }
+                        Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
+                    } catch (XmlPullParserException e) {
+                        Log.d(TAG, "Error Parsing XML");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.d(TAG, "IOException from Parser");
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+
+            requestQueue.add(pullRequest);
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setBaseUrl(String baseUrl, String port){
+        URL = "http://" + baseUrl + ":" + port + "/StationList/pullStations.php";
+        pullURL = "http://" + baseUrl + ":" + port + "/StationList/pushStations.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/StationList/deleteStations.php";
+
+    }
+
+    private void sendSLDeleteRequest(SQLiteDatabase db){
+
+        try{
+            Cursor deletedStationListCursor = db.query(DatabaseHelper.stationListDeletedTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            int i = 0;
+            if(deletedStationListCursor.moveToFirst()){
+                do{
+                    deletedStationListData.put(i, deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
+                    Log.d(TAG, "MMSI to be Deleted: " + deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
+                    i++;
+
+                }while (deletedStationListCursor.moveToNext());
+            }
+            deletedStationListCursor.close();
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
 
         for(int j = 0; j < deletedStationListData.size(); j++){
             final int delIndex = j;
@@ -151,13 +241,13 @@ public class StationListSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -184,80 +274,6 @@ public class StationListSync {
             requestQueue.add(request);
 
         }
-    }
-
-    public void onClickStationListPullButton(){
-        dbHelper = DatabaseHelper.getDbInstance(mContext);
-        db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.stationListTable);
-        db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
-        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    parser.setInput(new StringReader(response));
-                    int event = parser.getEventType();
-                    String tag = "";
-                    String value = "";
-                    while (event != XmlPullParser.END_DOCUMENT) {
-                        tag = parser.getName();
-                        switch (event) {
-                            case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.stationListTable)) {
-                                    stationList = new StationList(mContext);
-                                    stationArrayList.add(stationList);
-                                }
-                                break;
-
-                            case XmlPullParser.TEXT:
-                                value = parser.getText();
-                                break;
-
-                            case XmlPullParser.END_TAG:
-
-                                switch (tag) {
-
-                                    case DatabaseHelper.stationName:
-                                        stationList.setStationName(value);
-                                        break;
-
-                                    case DatabaseHelper.mmsi:
-                                        stationList.setMmsi(Integer.parseInt(value));
-                                        break;
-
-
-                                }
-                                break;
-                        }
-                        event = parser.next();
-                    }
-                    for(StationList currentStn : stationArrayList){
-                        currentStn.insertStationInDB();
-                    }
-                    Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
-                } catch (XmlPullParserException e) {
-                    Log.d(TAG, "Error Parsing XML");
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException from Parser");
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(pullRequest);
-
-    }
-
-    public void setBaseUrl(String baseUrl, String port){
-        URL = "http://" + baseUrl + ":" + port + "/StationList/pullStations.php";
-        pullURL = "http://" + baseUrl + ":" + port + "/StationList/pushStations.php";
-        deleteURL = "http://" + baseUrl + ":" + port + "/StationList/deleteStations.php";
 
     }
 

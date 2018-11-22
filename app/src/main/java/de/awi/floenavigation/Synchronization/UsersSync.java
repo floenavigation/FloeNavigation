@@ -74,23 +74,7 @@ public class UsersSync {
                 }while (userCursor.moveToNext());
             }
             userCursor.close();
-
-            Cursor deletedUserCursor = db.query(DatabaseHelper.userDeletedTable,
-                    null,
-                    null,
-                    null,
-                    null, null, null);
-            i = 0;
-            if(deletedUserCursor.moveToFirst()){
-                do{
-                    deletedUserData.put(i, deletedUserCursor.getString(deletedUserCursor.getColumnIndexOrThrow(DatabaseHelper.userName)));
-                    Log.d(TAG, "User to be Deleted: " + deletedUserCursor.getString(deletedUserCursor.getColumnIndexOrThrow(DatabaseHelper.userName)));
-                    i++;
-
-                }while (deletedUserCursor.moveToNext());
-            }
             Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
-            deletedUserCursor.close();
         } catch (SQLiteException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -106,13 +90,13 @@ public class UsersSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
 
                     } catch (JSONException e) {
@@ -140,52 +124,14 @@ public class UsersSync {
 
         }
 
-        for(int j = 0; j < deletedUserData.size(); j++){
-            final int delIndex = j;
-            request = new StringRequest(Request.Method.POST, deleteUserURL, new Response.Listener<String>() {
 
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        Log.d(TAG, "on receive");
-                        JSONObject jsonObject = new JSONObject(response);
-                        //Log.d(TAG, "on receive");
-                        if(jsonObject.names().get(0).equals("success")){
-                            Toast.makeText(mContext,"SUCCESS "+jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContext, "Error" +jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
-                }
-            }){
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-
-                    HashMap<String,String> hashMap = new HashMap<String, String>();
-                    hashMap.put("username",(deletedUserData.get(delIndex) == null)? "" : deletedUserData.get(delIndex));
-                    //Log.d(TAG, "User sent to be Deleted: " + deletedUserData.get(delIndex) + " Index: " + String.valueOf(delIndex));
-                    return hashMap;
-                }
-            };
-            requestQueue.add(request);
-
-        }
     }
 
     public void onClickUserPullButton(){
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            sendUsersDeleteRequest(db);
             db.execSQL("Delete from " + DatabaseHelper.usersTable);
             db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
             Log.d(TAG, "PullURL: " + pullURL);
@@ -260,6 +206,72 @@ public class UsersSync {
         pullURL = "http://" + baseUrl + ":" + port + "/Users/pushUsers.php";
         deleteUserURL = "http://" + baseUrl + ":" + port + "/Users/deleteUsers.php";
 
+    }
+
+    private void sendUsersDeleteRequest(SQLiteDatabase db){
+        try{
+            Cursor deletedUserCursor = db.query(DatabaseHelper.userDeletedTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            int i = 0;
+            if(deletedUserCursor.moveToFirst()){
+                do{
+                    deletedUserData.put(i, deletedUserCursor.getString(deletedUserCursor.getColumnIndexOrThrow(DatabaseHelper.userName)));
+                    Log.d(TAG, "User to be Deleted: " + deletedUserCursor.getString(deletedUserCursor.getColumnIndexOrThrow(DatabaseHelper.userName)));
+                    i++;
+
+                }while (deletedUserCursor.moveToNext());
+            }
+            deletedUserCursor.close();
+
+
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+        for(int j = 0; j < deletedUserData.size(); j++){
+            final int delIndex = j;
+            request = new StringRequest(Request.Method.POST, deleteUserURL, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    HashMap<String,String> hashMap = new HashMap<String, String>();
+                    hashMap.put("username",(deletedUserData.get(delIndex) == null)? "" : deletedUserData.get(delIndex));
+                    //Log.d(TAG, "User sent to be Deleted: " + deletedUserData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    return hashMap;
+                }
+            };
+            requestQueue.add(request);
+
+        }
     }
 
 }
