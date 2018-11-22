@@ -174,7 +174,7 @@ public class SyncActivity extends Activity {
                     } else{
                         findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
                         findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
-                        Toast.makeText(this, "Could not stop Services", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Could not stop the services", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
@@ -211,17 +211,11 @@ public class SyncActivity extends Activity {
 
 
     private boolean stopServices(){
-        boolean retVal = stopService(MainActivity.alphaCalculationServiceIntent) &&
+        return stopService(MainActivity.alphaCalculationServiceIntent) &&
                 stopService(MainActivity.angleCalculationServiceIntent) &&
                 stopService(MainActivity.networkServiceIntent) &&
                 stopService(MainActivity.predictionServiceIntent) &&
                 stopService(MainActivity.validationServiceIntent);
-        Log.d(TAG, "Alpha: " + stopService(MainActivity.alphaCalculationServiceIntent));
-        Log.d(TAG, "Alpha: " + stopService(MainActivity.angleCalculationServiceIntent));
-        Log.d(TAG, "Alpha: " + stopService(MainActivity.networkServiceIntent));
-        Log.d(TAG, "Alpha: " + stopService(MainActivity.predictionServiceIntent));
-        Log.d(TAG, "Alpha: " + stopService(MainActivity.validationServiceIntent));
-        return retVal;
     }
 
     private void clearMobileStationTable(){
