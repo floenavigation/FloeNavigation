@@ -137,9 +137,6 @@ public class StationListSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            sendSLDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.stationListTable);
-            db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -198,7 +195,9 @@ public class StationListSync {
 
                 }
             });
-
+            sendSLDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.stationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();

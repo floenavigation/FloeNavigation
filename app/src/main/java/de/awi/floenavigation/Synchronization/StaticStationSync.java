@@ -150,9 +150,6 @@ public class StaticStationSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            sendSSDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
-            db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -227,6 +224,9 @@ public class StaticStationSync {
 
                 }
             });
+            sendSSDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();

@@ -199,9 +199,6 @@ public class FixedStationSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            sendFSDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.fixedStationTable);
-            db.execSQL("Delete from " + DatabaseHelper.fixedStationDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -324,7 +321,9 @@ public class FixedStationSync {
 
                 }
             });
-
+            sendFSDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.fixedStationTable);
+            db.execSQL("Delete from " + DatabaseHelper.fixedStationDeletedTable);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();

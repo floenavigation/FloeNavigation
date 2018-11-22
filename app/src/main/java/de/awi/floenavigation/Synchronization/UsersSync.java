@@ -134,9 +134,6 @@ public class UsersSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            sendUsersDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.usersTable);
-            db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -193,6 +190,9 @@ public class UsersSync {
 
                 }
             });
+            sendUsersDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.usersTable);
+            db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();

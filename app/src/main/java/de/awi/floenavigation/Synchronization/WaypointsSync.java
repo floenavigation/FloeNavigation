@@ -159,9 +159,6 @@ public class WaypointsSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            sendWaypointDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
-            db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -240,6 +237,9 @@ public class WaypointsSync {
 
                 }
             });
+            sendWaypointDeleteRequest(db);
+            db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
+            db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
