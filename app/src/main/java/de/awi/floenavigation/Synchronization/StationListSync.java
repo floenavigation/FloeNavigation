@@ -52,6 +52,9 @@ public class StationListSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private int numOfDeleteRequests = 0;
+    private StringRequest pullRequest;
+
     StationListSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
@@ -137,7 +140,7 @@ public class StationListSync {
             sendSLDeleteRequest(db);
             db.execSQL("Delete from " + DatabaseHelper.stationListTable);
             db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
-            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+            pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -196,7 +199,6 @@ public class StationListSync {
                 }
             });
 
-            requestQueue.add(pullRequest);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -229,6 +231,11 @@ public class StationListSync {
                 }while (deletedStationListCursor.moveToNext());
             }
             deletedStationListCursor.close();
+            if(deletedStationListData.size() == 0){
+                requestQueue.add(pullRequest);
+            } else{
+                numOfDeleteRequests = deletedStationListData.size();
+            }
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -253,8 +260,10 @@ public class StationListSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-
+                    numOfDeleteRequests--;
+                    if(numOfDeleteRequests == 0){
+                        requestQueue.add(pullRequest);
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override

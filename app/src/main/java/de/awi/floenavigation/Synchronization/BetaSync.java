@@ -90,14 +90,16 @@ public class BetaSync {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        Log.d(TAG, "on receive");
                         JSONObject jsonObject = new JSONObject(response);
                         //Log.d(TAG, "on receive");
                         if (jsonObject.names().get(0).equals("success")) {
-                            Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
                         } else {
                             Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
+
 
                     } catch (JSONException e) {
                         e.printStackTrace();

@@ -49,6 +49,9 @@ public class UsersSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private int numOfDeleteRequests = 0;
+    private StringRequest pullRequest;
+
     UsersSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
@@ -134,8 +137,7 @@ public class UsersSync {
             sendUsersDeleteRequest(db);
             db.execSQL("Delete from " + DatabaseHelper.usersTable);
             db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
-            Log.d(TAG, "PullURL: " + pullURL);
-            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+            pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -225,7 +227,11 @@ public class UsersSync {
                 }while (deletedUserCursor.moveToNext());
             }
             deletedUserCursor.close();
-
+            if(deletedUserData.size() == 0){
+                requestQueue.add(pullRequest);
+            } else{
+                numOfDeleteRequests = deletedUserData.size();
+            }
 
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
@@ -252,6 +258,10 @@ public class UsersSync {
                         e.printStackTrace();
                     }
 
+                    numOfDeleteRequests--;
+                    if(numOfDeleteRequests == 0){
+                        requestQueue.add(pullRequest);
+                    }
 
                 }
             }, new Response.ErrorListener() {

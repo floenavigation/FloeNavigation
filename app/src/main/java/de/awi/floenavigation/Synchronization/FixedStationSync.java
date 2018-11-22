@@ -73,6 +73,9 @@ public class FixedStationSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private int numOfDeleteRequests = 0;
+    private StringRequest pullRequest;
+
     FixedStationSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
@@ -199,7 +202,7 @@ public class FixedStationSync {
             sendFSDeleteRequest(db);
             db.execSQL("Delete from " + DatabaseHelper.fixedStationTable);
             db.execSQL("Delete from " + DatabaseHelper.fixedStationDeletedTable);
-            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+            pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -355,7 +358,11 @@ public class FixedStationSync {
                 }while (deletedFixedStationCursor.moveToNext());
             }
             deletedFixedStationCursor.close();
-
+            if(deletedFixedStationData.size() == 0){
+                requestQueue.add(pullRequest);
+            } else{
+                numOfDeleteRequests = deletedFixedStationData.size();
+            }
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -381,7 +388,10 @@ public class FixedStationSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
+                    numOfDeleteRequests--;
+                    if(numOfDeleteRequests == 0){
+                        requestQueue.add(pullRequest);
+                    }
 
                 }
             }, new Response.ErrorListener() {

@@ -55,6 +55,9 @@ public class StaticStationSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private int numOfDeleteRequests = 0;
+    private StringRequest pullRequest;
+
     StaticStationSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
@@ -150,7 +153,7 @@ public class StaticStationSync {
             sendSSDeleteRequest(db);
             db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
             db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
-            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+            pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -257,7 +260,11 @@ public class StaticStationSync {
                 } while (deletedStaticStationCursor.moveToNext());
             }
             deletedStaticStationCursor.close();
-
+            if(deletedStaticStationData.size() == 0){
+                requestQueue.add(pullRequest);
+            } else{
+                numOfDeleteRequests = deletedStaticStationData.size();
+            }
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -283,6 +290,10 @@ public class StaticStationSync {
                         e.printStackTrace();
                     }
 
+                    numOfDeleteRequests--;
+                    if(numOfDeleteRequests == 0){
+                        requestQueue.add(pullRequest);
+                    }
 
                 }
             }, new Response.ErrorListener() {
