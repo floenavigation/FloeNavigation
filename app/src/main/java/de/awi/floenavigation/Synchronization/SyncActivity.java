@@ -211,11 +211,17 @@ public class SyncActivity extends Activity {
 
 
     private boolean stopServices(){
-        return stopService(MainActivity.alphaCalculationServiceIntent) &&
-                stopService(MainActivity.angleCalculationServiceIntent) &&
-                stopService(MainActivity.networkServiceIntent) &&
-                stopService(MainActivity.predictionServiceIntent) &&
-                stopService(MainActivity.validationServiceIntent);
+        boolean isAlphaStopped = stopService(MainActivity.alphaCalculationServiceIntent);
+        boolean isAngleServiceStopped = stopService(MainActivity.angleCalculationServiceIntent);
+        boolean isNetworkServiceStopped = stopService(MainActivity.networkServiceIntent);
+        boolean isPredictionServiceStopped = stopService(MainActivity.predictionServiceIntent);
+        boolean isValidationServiceStopped = stopService(MainActivity.validationServiceIntent);
+        Log.d(TAG, "Alpha: " + isAlphaStopped);
+        Log.d(TAG, "Angle: " + isAngleServiceStopped);
+        Log.d(TAG, "Network: " + isNetworkServiceStopped);
+        Log.d(TAG, "Prediction: " + isPredictionServiceStopped);
+        Log.d(TAG, "Validation: " + isValidationServiceStopped);
+        return isAlphaStopped && isAngleServiceStopped && isNetworkServiceStopped && isPredictionServiceStopped && isValidationServiceStopped;
     }
 
     private void clearMobileStationTable(){
