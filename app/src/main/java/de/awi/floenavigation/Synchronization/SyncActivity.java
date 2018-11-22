@@ -105,17 +105,17 @@ public class SyncActivity extends Activity {
             dbHelper = DatabaseHelper.getDbInstance(this);
             db = dbHelper.getReadableDatabase();
             numOfBaseStations = DatabaseUtils.queryNumEntries(db, DatabaseHelper.baseStationTable);
-            if (stopServices()) {
-                if (pingRequest(hostname)) {
-                    findViewById(R.id.syncWelcomeScreen).setVisibility(View.GONE);
-                    findViewById(R.id.syncWaitingView).setVisibility(View.VISIBLE);
-                    msg = "Contacting Server....";
-                    waitingMsg.setText(msg);
-                    msg = "Stopping Services and Clearing Metadata";
-                    waitingMsg.setText(msg);
-                    clearMobileStationTable();
-                    setBaseUrl(hostname, port);
-                    if (numOfBaseStations == 2) {
+            if (pingRequest(hostname)) {
+                findViewById(R.id.syncWelcomeScreen).setVisibility(View.GONE);
+                findViewById(R.id.syncWaitingView).setVisibility(View.VISIBLE);
+                msg = "Contacting Server....";
+                waitingMsg.setText(msg);
+                msg = "Stopping Services and Clearing Metadata";
+                waitingMsg.setText(msg);
+                clearMobileStationTable();
+                setBaseUrl(hostname, port);
+                if (numOfBaseStations == 2) {
+                    if (stopServices()) {
                         msg = "Reading Fixed Stations from Database and Pushing it to the Server";
                         waitingMsg.setText(msg);
                         fixedStationSync.onClickFixedStationReadButton();
@@ -171,27 +171,27 @@ public class SyncActivity extends Activity {
                         confirmBtn.setEnabled(true);
                         isPushCompleted = true;
                         isPullCompleted = false;
-
-                    } else {
-                        //Pull Request only
-                        pullDatafromServer();
-                        isPullCompleted = true;
-                        isPushCompleted = false;
-                        Button confirmBtn = findViewById(R.id.syncFinishBtn);
-                        confirmBtn.setVisibility(View.VISIBLE);
-                        confirmBtn.setClickable(true);
-                        confirmBtn.setEnabled(true);
-                        confirmBtn.setText(R.string.syncFinish);
-                        msg = "Sync Completed";
-                        waitingMsg.setText(msg);
-                        findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
                     }
 
                 } else {
-                    findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
-                    findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
-                    Toast.makeText(this, "Could not contact the Server. Please check the Connection", Toast.LENGTH_SHORT).show();
+                    //Pull Request only
+                    pullDatafromServer();
+                    isPullCompleted = true;
+                    isPushCompleted = false;
+                    Button confirmBtn = findViewById(R.id.syncFinishBtn);
+                    confirmBtn.setVisibility(View.VISIBLE);
+                    confirmBtn.setClickable(true);
+                    confirmBtn.setEnabled(true);
+                    confirmBtn.setText(R.string.syncFinish);
+                    msg = "Sync Completed";
+                    waitingMsg.setText(msg);
+                    findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
                 }
+
+            } else {
+                findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
+                findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
+                Toast.makeText(this, "Could not contact the Server. Please check the Connection", Toast.LENGTH_SHORT).show();
             }
         }
         else{
@@ -207,32 +207,11 @@ public class SyncActivity extends Activity {
 
 
     private boolean stopServices(){
-        Intent angleCalcServiceIntent = new Intent(this, AngleCalculationService.class);
-        Intent alphaCalcServiceIntent = new Intent (this, AlphaCalculationService.class);
-        Intent predictionServiceIntent = new Intent(this, PredictionService.class);
-        Intent validationServiceIntent = new Intent(this, ValidationService.class);
-        Intent decodoingServiceIntent = new Intent(this, AISDecodingService.class);
-        Intent networkServiceIntent = new Intent(this, NetworkService.class);
-        boolean isServiceRunning;
-        do{
-          isServiceRunning = stopService(angleCalcServiceIntent);
-        } while(!isServiceRunning);
-        do{
-            isServiceRunning = stopService(alphaCalcServiceIntent);
-        } while(!isServiceRunning);
-        do{
-            isServiceRunning = stopService(predictionServiceIntent);
-        } while(!isServiceRunning);
-        do{
-            isServiceRunning = stopService(validationServiceIntent);
-        } while(!isServiceRunning);
-        do{
-            isServiceRunning = stopService(decodoingServiceIntent);
-        } while(!isServiceRunning);
-        do{
-            isServiceRunning = stopService(networkServiceIntent);
-        } while(!isServiceRunning);
-        return isServiceRunning;
+        return stopService(MainActivity.alphaCalculationServiceIntent) &&
+                stopService(MainActivity.angleCalculationServiceIntent) &&
+                stopService(MainActivity.networkServiceIntent) &&
+                stopService(MainActivity.predictionServiceIntent) &&
+                stopService(MainActivity.validationServiceIntent);
     }
 
     private void clearMobileStationTable(){
@@ -349,8 +328,7 @@ public class SyncActivity extends Activity {
         if(isPullCompleted){
 
             isPullCompleted = false;
-            Intent networkServiceIntent = new Intent(this, NetworkService.class);
-            startService(networkServiceIntent);
+            startService(MainActivity.networkServiceIntent);
             SetupActivity.runServices(this);
             Intent configActivity = new Intent(this, AdminPageActivity.class);
             startActivity(configActivity);

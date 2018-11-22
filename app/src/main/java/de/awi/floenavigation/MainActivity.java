@@ -31,6 +31,12 @@ public class MainActivity extends ActionBarActivity {
     private static long numOfDeviceList;
     private static final String TAG = "MainActivity";
 
+    public static Intent angleCalculationServiceIntent;
+    public static Intent alphaCalculationServiceIntent;
+    public static Intent predictionServiceIntent;
+    public static Intent validationServiceIntent;
+    public static Intent networkServiceIntent;
+
 
 
     @Override
@@ -43,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
         if(!networkSetup){
             Log.d(TAG, "NetworkServicie not Running. Starting NetworkService");
             networkSetup = true;
-            Intent networkServiceIntent = new Intent(this, NetworkService.class);
+            networkServiceIntent = new Intent(this, NetworkService.class);
             startService(networkServiceIntent);
 
         } else{
@@ -72,32 +78,33 @@ public class MainActivity extends ActionBarActivity {
 
             if(!AngleCalculationService.isInstanceCreated()){
                 Log.d(TAG, "AngleCalculationService not Running. Starting AngleCalulationService");
-                Intent angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
                 startService(angleCalculationServiceIntent);
             } else{
                 Log.d(TAG, "AngleCalculationService already Running");
             }
             if(!AlphaCalculationService.isInstanceCreated()){
                 Log.d(TAG, "AlphaCalculationService not Running. Starting AlphaCalulationService");
-                Intent alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
                 startService(alphaCalculationServiceIntent);
             } else{
                 Log.d(TAG, "AlphaCalculationService already Running");
             }
             if(!PredictionService.isInstanceCreated()){
                 Log.d(TAG, "PredictionService not Running. Starting PredictionService");
-                Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
                 startService(predictionServiceIntent);
             } else{
                 Log.d(TAG, "PredictionService already Running");
             }
             if(!ValidationService.isInstanceCreated()){
                 Log.d(TAG, "ValidationService not Running. Starting ValidationService");
-                Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
                 startService(validationServiceIntent);
             } else{
                 Log.d(TAG, "ValidationService already Running");
             }
+        } else{
+            angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
+            alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
+            predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
+            validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
         }
 
 

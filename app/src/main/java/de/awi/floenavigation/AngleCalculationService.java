@@ -85,10 +85,10 @@ public class AngleCalculationService extends IntentService {
         return instance != null;
     }
 
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
-
             Runnable betaRunnable = new Runnable() {
                 @Override
                 public void run() {

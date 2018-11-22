@@ -390,14 +390,14 @@ public class SetupActivity extends ActionBarActivity {
     }
 
     public static void runServices(Context mContext){
-        Intent angleCalcServiceIntent = new Intent(mContext, AngleCalculationService.class);
+        /*Intent angleCalcServiceIntent = new Intent(mContext, AngleCalculationService.class);
         Intent alphaCalcServiceIntent = new Intent (mContext, AlphaCalculationService.class);
         Intent predictionServiceIntent = new Intent(mContext, PredictionService.class);
-        Intent validationServiceIntent = new Intent(mContext, ValidationService.class);
-        mContext.startService(angleCalcServiceIntent);
-        mContext.startService(alphaCalcServiceIntent);
-        mContext.startService(predictionServiceIntent);
-        mContext.startService(validationServiceIntent);
+        Intent validationServiceIntent = new Intent(mContext, ValidationService.class);*/
+        mContext.startService(MainActivity.angleCalculationServiceIntent);
+        mContext.startService(MainActivity.alphaCalculationServiceIntent);
+        mContext.startService(MainActivity.predictionServiceIntent);
+        mContext.startService(MainActivity.validationServiceIntent);
     }
 
     private void refreshScreen(){
