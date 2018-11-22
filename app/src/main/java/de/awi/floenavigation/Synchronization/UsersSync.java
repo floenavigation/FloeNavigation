@@ -193,8 +193,6 @@ public class UsersSync {
 
                 }
             });
-
-            requestQueue.add(pullRequest);
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
