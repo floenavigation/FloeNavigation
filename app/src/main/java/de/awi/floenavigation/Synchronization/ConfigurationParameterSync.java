@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.MainActivity;
 
 public class ConfigurationParameterSync {
     private static final String TAG = "ConfigurationParamSync";
@@ -128,7 +129,9 @@ public class ConfigurationParameterSync {
     public void onClickParameterPullButton(){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
         db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.configParametersTable + " Where " + DatabaseHelper.parameterName + " != 'TABLET_ID'");
+        if(MainActivity.numOfBaseStations == 2) {
+            db.execSQL("Delete from " + DatabaseHelper.configParametersTable + " Where " + DatabaseHelper.parameterName + " NOT IN ('TABLET_ID', 'SYNC_SERVER_HOSTNAME', 'SYNC_SERVER_PORT')");
+        }
         StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {

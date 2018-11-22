@@ -2,6 +2,7 @@ package de.awi.floenavigation.Synchronization;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -182,68 +183,75 @@ public class UsersSync {
     }
 
     public void onClickUserPullButton(){
-        dbHelper = DatabaseHelper.getDbInstance(mContext);
-        db = dbHelper.getReadableDatabase();
-        db.execSQL("Delete from " + DatabaseHelper.usersTable);
-        db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
-        StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    parser.setInput(new StringReader(response));
-                    int event = parser.getEventType();
-                    String tag = "";
-                    String value = "";
-                    while (event != XmlPullParser.END_DOCUMENT) {
-                        tag = parser.getName();
-                        switch (event) {
-                            case XmlPullParser.START_TAG:
-                                if (tag.equals(DatabaseHelper.usersTable)) {
-                                    user = new Users(mContext);
-                                    usersList.add(user);
-                                }
-                                break;
+        try {
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.usersTable);
+            db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
+            Log.d(TAG, "PullURL: " + pullURL);
+            StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        parser.setInput(new StringReader(response));
+                        int event = parser.getEventType();
+                        String tag = "";
+                        String value = "";
+                        while (event != XmlPullParser.END_DOCUMENT) {
+                            tag = parser.getName();
+                            switch (event) {
+                                case XmlPullParser.START_TAG:
+                                    if (tag.equals(DatabaseHelper.usersTable)) {
+                                        user = new Users(mContext);
+                                        usersList.add(user);
+                                    }
+                                    break;
 
-                            case XmlPullParser.TEXT:
-                                value = parser.getText();
-                                break;
+                                case XmlPullParser.TEXT:
+                                    value = parser.getText();
+                                    break;
 
-                            case XmlPullParser.END_TAG:
+                                case XmlPullParser.END_TAG:
 
-                                switch (tag) {
+                                    switch (tag) {
 
-                                    case DatabaseHelper.userName:
-                                        user.setUserName(value);
-                                        break;
+                                        case DatabaseHelper.userName:
+                                            user.setUserName(value);
+                                            break;
 
-                                    case DatabaseHelper.password:
-                                        user.setPassword(value);
-                                        break;
-                                }
-                                break;
+                                        case DatabaseHelper.password:
+                                            user.setPassword(value);
+                                            break;
+                                    }
+                                    break;
+                            }
+                            event = parser.next();
                         }
-                        event = parser.next();
+                        for (Users currentUser : usersList) {
+                            currentUser.insertUserInDB();
+                        }
+                        Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
+                    } catch (XmlPullParserException e) {
+                        Log.d(TAG, "Error Parsing XML");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.d(TAG, "IOException from Parser");
+                        e.printStackTrace();
                     }
-                    for(Users currentUser : usersList){
-                        currentUser.insertUserInDB();
-                    }
-                    Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
-                } catch (XmlPullParserException e) {
-                    Log.d(TAG, "Error Parsing XML");
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException from Parser");
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
 
-            }
-        });
+                }
+            });
 
-        requestQueue.add(pullRequest);
+            requestQueue.add(pullRequest);
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+            Toast.makeText(mContext, "Database Error User Pull", Toast.LENGTH_SHORT).show();
+        }
 
     }
 

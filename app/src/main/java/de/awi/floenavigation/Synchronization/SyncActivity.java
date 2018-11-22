@@ -99,6 +99,7 @@ public class SyncActivity extends Activity {
         if(readParamsfromDatabase()){
             hideNavigationBar();
             backButtonEnabled = false;
+            stopServices();
             if(pingRequest(hostname)){
                 findViewById(R.id.syncWelcomeScreen).setVisibility(View.GONE);
                 findViewById(R.id.syncWaitingView).setVisibility(View.VISIBLE);
@@ -106,30 +107,27 @@ public class SyncActivity extends Activity {
                 waitingMsg.setText(msg);
                 msg = "Stopping Services and Clearing Metadata";
                 waitingMsg.setText(msg);
-                stopServices();
+
                 clearMobileStationTable();
+                setBaseUrl(hostname, port);
                 if(MainActivity.numOfBaseStations == 2){
                     msg = "Reading Fixed Stations from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    fixedStationSync.setBaseUrl(hostname, port);
                     fixedStationSync.onClickFixedStationReadButton();
                     fixedStationSync.onClickFixedStationSyncButton();
 
                     msg = "Reading Base Stations from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    baseStationSync.setBaseUrl(hostname, port);
                     baseStationSync.onClickBaseStationReadButton();
                     baseStationSync.onClickBaseStationSyncButton();
 
                     msg = "Reading AIS Station List from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    stationListSync.setBaseUrl(hostname, port);
                     stationListSync.onClickStationListReadButton();
                     stationListSync.onClickStationListSyncButton();
 
                     msg = "Reading Beta Table from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    betaSync.setBaseUrl(hostname, port);
                     betaSync.onClickBetaReadButton();
                     betaSync.onClickBetaSyncButton();
 
@@ -141,25 +139,21 @@ public class SyncActivity extends Activity {
 
                     msg = "Reading Samples from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    sampleSync.setBaseUrl(hostname, port);
                     sampleSync.onClickSampleReadButton();
                     sampleSync.onClickSampleSyncButton();
 
                     msg = "Reading Static Stations from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    staticStationSync.setBaseUrl(hostname, port);
                     staticStationSync.onClickStaticStationReadButton();
                     staticStationSync.onClickStaticStationSyncButton();
 
                     msg = "Reading Waypoints from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    waypointsSync.setBaseUrl(hostname, port);
                     waypointsSync.onClickWaypointsReadButton();
                     waypointsSync.onClickWaypointsSyncButton();
 
                     msg = "Reading Configuration Parameters from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
-                    parameterSync.setBaseUrl(hostname, port);
                     parameterSync.onClickParameterReadButton();
                     parameterSync.onClickParameterSyncButton();
 
@@ -229,6 +223,18 @@ public class SyncActivity extends Activity {
             Toast.makeText(this, "Error Clearing Mobile Station Database", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+    }
+
+    private void setBaseUrl(String host, String port){
+        fixedStationSync.setBaseUrl(host, port);
+        baseStationSync.setBaseUrl(host, port);
+        stationListSync.setBaseUrl(host, port);
+        betaSync.setBaseUrl(host, port);
+        usersSync.setBaseUrl(host, port);
+        waypointsSync.setBaseUrl(host, port);
+        staticStationSync.setBaseUrl(host, port);
+        sampleSync.setBaseUrl(host, port);
+        parameterSync.setBaseUrl(host, port);
     }
 
 
