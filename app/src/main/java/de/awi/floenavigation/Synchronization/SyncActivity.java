@@ -1,6 +1,7 @@
 package de.awi.floenavigation.Synchronization;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -115,7 +116,7 @@ public class SyncActivity extends Activity {
                 clearMobileStationTable();
                 setBaseUrl(hostname, port);
                 if (numOfBaseStations == 2) {
-                    if (stopServices()) {
+                    if (MainActivity.stopServices()) {
                         msg = "Reading Fixed Stations from Database and Pushing it to the Server";
                         waitingMsg.setText(msg);
                         fixedStationSync.onClickFixedStationReadButton();
@@ -211,12 +212,12 @@ public class SyncActivity extends Activity {
 
 
     private boolean stopServices(){
-        boolean isAlphaStopped = stopService(MainActivity.alphaCalculationServiceIntent);
-        boolean isAngleServiceStopped = stopService(MainActivity.angleCalculationServiceIntent);
+        boolean isAlphaStopped = MainActivity.mContext.stopService(new Intent(this, AlphaCalculationService.class));
+        boolean isAngleServiceStopped = MainActivity.mContext.stopService(MainActivity.angleCalculationServiceIntent);
         boolean isNetworkServiceStopped = stopService(MainActivity.networkServiceIntent);
         boolean isPredictionServiceStopped = stopService(MainActivity.predictionServiceIntent);
         boolean isValidationServiceStopped = stopService(MainActivity.validationServiceIntent);
-        Log.d(TAG, "Alpha: " + isAlphaStopped);
+        Log.d(TAG, "AlphawithMain: " + isAlphaStopped);
         Log.d(TAG, "Angle: " + isAngleServiceStopped);
         Log.d(TAG, "Network: " + isNetworkServiceStopped);
         Log.d(TAG, "Prediction: " + isPredictionServiceStopped);
