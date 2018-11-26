@@ -412,6 +412,7 @@ public class SyncActivity extends Activity {
                         Log.d(TAG, "Pull Requests Completed. Starting Services");
                         AISMessageReceiver.setStopDecoding(false);
                         SetupActivity.runServices(mContext);
+                        timer.cancel();
 
                     } else{
                         Log.d(TAG, "Pull not Completed yet.");
