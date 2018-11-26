@@ -48,6 +48,8 @@ public class AlphaCalculationService extends IntentService {
     private long gpsTime;
     private long timeDiff;
 
+    private static boolean stopTimer  = false;
+
     private static AlphaCalculationService instance = null;
 
 
@@ -63,6 +65,7 @@ public class AlphaCalculationService extends IntentService {
             unregisterReceiver(broadcastReceiver);
             broadcastReceiver = null;
         }
+
     }
 
     @Override
@@ -93,42 +96,55 @@ public class AlphaCalculationService extends IntentService {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-                    SQLiteDatabase db = dbHelper.getReadableDatabase();
-                    if(readFromDatabase(db)){
-                        if(mobileStationCursor.moveToFirst()){
-                            do {
-                                stationLatitude = mobileStationCursor.getDouble(mobileStationCursor.getColumnIndex(DatabaseHelper.latitude));
-                                stationLongitude = mobileStationCursor.getDouble(mobileStationCursor.getColumnIndex(DatabaseHelper.longitude));
-                                stationMMSI = mobileStationCursor.getInt(mobileStationCursor.getColumnIndex(DatabaseHelper.mmsi));
-                                theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, stationLatitude, stationLongitude);
-                                alpha = Math.abs(theta - beta);
-                                distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, stationLatitude, stationLongitude);
-                                stationX = distance * Math.cos(Math.toRadians(alpha));
-                                stationY = distance * Math.sin(Math.toRadians(alpha));
-                                ContentValues alphaUpdate = new ContentValues();
-                                alphaUpdate.put(DatabaseHelper.alpha, alpha);
-                                alphaUpdate.put(DatabaseHelper.distance, distance);
-                                alphaUpdate.put(DatabaseHelper.xPosition, stationX);
-                                alphaUpdate.put(DatabaseHelper.yPosition, stationY);
-                                alphaUpdate.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
-                                Log.d(TAG, "Alpha " + String.valueOf(alpha));
-                                db.update(DatabaseHelper.mobileStationTable, alphaUpdate, DatabaseHelper.mmsi + " = ?", new String[] {String.valueOf(stationMMSI)});
+                    if(!stopTimer) {
+                        DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                        SQLiteDatabase db = dbHelper.getReadableDatabase();
+                        if (readFromDatabase(db)) {
+                            if (mobileStationCursor.moveToFirst()) {
+                                do {
+                                    stationLatitude = mobileStationCursor.getDouble(mobileStationCursor.getColumnIndex(DatabaseHelper.latitude));
+                                    stationLongitude = mobileStationCursor.getDouble(mobileStationCursor.getColumnIndex(DatabaseHelper.longitude));
+                                    stationMMSI = mobileStationCursor.getInt(mobileStationCursor.getColumnIndex(DatabaseHelper.mmsi));
+                                    theta = NavigationFunctions.calculateAngleBeta(originLatitude, originLongitude, stationLatitude, stationLongitude);
+                                    alpha = Math.abs(theta - beta);
+                                    distance = NavigationFunctions.calculateDifference(originLatitude, originLongitude, stationLatitude, stationLongitude);
+                                    stationX = distance * Math.cos(Math.toRadians(alpha));
+                                    stationY = distance * Math.sin(Math.toRadians(alpha));
+                                    ContentValues alphaUpdate = new ContentValues();
+                                    alphaUpdate.put(DatabaseHelper.alpha, alpha);
+                                    alphaUpdate.put(DatabaseHelper.distance, distance);
+                                    alphaUpdate.put(DatabaseHelper.xPosition, stationX);
+                                    alphaUpdate.put(DatabaseHelper.yPosition, stationY);
+                                    alphaUpdate.put(DatabaseHelper.updateTime, String.valueOf(System.currentTimeMillis() - timeDiff));
+                                    Log.d(TAG, "Alpha " + String.valueOf(alpha));
+                                    db.update(DatabaseHelper.mobileStationTable, alphaUpdate, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(stationMMSI)});
 
-                            }while(mobileStationCursor.moveToNext());
-                            mobileStationCursor.close();
-                        } else{
-                            Log.d(TAG, "Error with Mobile Station Cursor");
+                                } while (mobileStationCursor.moveToNext());
+                                mobileStationCursor.close();
+                            } else {
+                                Log.d(TAG, "Error with Mobile Station Cursor");
+                            }
+
+                        } else {
+                            Log.d(TAG, "Error Reading from Database");
                         }
-
                     } else{
-                        Log.d(TAG, "Error Reading from Database");
+                        timer.cancel();
                     }
                 }
             }, TIMER_DELAY, TIMER_PERIOD);
+
         }
 
 
+    }
+
+    public static void stopTimer(boolean stop){
+        stopTimer = stop;
+    }
+
+    public static boolean getStopTimer(){
+        return stopTimer;
     }
 
     private boolean readFromDatabase(SQLiteDatabase db){

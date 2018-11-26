@@ -34,6 +34,7 @@ public class AISMessageReceiver implements Runnable {
     private Context context;
     private boolean mDisconnectFlag = false;
     private BroadcastReceiver reconnectReceiver;
+    private static boolean stopDecoding = false;
 
     public AISMessageReceiver(String addr, int port, Context con){
         this.dstAddress = addr;
@@ -100,10 +101,11 @@ public class AISMessageReceiver implements Runnable {
                         packet = responseString.toString();
                         //responseString.setLength(0);
 
-
-                        Intent serviceIntent = new Intent(context, AISDecodingService.class);
-                        serviceIntent.putExtra("AISPacket", packet);
-                        context.startService(serviceIntent);
+                        if(!stopDecoding) {
+                            Intent serviceIntent = new Intent(context, AISDecodingService.class);
+                            serviceIntent.putExtra("AISPacket", packet);
+                            context.startService(serviceIntent);
+                        }
                     }
                     responseString.setLength(0);
                     /*Intent intent = new Intent("RECEIVED_PACKET");
@@ -127,6 +129,10 @@ public class AISMessageReceiver implements Runnable {
 
     public boolean isConnected(){
         return client.isConnected();
+    }
+
+    public static void setStopDecoding(boolean stopAISDecoding){
+        stopDecoding = stopAISDecoding;
     }
 
 }

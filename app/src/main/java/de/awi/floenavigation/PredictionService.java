@@ -41,6 +41,8 @@ public class PredictionService extends IntentService {
 
     private static PredictionService instance = null;
 
+    private static boolean stopRunnable = false;
+
     public PredictionService() {
         super("PredictionService");
         mPredictionHandler = new Handler();
@@ -111,7 +113,11 @@ public class PredictionService extends IntentService {
                             } else{
                                 Log.d(TAG, "Error Reading Origin Coordinates");
                             }
-                            mPredictionHandler.postDelayed(this, PREDICTION_TIME);
+                            if(!stopRunnable) {
+                                mPredictionHandler.postDelayed(this, PREDICTION_TIME);
+                            } else{
+                                mPredictionHandler.removeCallbacks(this);
+                            }
                         }catch (SQLException e){
                             String text = "Database unavailable";
                             Log.d(TAG, text);
@@ -121,8 +127,16 @@ public class PredictionService extends IntentService {
 
                 };
             mPredictionHandler.post(predictionRunnable);
-            }
         }
+    }
+
+    public static void setStopRunnable(boolean stop){
+        stopRunnable = stop;
+    }
+
+    public static boolean getStopRunnable(){
+        return stopRunnable;
+    }
 
     private void retrieveConfigurationParametersDatafromDB(SQLiteDatabase db){
         try{

@@ -43,6 +43,7 @@ public class AngleCalculationService extends IntentService {
     private long timeDiff;
 
     private static AngleCalculationService instance = null;
+    private static boolean stopRunnable = false;
 
 
 
@@ -117,7 +118,11 @@ public class AngleCalculationService extends IntentService {
                             }
                         }
                         //db.close();
-                        mHandler.postDelayed(this, CALCULATION_TIME);
+                        if(!stopRunnable) {
+                            mHandler.postDelayed(this, CALCULATION_TIME);
+                        } else{
+                            mHandler.removeCallbacks(this);
+                        }
                     }catch (SQLException e){
                         String text = "Database unavailable";
                         Log.d(TAG, text);
@@ -128,6 +133,14 @@ public class AngleCalculationService extends IntentService {
 
             mHandler.post(betaRunnable);
         }
+    }
+
+    public static void setStopRunnable(boolean runnable){
+        stopRunnable = runnable;
+    }
+
+    public static boolean getStopRunnable(){
+        return stopRunnable;
     }
 
     private void betaAngleCalculation(SQLiteDatabase db){

@@ -58,7 +58,7 @@ public class ValidationService extends IntentService {
     //private Context appContext;
 
     private static ValidationService instance = null;
-
+    private static boolean stopRunnable = false;
 
     public ValidationService() {
         super("ValidationService");
@@ -170,8 +170,11 @@ public class ValidationService extends IntentService {
                         }else {
                             Log.d(TAG, "FixedStationTable Cursor Error");
                         }
-
-                        mValidationHandler.postDelayed(this, VALIDATION_TIME);
+                        if(!stopRunnable) {
+                            mValidationHandler.postDelayed(this, VALIDATION_TIME);
+                        } else{
+                            mValidationHandler.removeCallbacks(this);
+                        }
                     }catch (SQLException e){
                         Log.d(TAG, String.valueOf(e));
                     }
@@ -181,6 +184,14 @@ public class ValidationService extends IntentService {
 
             mValidationHandler.postDelayed(validationRunnable, VALIDATION_TIME);
         }
+    }
+
+    public static void setStopRunnable(boolean stop){
+        stopRunnable = stop;
+    }
+
+    public static boolean getStopRunnable(){
+        return stopRunnable;
     }
 
     private void updataMMSIInDBTables(int mmsi, SQLiteDatabase db, boolean originFlag){

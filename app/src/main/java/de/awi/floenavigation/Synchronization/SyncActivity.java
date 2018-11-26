@@ -37,6 +37,7 @@ import de.awi.floenavigation.PredictionService;
 import de.awi.floenavigation.R;
 import de.awi.floenavigation.ValidationService;
 import de.awi.floenavigation.aismessages.AISDecodingService;
+import de.awi.floenavigation.aismessages.AISMessageReceiver;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 import de.awi.floenavigation.initialsetup.SetupActivity;
 import de.awi.floenavigation.network.NetworkService;
@@ -87,7 +88,6 @@ public class SyncActivity extends Activity {
         setContentView(R.layout.activity_sync);
         waitingMsg = findViewById(R.id.syncWaitingMsg);
         readParamsfromDatabase();
-
         usersSync = new UsersSync(this, requestQueue, parser);
         fixedStationSync = new FixedStationSync(this, requestQueue, parser);
         stationListSync = new StationListSync(this, requestQueue, parser);
@@ -116,7 +116,7 @@ public class SyncActivity extends Activity {
                 clearMobileStationTable();
                 setBaseUrl(hostname, port);
                 if (numOfBaseStations == 2) {
-                    if (MainActivity.stopServices()) {
+                    if (stopServices()) {
                         msg = "Reading Fixed Stations from Database and Pushing it to the Server";
                         waitingMsg.setText(msg);
                         fixedStationSync.onClickFixedStationReadButton();
@@ -212,17 +212,19 @@ public class SyncActivity extends Activity {
 
 
     private boolean stopServices(){
-        boolean isAlphaStopped = MainActivity.mContext.stopService(new Intent(this, AlphaCalculationService.class));
-        boolean isAngleServiceStopped = MainActivity.mContext.stopService(MainActivity.angleCalculationServiceIntent);
-        boolean isNetworkServiceStopped = stopService(MainActivity.networkServiceIntent);
-        boolean isPredictionServiceStopped = stopService(MainActivity.predictionServiceIntent);
-        boolean isValidationServiceStopped = stopService(MainActivity.validationServiceIntent);
-        Log.d(TAG, "AlphawithMain: " + isAlphaStopped);
-        Log.d(TAG, "Angle: " + isAngleServiceStopped);
-        Log.d(TAG, "Network: " + isNetworkServiceStopped);
-        Log.d(TAG, "Prediction: " + isPredictionServiceStopped);
-        Log.d(TAG, "Validation: " + isValidationServiceStopped);
-        return isAlphaStopped && isAngleServiceStopped && isNetworkServiceStopped && isPredictionServiceStopped && isValidationServiceStopped;
+        AlphaCalculationService.stopTimer(true);
+        AISMessageReceiver.setStopDecoding(true);
+        AngleCalculationService.setStopRunnable(true);
+        PredictionService.setStopRunnable(true);
+        ValidationService.setStopRunnable(true);
+        try {
+            Thread.sleep(200 * 1000);
+        } catch (InterruptedException e) {
+            Log.d(TAG, "Thread Interrupted");
+            e.printStackTrace();
+            return false;
+        }
+         return true;
     }
 
     private void clearMobileStationTable(){
@@ -339,7 +341,8 @@ public class SyncActivity extends Activity {
         if(isPullCompleted){
 
             isPullCompleted = false;
-            startService(MainActivity.networkServiceIntent);
+            AISMessageReceiver.setStopDecoding(false);
+
             SetupActivity.runServices(this);
             Intent configActivity = new Intent(this, AdminPageActivity.class);
             startActivity(configActivity);

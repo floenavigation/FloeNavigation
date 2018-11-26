@@ -32,28 +32,16 @@ public class MainActivity extends ActionBarActivity {
     private static long numOfDeviceList;
     private static final String TAG = "MainActivity";
 
-    public static Intent angleCalculationServiceIntent;
-    public static Intent alphaCalculationServiceIntent;
-    public static Intent predictionServiceIntent;
-    public static Intent validationServiceIntent;
-    public static Intent networkServiceIntent;
-    public static Context mContext = null;
-
-
-    public MainActivity mainActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mContext = this;
         //Start Network Monitor Service
 
         if(!networkSetup){
             Log.d(TAG, "NetworkServicie not Running. Starting NetworkService");
             networkSetup = true;
-            networkServiceIntent = new Intent(this, NetworkService.class);
-            startService(networkServiceIntent);
-            Log.d(TAG, "Network Service:" + stopService(networkServiceIntent));
+            Intent networkServiceIntent = new Intent(this, NetworkService.class);
             startService(networkServiceIntent);
 
         } else{
@@ -67,10 +55,6 @@ public class MainActivity extends ActionBarActivity {
         }else{
             Log.d(TAG, "GPSService Already Running");
         }
-        angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
-        alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
-        predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
-        validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
 
         try {
             SQLiteOpenHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
@@ -83,33 +67,35 @@ public class MainActivity extends ActionBarActivity {
         }
         if(numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE){
 
-            if(!AngleCalculationService.isInstanceCreated()){
+            if(!AngleCalculationService.getStopRunnable()){
                 Log.d(TAG, "AngleCalculationService not Running. Starting AngleCalulationService");
+                Intent angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
                 startService(angleCalculationServiceIntent);
             } else{
                 Log.d(TAG, "AngleCalculationService already Running");
             }
-            if(!AlphaCalculationService.isInstanceCreated()){
+            if(!AlphaCalculationService.getStopTimer()){
                 Log.d(TAG, "AlphaCalculationService not Running. Starting AlphaCalulationService");
+                Intent alphaCalculationServiceIntent = new Intent(getApplicationContext(), AlphaCalculationService.class);
                 startService(alphaCalculationServiceIntent);
             } else{
                 Log.d(TAG, "AlphaCalculationService already Running");
             }
-            if(!PredictionService.isInstanceCreated()){
+            if(!PredictionService.getStopRunnable()){
                 Log.d(TAG, "PredictionService not Running. Starting PredictionService");
+                Intent predictionServiceIntent = new Intent(getApplicationContext(), PredictionService.class);
                 startService(predictionServiceIntent);
             } else{
                 Log.d(TAG, "PredictionService already Running");
             }
-            if(!ValidationService.isInstanceCreated()){
+            if(!ValidationService.getStopRunnable()){
                 Log.d(TAG, "ValidationService not Running. Starting ValidationService");
+                Intent validationServiceIntent = new Intent(getApplicationContext(), ValidationService.class);
                 startService(validationServiceIntent);
             } else{
                 Log.d(TAG, "ValidationService already Running");
             }
-        } else{
-
-        }
+        } 
 
 
     }
@@ -139,11 +125,6 @@ public class MainActivity extends ActionBarActivity {
             default:
                 break;
         }
-    }
-
-
-    public void onClickListener(View view){
-
     }
 
     public void onClickDeploymentBtn(View view){
@@ -195,18 +176,4 @@ public class MainActivity extends ActionBarActivity {
         //super.onBackPressed();
     }
 
-    public static boolean stopServices(){
-        MainActivity mainActivity = new MainActivity();
-        boolean isAlphaStopped = mainActivity.stopService(alphaCalculationServiceIntent);
-        boolean isAngleServiceStopped = mContext.stopService(MainActivity.angleCalculationServiceIntent);
-        boolean isNetworkServiceStopped = mContext.stopService(MainActivity.networkServiceIntent);
-        boolean isPredictionServiceStopped = mContext.stopService(MainActivity.predictionServiceIntent);
-        boolean isValidationServiceStopped = mContext.stopService(MainActivity.validationServiceIntent);
-        Log.d(TAG, "AlphawithMain: " + isAlphaStopped);
-        Log.d(TAG, "Angle: " + isAngleServiceStopped);
-        Log.d(TAG, "Network: " + isNetworkServiceStopped);
-        Log.d(TAG, "Prediction: " + isPredictionServiceStopped);
-        Log.d(TAG, "Validation: " + isValidationServiceStopped);
-        return isAlphaStopped && isAngleServiceStopped && isNetworkServiceStopped && isPredictionServiceStopped && isValidationServiceStopped;
-    }
 }
