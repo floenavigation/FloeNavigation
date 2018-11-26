@@ -97,86 +97,86 @@ public class ValidationService extends IntentService {
             Runnable validationRunnable = new Runnable() {
                 @Override
                 public void run() {
+                    if(!stopRunnable) {
+                        try{
+                            SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+                            baseStationsRetrievalfromDB(db);
+                            retrieveConfigurationParametersDatafromDB(db);
+                            Cursor mFixedStnCursor;
+                            double fixedStnrecvdLatitude;
+                            double fixedStnrecvdLongitude;
+                            double fixedStnLatitude;
+                            double fixedStnLongitude;
+                            double evaluationDifference;
+                            double updateTime;
+                            int predictionAccuracy;
+                            int mmsi;
+                            String stationName;
 
-                    try{
-                        SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-                        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-                        baseStationsRetrievalfromDB(db);
-                        retrieveConfigurationParametersDatafromDB(db);
-                        Cursor mFixedStnCursor;
-                        double fixedStnrecvdLatitude;
-                        double fixedStnrecvdLongitude;
-                        double fixedStnLatitude;
-                        double fixedStnLongitude;
-                        double evaluationDifference;
-                        double updateTime;
-                        int predictionAccuracy;
-                        int mmsi;
-                        String stationName;
+                            mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
+                                    DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy, DatabaseHelper.updateTime},null, null, null, null, null);
+                            if (mFixedStnCursor.moveToFirst()){
+                                do{
+                                    mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                                    fixedStnrecvdLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
+                                    fixedStnrecvdLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
+                                    fixedStnLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                                    fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                                    predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
+                                    //stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
+                                    updateTime = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.updateTime));
+                                    if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME){
 
-                        mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude,
-                                DatabaseHelper.latitude, DatabaseHelper.longitude, DatabaseHelper.predictionAccuracy, DatabaseHelper.updateTime},null, null, null, null, null);
-                        if (mFixedStnCursor.moveToFirst()){
-                            do{
-                                mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
-                                fixedStnrecvdLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
-                                fixedStnrecvdLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
-                                fixedStnLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
-                                fixedStnLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
-                                predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-                                //stationName = mFixedStnCursor.getString(mFixedStnCursor.getColumnIndex(DatabaseHelper.stationName));
-                                updateTime = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.updateTime));
-                                if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME){
+                                        if (stationMessageCount > MAX_NUM_OF_VALID_PACKETS) {
+                                            stationMessageCount = 0;
+                                            final int faildPredictionTime = PREDICTION_ACCURACY_THRESHOLD_VALUE / (60 * 1000);
+                                            final String MMSI = String.valueOf(mmsi);
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    dialogBoxDisplay(faildPredictionTime, MMSI);
+                                                }
+                                            });
 
-                                    if (stationMessageCount > MAX_NUM_OF_VALID_PACKETS) {
-                                        stationMessageCount = 0;
-                                        final int faildPredictionTime = PREDICTION_ACCURACY_THRESHOLD_VALUE / (60 * 1000);
-                                        final String MMSI = String.valueOf(mmsi);
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                dialogBoxDisplay(faildPredictionTime, MMSI);
+                                            if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
+                                                deleteEntryfromStationListTableinDB(mmsi, db);
+                                                updataMMSIInDBTables(mmsi, db, (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex]));
+                                            } else {
+                                                deleteEntryfromStationListTableinDB(mmsi, db);
+                                                deleteEntryfromFixedStationTableinDB(mmsi, db);
                                             }
-                                        });
+                                        }
 
-                                        if (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex] || mmsi == baseStnMMSI[DatabaseHelper.secondStationIndex]) {
-                                            deleteEntryfromStationListTableinDB(mmsi, db);
-                                            updataMMSIInDBTables(mmsi, db, (mmsi == baseStnMMSI[DatabaseHelper.firstStationIndex]));
+                                    }else {
+                                        evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
+                                        Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
+                                        if (evaluationDifference > ERROR_THRESHOLD_VALUE) {
+                                            getMessageCount(db, updateTime);
+                                            ContentValues mContentValues = new ContentValues();
+                                            mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
+                                            Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
+                                            db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
                                         } else {
-                                            deleteEntryfromStationListTableinDB(mmsi, db);
-                                            deleteEntryfromFixedStationTableinDB(mmsi, db);
+                                            stationMessageCount = 0;
+                                            ContentValues mContentValues = new ContentValues();
+                                            mContentValues.put(DatabaseHelper.predictionAccuracy, 0);
+                                            //Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
+                                            db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
                                         }
                                     }
-
-                                }else {
-                                    evaluationDifference = NavigationFunctions.calculateDifference(fixedStnLatitude, fixedStnLongitude, fixedStnrecvdLatitude, fixedStnrecvdLongitude);
-                                    Log.d(TAG, "EvalDiff: " + String.valueOf(evaluationDifference) + " predictionAccInDb: " + predictionAccuracy);
-                                    if (evaluationDifference > ERROR_THRESHOLD_VALUE) {
-                                        getMessageCount(db, updateTime);
-                                        ContentValues mContentValues = new ContentValues();
-                                        mContentValues.put(DatabaseHelper.predictionAccuracy, ++predictionAccuracy);
-                                        Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
-                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
-                                    } else {
-                                        stationMessageCount = 0;
-                                        ContentValues mContentValues = new ContentValues();
-                                        mContentValues.put(DatabaseHelper.predictionAccuracy, 0);
-                                        //Log.d(TAG, "EvaluationDifference > Threshold: predictionAccuracy: " + String.valueOf(predictionAccuracy));
-                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
-                                    }
-                                }
-                            } while(mFixedStnCursor.moveToNext());
-                            mFixedStnCursor.close();
-                        }else {
-                            Log.d(TAG, "FixedStationTable Cursor Error");
-                        }
-                        if(!stopRunnable) {
+                                } while(mFixedStnCursor.moveToNext());
+                                mFixedStnCursor.close();
+                            }else {
+                                Log.d(TAG, "FixedStationTable Cursor Error");
+                            }
                             mValidationHandler.postDelayed(this, VALIDATION_TIME);
-                        } else{
-                            mValidationHandler.removeCallbacks(this);
+                        }catch (SQLException e){
+                            Log.d(TAG, String.valueOf(e));
                         }
-                    }catch (SQLException e){
-                        Log.d(TAG, String.valueOf(e));
+                    }
+                    else{
+                        mValidationHandler.removeCallbacks(this);
                     }
 
                 }

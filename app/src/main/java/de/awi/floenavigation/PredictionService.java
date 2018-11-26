@@ -66,63 +66,64 @@ public class PredictionService extends IntentService {
                 Runnable predictionRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        try{
-                            DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-                            SQLiteDatabase db = dbHelper.getReadableDatabase();
-                            if(getOriginCoordinates(db)) {
-                                Cursor mFixedStnCursor;
-                                double stationLatitude, stationLongitude, stationSOG, stationCOG;
-                                double[] predictedCoordinate;
-                                int mmsi;
-                                int predictionAccuracy;
-                                retrieveConfigurationParametersDatafromDB(db);
+                        if(!stopRunnable) {
+                            try{
+                                DatabaseHelper dbHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                                if(getOriginCoordinates(db)) {
+                                    Cursor mFixedStnCursor;
+                                    double stationLatitude, stationLongitude, stationSOG, stationCOG;
+                                    double[] predictedCoordinate;
+                                    int mmsi;
+                                    int predictionAccuracy;
+                                    retrieveConfigurationParametersDatafromDB(db);
 
-                                mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude,
-                                        DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.predictionAccuracy}, null, null, null, null, null);
-                                if (mFixedStnCursor.moveToFirst()) {
-                                    do {
-                                        mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
-                                        predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
-                                        if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME) {
-                                            stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
-                                            stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
-                                        } else {
-                                            stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
-                                            stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
-                                        }
-                                        stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
-                                        stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
-                                        predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
-                                        calculateNewParams(mmsi, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
-                                        ContentValues mContentValues = new ContentValues();
-                                        mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX]);
-                                        mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
-                                        mContentValues.put(DatabaseHelper.xPosition, xPosition);
-                                        mContentValues.put(DatabaseHelper.yPosition, yPosition);
-                                        mContentValues.put(DatabaseHelper.distance, distance);
-                                        mContentValues.put(DatabaseHelper.alpha, alpha);
-                                        mContentValues.put(DatabaseHelper.isPredicted, 1);
-                                        db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
-                                        Log.d(TAG, "Lat: " + stationLatitude + " Lon: " + stationLongitude);
-                                        Log.d(TAG, "PredLat: " + predictedCoordinate[0] + "PredLon: " + predictedCoordinate[1]);
-                                    } while (mFixedStnCursor.moveToNext());
-                                    mFixedStnCursor.close();
-                                } else {
-                                    Log.d(TAG, "FixedStationTable Cursor Error");
+                                    mFixedStnCursor = db.query(DatabaseHelper.fixedStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.latitude, DatabaseHelper.longitude,
+                                            DatabaseHelper.recvdLatitude, DatabaseHelper.recvdLongitude, DatabaseHelper.sog, DatabaseHelper.cog, DatabaseHelper.predictionAccuracy}, null, null, null, null, null);
+                                    if (mFixedStnCursor.moveToFirst()) {
+                                        do {
+                                            mmsi = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                                            predictionAccuracy = mFixedStnCursor.getInt(mFixedStnCursor.getColumnIndex(DatabaseHelper.predictionAccuracy));
+                                            if (predictionAccuracy > PREDICTION_ACCURACY_THRESHOLD_VALUE / VALIDATION_TIME) {
+                                                stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.latitude));
+                                                stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.longitude));
+                                            } else {
+                                                stationLatitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLatitude));
+                                                stationLongitude = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.recvdLongitude));
+                                            }
+                                            stationSOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.sog));
+                                            stationCOG = mFixedStnCursor.getDouble(mFixedStnCursor.getColumnIndex(DatabaseHelper.cog));
+                                            predictedCoordinate = NavigationFunctions.calculateNewPosition(stationLatitude, stationLongitude, stationSOG, stationCOG);
+                                            calculateNewParams(mmsi, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX], predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                            ContentValues mContentValues = new ContentValues();
+                                            mContentValues.put(DatabaseHelper.latitude, predictedCoordinate[DatabaseHelper.LATITUDE_INDEX]);
+                                            mContentValues.put(DatabaseHelper.longitude, predictedCoordinate[DatabaseHelper.LONGITUDE_INDEX]);
+                                            mContentValues.put(DatabaseHelper.xPosition, xPosition);
+                                            mContentValues.put(DatabaseHelper.yPosition, yPosition);
+                                            mContentValues.put(DatabaseHelper.distance, distance);
+                                            mContentValues.put(DatabaseHelper.alpha, alpha);
+                                            mContentValues.put(DatabaseHelper.isPredicted, 1);
+                                            db.update(DatabaseHelper.fixedStationTable, mContentValues, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(mmsi)});
+                                            Log.d(TAG, "Lat: " + stationLatitude + " Lon: " + stationLongitude);
+                                            Log.d(TAG, "PredLat: " + predictedCoordinate[0] + "PredLon: " + predictedCoordinate[1]);
+                                        } while (mFixedStnCursor.moveToNext());
+                                        mFixedStnCursor.close();
+                                    } else {
+                                        Log.d(TAG, "FixedStationTable Cursor Error");
+                                    }
+                                } else{
+                                    Log.d(TAG, "Error Reading Origin Coordinates");
                                 }
-                            } else{
-                                Log.d(TAG, "Error Reading Origin Coordinates");
-                            }
-                            if(!stopRunnable) {
-                                mPredictionHandler.postDelayed(this, PREDICTION_TIME);
-                            } else{
-                                mPredictionHandler.removeCallbacks(this);
-                            }
-                        }catch (SQLException e){
-                            String text = "Database unavailable";
-                            Log.d(TAG, text);
-                        }
 
+                                    mPredictionHandler.postDelayed(this, PREDICTION_TIME);
+
+                            }catch (SQLException e){
+                                String text = "Database unavailable";
+                                Log.d(TAG, text);
+                            }
+                        } else{
+                            mPredictionHandler.removeCallbacks(this);
+                        }
                     }
 
                 };

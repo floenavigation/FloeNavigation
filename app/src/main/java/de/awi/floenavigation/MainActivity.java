@@ -67,7 +67,7 @@ public class MainActivity extends ActionBarActivity {
         }
         if(numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE){
 
-            if(!AngleCalculationService.getStopRunnable()){
+            if(!AngleCalculationService.isInstanceCreated()){
                 Log.d(TAG, "AngleCalculationService not Running. Starting AngleCalulationService");
                 Intent angleCalculationServiceIntent = new Intent(getApplicationContext(), AngleCalculationService.class);
                 startService(angleCalculationServiceIntent);
@@ -95,8 +95,7 @@ public class MainActivity extends ActionBarActivity {
             } else{
                 Log.d(TAG, "ValidationService already Running");
             }
-        } 
-
+        }
 
     }
 

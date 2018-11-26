@@ -68,7 +68,7 @@ public class AngleCalculationService extends IntentService {
     @Override
     public void onCreate(){
         super.onCreate();
-        instance = this;
+
         if(broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver(){
                 @Override
@@ -89,43 +89,45 @@ public class AngleCalculationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        instance = this;
         if (intent != null) {
             Runnable betaRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
-                        //SQLiteOpenHelper databaseHelper = new DatabaseHelper(getApplicationContext());
-                        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+                    if(!stopRunnable) {
+                        try {
+                            SQLiteOpenHelper databaseHelper = DatabaseHelper.getDbInstance(getApplicationContext());
+                            //SQLiteOpenHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+                            SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
 
-                        mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[] {DatabaseHelper.mmsi}, null,
-                                null, null, null, null);
-                        if (mBaseStnCursor.getCount() != DatabaseHelper.NUM_OF_BASE_STATIONS){
-                            Log.d(TAG, "Error Reading from Base Station Table ");
-                        } else {
-                            if (mBaseStnCursor.moveToFirst()) {
-                                int index = 0;
-                                do {
-                                    mmsi[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
-                                    index++;
-                                } while (mBaseStnCursor.moveToNext());
-                                mBaseStnCursor.close();
+                            mBaseStnCursor = db.query(DatabaseHelper.baseStationTable, new String[] {DatabaseHelper.mmsi}, null,
+                                    null, null, null, null);
+                            if (mBaseStnCursor.getCount() != DatabaseHelper.NUM_OF_BASE_STATIONS){
+                                Log.d(TAG, "Error Reading from Base Station Table ");
+                            } else {
+                                if (mBaseStnCursor.moveToFirst()) {
+                                    int index = 0;
+                                    do {
+                                        mmsi[index] = mBaseStnCursor.getInt(mBaseStnCursor.getColumnIndex(DatabaseHelper.mmsi));
+                                        index++;
+                                    } while (mBaseStnCursor.moveToNext());
+                                    mBaseStnCursor.close();
 
-                                betaAngleCalculation(db);
-                                //alphaAngleCalculation(db);
+                                    betaAngleCalculation(db);
+                                    //alphaAngleCalculation(db);
 
+                                }
                             }
-                        }
-                        //db.close();
-                        if(!stopRunnable) {
+                            //db.close();
                             mHandler.postDelayed(this, CALCULATION_TIME);
-                        } else{
-                            mHandler.removeCallbacks(this);
+                        }catch (SQLException e){
+                            String text = "Database unavailable";
+                            Log.d(TAG, text);
                         }
-                    }catch (SQLException e){
-                        String text = "Database unavailable";
-                        Log.d(TAG, text);
+                    }
+                    else{
+                        mHandler.removeCallbacks(this);
                     }
                 }
             };

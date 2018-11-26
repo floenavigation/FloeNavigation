@@ -115,69 +115,63 @@ public class SyncActivity extends Activity {
                 waitingMsg.setText(msg);
                 clearMobileStationTable();
                 setBaseUrl(hostname, port);
+                stopServices();
                 if (numOfBaseStations == 2) {
-                    if (stopServices()) {
-                        msg = "Reading Fixed Stations from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        fixedStationSync.onClickFixedStationReadButton();
-                        fixedStationSync.onClickFixedStationSyncButton();
+                    msg = "Reading Fixed Stations from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    fixedStationSync.onClickFixedStationReadButton();
+                    fixedStationSync.onClickFixedStationSyncButton();
 
-                        msg = "Reading Base Stations from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        baseStationSync.onClickBaseStationReadButton();
-                        baseStationSync.onClickBaseStationSyncButton();
+                    msg = "Reading Base Stations from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    baseStationSync.onClickBaseStationReadButton();
+                    baseStationSync.onClickBaseStationSyncButton();
 
-                        msg = "Reading AIS Station List from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        stationListSync.onClickStationListReadButton();
-                        stationListSync.onClickStationListSyncButton();
+                    msg = "Reading AIS Station List from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    stationListSync.onClickStationListReadButton();
+                    stationListSync.onClickStationListSyncButton();
 
-                        msg = "Reading Beta Table from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        betaSync.onClickBetaReadButton();
-                        betaSync.onClickBetaSyncButton();
+                    msg = "Reading Beta Table from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    betaSync.onClickBetaReadButton();
+                    betaSync.onClickBetaSyncButton();
 
-                        msg = "Reading Users from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        usersSync.setBaseUrl(hostname, port);
-                        usersSync.onClickUserReadButton();
-                        usersSync.onClickUserSyncButton();
+                    msg = "Reading Users from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    usersSync.setBaseUrl(hostname, port);
+                    usersSync.onClickUserReadButton();
+                    usersSync.onClickUserSyncButton();
 
-                        msg = "Reading Samples from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        sampleSync.onClickSampleReadButton();
-                        sampleSync.onClickSampleSyncButton();
+                    msg = "Reading Samples from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    sampleSync.onClickSampleReadButton();
+                    sampleSync.onClickSampleSyncButton();
 
-                        msg = "Reading Static Stations from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        staticStationSync.onClickStaticStationReadButton();
-                        staticStationSync.onClickStaticStationSyncButton();
+                    msg = "Reading Static Stations from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    staticStationSync.onClickStaticStationReadButton();
+                    staticStationSync.onClickStaticStationSyncButton();
 
-                        msg = "Reading Waypoints from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        waypointsSync.onClickWaypointsReadButton();
-                        waypointsSync.onClickWaypointsSyncButton();
+                    msg = "Reading Waypoints from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    waypointsSync.onClickWaypointsReadButton();
+                    waypointsSync.onClickWaypointsSyncButton();
 
-                        msg = "Reading Configuration Parameters from Database and Pushing it to the Server";
-                        waitingMsg.setText(msg);
-                        parameterSync.onClickParameterReadButton();
-                        parameterSync.onClickParameterSyncButton();
+                    msg = "Reading Configuration Parameters from Database and Pushing it to the Server";
+                    waitingMsg.setText(msg);
+                    parameterSync.onClickParameterReadButton();
+                    parameterSync.onClickParameterSyncButton();
 
-                        //findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
-                        msg = "Push to Server Completed. Press Pull from Server only after Pushing Data from all tablets to the Server";
-                        waitingMsg.setText(msg);
-                        Button confirmBtn = findViewById(R.id.syncFinishBtn);
-                        confirmBtn.setVisibility(View.VISIBLE);
-                        confirmBtn.setClickable(true);
-                        confirmBtn.setEnabled(true);
-                        isPushCompleted = true;
-                        isPullCompleted = false;
-                    } else{
-                        findViewById(R.id.syncWelcomeScreen).setVisibility(View.VISIBLE);
-                        findViewById(R.id.syncWaitingView).setVisibility(View.GONE);
-                        Toast.makeText(this, "Could not stop the services", Toast.LENGTH_SHORT).show();
-                    }
-
+                    //findViewById(R.id.syncProgressBar).setVisibility(View.GONE);
+                    msg = "Push to Server Completed. Press Pull from Server only after Pushing Data from all tablets to the Server";
+                    waitingMsg.setText(msg);
+                    Button confirmBtn = findViewById(R.id.syncFinishBtn);
+                    confirmBtn.setVisibility(View.VISIBLE);
+                    confirmBtn.setClickable(true);
+                    confirmBtn.setEnabled(true);
+                    isPushCompleted = true;
+                    isPullCompleted = false;
                 } else {
                     //Pull Request only
                     pullDatafromServer();
@@ -211,20 +205,12 @@ public class SyncActivity extends Activity {
 
 
 
-    private boolean stopServices(){
+    private void stopServices(){
         AlphaCalculationService.stopTimer(true);
         AISMessageReceiver.setStopDecoding(true);
         AngleCalculationService.setStopRunnable(true);
         PredictionService.setStopRunnable(true);
         ValidationService.setStopRunnable(true);
-        try {
-            Thread.sleep(200 * 1000);
-        } catch (InterruptedException e) {
-            Log.d(TAG, "Thread Interrupted");
-            e.printStackTrace();
-            return false;
-        }
-         return true;
     }
 
     private void clearMobileStationTable(){
