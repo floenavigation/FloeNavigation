@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,6 +28,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.awi.floenavigation.AdminPageActivity;
 import de.awi.floenavigation.AlphaCalculationService;
@@ -74,9 +77,12 @@ public class SyncActivity extends Activity {
 
     public long numOfBaseStations;
 
+    Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         requestQueue = Volley.newRequestQueue(this);
         try {
             factory = XmlPullParserFactory.newInstance();
@@ -327,17 +333,7 @@ public class SyncActivity extends Activity {
         if(isPullCompleted){
 
             isPullCompleted = false;
-            AISMessageReceiver.setStopDecoding(false);
-            while (!baseStationSync.getDataCompleted());
-            while(!fixedStationSync.getDataComplete());
-            while(!betaSync.getDataCompleted());
-            while(!stationListSync.getDataCompleted());
-            while(!staticStationSync.getDataCompleted());
-            while(!sampleSync.getDataCompleted());
-            while(!waypointsSync.getDataCompleted());
-            while(!parameterSync.getDataCompleted());
-            while(!usersSync.getDataCompleted());
-            SetupActivity.runServices(this);
+            new RestartServices().execute();
             Intent configActivity = new Intent(this, AdminPageActivity.class);
             startActivity(configActivity);
 
@@ -392,5 +388,40 @@ public class SyncActivity extends Activity {
         msg = "Clearing Database and Pulling Configuration Parameters from the Server";
         waitingMsg.setText(msg);
         parameterSync.onClickParameterPullButton(numOfBaseStations);
+    }
+
+    private class RestartServices extends AsyncTask<Void,Void,Void> {
+
+        Timer timer = new Timer();
+        private final int TIMER_PERIOD = 10 * 1000;
+        private final int TIMER_DELAY = 0;
+
+
+        @Override
+        protected void onPreExecute(){
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if(baseStationSync.getDataCompleted() && fixedStationSync.getDataCompleted() && betaSync.getDataCompleted() && stationListSync.getDataCompleted() ){
+                        Log.d(TAG, "Pull Requests Completed. Starting Services");
+                        AISMessageReceiver.setStopDecoding(false);
+                        SetupActivity.runServices(mContext);
+
+                    } else{
+                        Log.d(TAG, "Pull not Completed yet.");
+                    }
+                }
+            }, TIMER_DELAY, TIMER_PERIOD);
+
+            return null;
+
+        }
+
     }
 }

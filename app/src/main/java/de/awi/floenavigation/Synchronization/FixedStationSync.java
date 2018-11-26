@@ -334,7 +334,7 @@ public class FixedStationSync {
 
     }
 
-    public boolean getDataComplete(){
+    public boolean getDataCompleted(){
         return dataPullCompleted;
     }
 
