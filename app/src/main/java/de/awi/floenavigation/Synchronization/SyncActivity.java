@@ -328,10 +328,19 @@ public class SyncActivity extends Activity {
 
             isPullCompleted = false;
             AISMessageReceiver.setStopDecoding(false);
-
+            while (!baseStationSync.getDataCompleted());
+            while(!fixedStationSync.getDataComplete());
+            while(!betaSync.getDataCompleted());
+            while(!stationListSync.getDataCompleted());
+            while(!staticStationSync.getDataCompleted());
+            while(!sampleSync.getDataCompleted());
+            while(!waypointsSync.getDataCompleted());
+            while(!parameterSync.getDataCompleted());
+            while(!usersSync.getDataCompleted());
             SetupActivity.runServices(this);
             Intent configActivity = new Intent(this, AdminPageActivity.class);
             startActivity(configActivity);
+
 
         }
     }

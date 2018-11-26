@@ -50,10 +50,13 @@ public class ConfigurationParameterSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private boolean dataPullCompleted;
+
     ConfigurationParameterSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickParameterReadButton(){
@@ -175,6 +178,7 @@ public class ConfigurationParameterSync {
                     for(ConfigurationParameter param : configParamArrayList){
                         param.insertParameterInDB();
                     }
+                    dataPullCompleted = true;
                     Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                 } catch (XmlPullParserException e) {
                     Log.d(TAG, "Error Parsing XML");
@@ -199,6 +203,10 @@ public class ConfigurationParameterSync {
         pushURL = "http://" + baseUrl + ":" + port + "/ConfigurationParameter/pullParameter.php";
         pullURL = "http://" + baseUrl + ":" + port + "/ConfigurationParameter/pushParameter.php";
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 }
 

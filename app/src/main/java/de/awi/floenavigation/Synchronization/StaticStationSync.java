@@ -58,10 +58,14 @@ public class StaticStationSync {
     private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
+    private boolean dataPullCompleted;
+
+
     StaticStationSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickStaticStationReadButton(){
@@ -209,6 +213,7 @@ public class StaticStationSync {
                         for (StaticStation currentStn : staticStationList) {
                             currentStn.insertStaticStationInDB();
                         }
+                        dataPullCompleted = true;
                         Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                     } catch (XmlPullParserException e) {
                         Log.d(TAG, "Error Parsing XML");
@@ -239,6 +244,10 @@ public class StaticStationSync {
         pullURL = "http://" + baseUrl + ":" + port + "/StaticStation/pushStations.php";
         deleteURL = "http://" + baseUrl + ":" + port + "/StaticStation/deleteStations.php";
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 
     private void sendSSDeleteRequest(SQLiteDatabase db){

@@ -50,10 +50,13 @@ public class BetaSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private boolean dataPullCompleted;
+
     BetaSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickBetaReadButton(){
@@ -173,6 +176,7 @@ public class BetaSync {
                     for(Beta newBeta : betaList){
                         newBeta.insertBetaInDB();
                     }
+                    dataPullCompleted = true;
                     Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                 } catch (XmlPullParserException e) {
                     Log.d(TAG, "Error Parsing XML");
@@ -202,6 +206,10 @@ public class BetaSync {
         pushURL = "http://" + baseUrl + ":" + port + "/Beta/pullBeta.php";
         pullURL = "http://" + baseUrl + ":" + port + "/Beta/pushBeta.php";
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 }
 

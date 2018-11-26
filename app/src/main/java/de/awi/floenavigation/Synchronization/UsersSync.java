@@ -52,10 +52,14 @@ public class UsersSync {
     private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
+    private boolean dataPullCompleted;
+
+
     UsersSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickUserReadButton(){
@@ -175,6 +179,7 @@ public class UsersSync {
                         for (Users currentUser : usersList) {
                             currentUser.insertUserInDB();
                         }
+                        dataPullCompleted = true;
                         Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                     } catch (XmlPullParserException e) {
                         Log.d(TAG, "Error Parsing XML");
@@ -206,6 +211,10 @@ public class UsersSync {
         pullURL = "http://" + baseUrl + ":" + port + "/Users/pushUsers.php";
         deleteUserURL = "http://" + baseUrl + ":" + port + "/Users/deleteUsers.php";
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 
     private void sendUsersDeleteRequest(SQLiteDatabase db){

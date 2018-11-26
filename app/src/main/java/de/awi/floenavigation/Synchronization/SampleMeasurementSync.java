@@ -64,10 +64,13 @@ public class SampleMeasurementSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private boolean dataPullCompleted;
+
     SampleMeasurementSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickSampleReadButton(){
@@ -222,6 +225,7 @@ public class SampleMeasurementSync {
                     for(DeviceList deviceList : devicesArrayList){
                         deviceList.insertDeviceListInDB();
                     }
+                    dataPullCompleted = true;
                     Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                 } catch (XmlPullParserException e) {
                     Log.d(TAG, "Error Parsing XML");
@@ -240,6 +244,10 @@ public class SampleMeasurementSync {
 
         requestQueue.add(pullRequest);
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 
     public void setBaseUrl(String baseUrl, String port){

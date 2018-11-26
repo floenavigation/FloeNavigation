@@ -76,10 +76,12 @@ public class FixedStationSync {
     private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
+    private boolean dataPullCompleted;
     FixedStationSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickFixedStationReadButton(){
@@ -306,6 +308,7 @@ public class FixedStationSync {
                         for (FixedStation currentStn : fixedStationList) {
                             currentStn.insertFixedStationInDB();
                         }
+                        dataPullCompleted = true;
                         Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                     } catch (XmlPullParserException e) {
                         Log.d(TAG, "Error Parsing XML");
@@ -329,6 +332,10 @@ public class FixedStationSync {
             e.printStackTrace();
         }
 
+    }
+
+    public boolean getDataComplete(){
+        return dataPullCompleted;
     }
 
     public void setBaseUrl(String baseUrl, String port){

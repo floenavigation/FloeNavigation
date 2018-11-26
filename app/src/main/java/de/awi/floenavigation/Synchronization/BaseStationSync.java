@@ -49,11 +49,13 @@ public class BaseStationSync {
     private ArrayList<BaseStation> baseStationArrayList = new ArrayList<>();
     private RequestQueue requestQueue;
     private XmlPullParser parser;
+    private boolean dataPullCompleted;
 
     BaseStationSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickBaseStationReadButton(){
@@ -181,6 +183,7 @@ public class BaseStationSync {
                     for(BaseStation currentStn : baseStationArrayList){
                         currentStn.insertBaseStationInDB();
                     }
+                    dataPullCompleted = true;
                     Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                 } catch (XmlPullParserException e) {
                     Log.d(TAG, "Error Parsing XML");
@@ -205,6 +208,10 @@ public class BaseStationSync {
         pushURL = "http://" + baseUrl + ":" + port + "/BaseStation/pullStations.php";
         pullURL = "http://" + baseUrl + ":" + port + "/BaseStation/pushStations.php";
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 }
 

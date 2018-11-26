@@ -58,6 +58,8 @@ public class WaypointsSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
+    private boolean dataPullCompleted;
+
     private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
@@ -65,6 +67,7 @@ public class WaypointsSync {
         this.mContext = context;
         this.requestQueue = requestQueue;
         this.parser = xmlPullParser;
+        dataPullCompleted = false;
     }
 
     public void onClickWaypointsReadButton(){
@@ -222,6 +225,7 @@ public class WaypointsSync {
                         for (Waypoints currentWaypoint : waypointsList) {
                             currentWaypoint.insertWaypointsInDB();
                         }
+                        dataPullCompleted = true;
                         Toast.makeText(mContext, "Data Pulled from Server", Toast.LENGTH_SHORT).show();
                     } catch (XmlPullParserException e) {
                         Log.d(TAG, "Error Parsing XML");
@@ -245,6 +249,10 @@ public class WaypointsSync {
             e.printStackTrace();
         }
 
+    }
+
+    public boolean getDataCompleted(){
+        return dataPullCompleted;
     }
 
     public void setBaseUrl(String baseUrl, String port){
