@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.awi.floenavigation.DatabaseHelper;
+import de.awi.floenavigation.helperClasses.DatabaseHelper;
 import de.awi.floenavigation.R;
 
 public class MapView extends View{

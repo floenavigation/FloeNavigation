@@ -10,13 +10,13 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_main_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_main_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".EntrySplashScreen"
+            android:name=".helperClasses.EntrySplashScreen"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -26,62 +26,71 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".dashboard.MainActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_main_activity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_main_icon"
+            android:roundIcon="@mipmap/ic_main_icon_round"/>
         <activity
-            android:name=".LoginPage"
+            android:name=".admin.LoginPage"
             android:configChanges="orientation"
             android:label="@string/label_activity_login_page"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_admin_icon"
+            android:roundIcon="@mipmap/ic_admin_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
-            android:name=".AdminPageActivity"
+            android:name=".admin.AdminPageActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_admin_page"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_admin_icon"
+            android:roundIcon="@mipmap/ic_admin_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
             android:name=".initialsetup.GridSetupActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_grid_setup"
-            android:parentActivityName=".AdminPageActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".admin.AdminPageActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_initial_config_icon"
+            android:roundIcon="@mipmap/ic_initial_config_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity" />
+                android:value=".admin.AdminPageActivity" />
         </activity>
         <activity
             android:name=".deployment.DeploymentActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_deployment"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_deployment_icon"
+            android:roundIcon="@mipmap/ic_deployment_icon_round"
+            >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
             android:name=".initialsetup.SetupActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_setup"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_initial_config_icon"
+            android:roundIcon="@mipmap/ic_initial_config_icon_round"/>
 
         <service
-            android:name=".initialsetup.SetupJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:stopWithTask="true" />
-        <service
-            android:name=".GPS_Service"
+            android:name=".services.GPS_Service"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
@@ -96,22 +105,22 @@
             android:exported="false"
             android:stopWithTask="true" />
         <service
-            android:name=".AngleCalculationService"
+            android:name=".services.AngleCalculationService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
         <service
-            android:name=".AlphaCalculationService"
+            android:name=".services.AlphaCalculationService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
         <service
-            android:name=".ValidationService"
+            android:name=".services.ValidationService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
         <service
-            android:name=".PredictionService"
+            android:name=".services.PredictionService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
@@ -120,99 +129,101 @@
             android:name=".sample_measurement.SampleMeasurementActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_sample_measurement"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_sample_icon"
+            android:roundIcon="@mipmap/ic_sample_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
             android:name=".grid.GridActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_grid"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_grid_icon"
+            android:roundIcon="@mipmap/ic_grid_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
-            android:name=".ConfigurationActivity"
+            android:name=".admin.ConfigurationActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_configuration"
-            android:parentActivityName=".AdminPageActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".admin.AdminPageActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_configuration_icon"
+            android:roundIcon="@mipmap/ic_configuration_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity" />
+                android:value=".admin.AdminPageActivity" />
         </activity>
         <activity
-            android:name=".AdminUserPwdActivity"
+            android:name=".admin.AdminUserPwdActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_admin_user_pwd"
-            android:parentActivityName=".AdminPageActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".admin.AdminPageActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_users_icon"
+            android:roundIcon="@mipmap/ic_users_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AdminPageActivity" />
+                android:value=".admin.AdminPageActivity" />
         </activity>
         <activity
-            android:name=".RecoveryActivity"
+            android:name=".admin.RecoveryActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_recovery"
-            android:parentActivityName=".AdminPageActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".admin.AdminPageActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_recovery_icon"
+            android:roundIcon="@mipmap/ic_recovery_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
             android:name=".waypoint.WaypointActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_waypoint"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape">
+            android:parentActivityName=".dashboard.MainActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_waypoint_icon"
+            android:roundIcon="@mipmap/ic_waypoint_icon_round">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".dashboard.MainActivity" />
         </activity>
         <activity
-            android:name=".DialogActivity"
+            android:name=".helperClasses.DialogActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".ParameterViewActivity"
+            android:name=".admin.ParameterViewActivity"
             android:configChanges="orientation"
             android:label="@string/label_parameter_view_activity"
-            android:parentActivityName=".ConfigurationActivity"
-            android:screenOrientation="landscape"></activity>
-        <activity android:name=".ActionBarActivity" />
-
-        <service
-            android:name=".AuthenticatorService"
-            android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="true">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
+            android:parentActivityName=".admin.ConfigurationActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_configuration_icon"
+            android:roundIcon="@mipmap/ic_configuration_icon_round"></activity>
+        <activity android:name=".helperClasses.ActionBarActivity" />
 
         <activity
-            android:name=".ListViewActivity"
+            android:name=".admin.ListViewActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"></activity>
 
-        <activity android:name=".Synchronization.SyncActivity"
+        <activity android:name=".synchronization.SyncActivity"
             android:configChanges="orientation"
             android:label="@string/label_activity_synchronization"
-            android:parentActivityName=".ConfigurationActivity"
-            android:screenOrientation="landscape"></activity>
+            android:parentActivityName=".admin.ConfigurationActivity"
+            android:screenOrientation="landscape"
+            android:icon="@mipmap/ic_sync_icon"
+            android:roundIcon="@mipmap/ic_sync_icon_round"></activity>
     </application>
 
 </manifest>

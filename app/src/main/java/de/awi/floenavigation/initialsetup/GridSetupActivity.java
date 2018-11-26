@@ -1,17 +1,12 @@
 package de.awi.floenavigation.initialsetup;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -22,10 +17,10 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import de.awi.floenavigation.ActionBarActivity;
-import de.awi.floenavigation.AdminPageActivity;
-import de.awi.floenavigation.FragmentChangeListener;
-import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.helperClasses.ActionBarActivity;
+import de.awi.floenavigation.admin.AdminPageActivity;
+import de.awi.floenavigation.helperClasses.FragmentChangeListener;
+import de.awi.floenavigation.services.GPS_Service;
 import de.awi.floenavigation.R;
 
 

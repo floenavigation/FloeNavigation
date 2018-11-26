@@ -2,14 +2,12 @@ package de.awi.floenavigation.network;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketException;
 
-import de.awi.floenavigation.GPS_Service;
+import de.awi.floenavigation.services.GPS_Service;
 import de.awi.floenavigation.aismessages.AISMessageReceiver;
 import de.awi.floenavigation.initialsetup.GridSetupActivity;
 

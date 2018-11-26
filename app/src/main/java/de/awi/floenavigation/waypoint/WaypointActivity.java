@@ -17,7 +17,6 @@ import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -34,14 +33,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.UUID;
 
-import de.awi.floenavigation.ActionBarActivity;
-import de.awi.floenavigation.DatabaseHelper;
-import de.awi.floenavigation.GPS_Service;
-import de.awi.floenavigation.ListViewActivity;
-import de.awi.floenavigation.MainActivity;
-import de.awi.floenavigation.NavigationFunctions;
+import de.awi.floenavigation.helperClasses.ActionBarActivity;
+import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.services.GPS_Service;
+import de.awi.floenavigation.admin.ListViewActivity;
+import de.awi.floenavigation.dashboard.MainActivity;
+import de.awi.floenavigation.helperClasses.NavigationFunctions;
 import de.awi.floenavigation.R;
 
 public class WaypointActivity extends Activity implements View.OnClickListener{

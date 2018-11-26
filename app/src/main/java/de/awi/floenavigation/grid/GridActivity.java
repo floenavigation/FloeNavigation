@@ -33,11 +33,11 @@ import java.util.TimerTask;
 
 import com.scalified.fab.ActionButton;
 
-import de.awi.floenavigation.ActionBarActivity;
-import de.awi.floenavigation.DatabaseHelper;
-import de.awi.floenavigation.GPS_Service;
-import de.awi.floenavigation.MainActivity;
-import de.awi.floenavigation.NavigationFunctions;
+import de.awi.floenavigation.helperClasses.ActionBarActivity;
+import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.services.GPS_Service;
+import de.awi.floenavigation.dashboard.MainActivity;
+import de.awi.floenavigation.helperClasses.NavigationFunctions;
 import de.awi.floenavigation.R;
 
 

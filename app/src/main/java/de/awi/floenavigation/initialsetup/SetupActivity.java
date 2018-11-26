@@ -1,7 +1,5 @@
 package de.awi.floenavigation.initialsetup;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,13 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.provider.ContactsContract;
-import android.text.style.TtsSpan;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,24 +21,22 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.awi.floenavigation.ActionBarActivity;
-import de.awi.floenavigation.AlphaCalculationService;
-import de.awi.floenavigation.AngleCalculationService;
-import de.awi.floenavigation.DatabaseHelper;
-import de.awi.floenavigation.DialogActivity;
-import de.awi.floenavigation.MainActivity;
-import de.awi.floenavigation.NavigationFunctions;
-import de.awi.floenavigation.PredictionService;
+import de.awi.floenavigation.helperClasses.ActionBarActivity;
+import de.awi.floenavigation.services.AlphaCalculationService;
+import de.awi.floenavigation.services.AngleCalculationService;
+import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperClasses.DialogActivity;
+import de.awi.floenavigation.dashboard.MainActivity;
+import de.awi.floenavigation.helperClasses.NavigationFunctions;
+import de.awi.floenavigation.services.PredictionService;
 import de.awi.floenavigation.R;
-import de.awi.floenavigation.ValidationService;
+import de.awi.floenavigation.services.ValidationService;
 
 
 public class SetupActivity extends ActionBarActivity {
@@ -402,6 +393,7 @@ public class SetupActivity extends ActionBarActivity {
         mContext.startService(alphaCalcServiceIntent);
         mContext.startService(predictionServiceIntent);
         mContext.startService(validationServiceIntent);
+        MainActivity.areServicesRunning = true;
     }
 
     private void refreshScreen(){
