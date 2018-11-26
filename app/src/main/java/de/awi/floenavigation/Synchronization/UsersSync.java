@@ -49,7 +49,7 @@ public class UsersSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
-    private int numOfDeleteRequests = 0;
+    //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
     private boolean dataPullCompleted;
@@ -130,6 +130,7 @@ public class UsersSync {
             requestQueue.add(request);
 
         }
+        sendUsersDeleteRequest();
 
 
     }
@@ -138,6 +139,8 @@ public class UsersSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.usersTable);
+            db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -195,9 +198,9 @@ public class UsersSync {
 
                 }
             });
-            sendUsersDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.usersTable);
-            db.execSQL("Delete from " + DatabaseHelper.userDeletedTable);
+
+            requestQueue.add(pullRequest);
+
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -217,8 +220,10 @@ public class UsersSync {
         return dataPullCompleted;
     }
 
-    private void sendUsersDeleteRequest(SQLiteDatabase db){
+    private void sendUsersDeleteRequest(){
         try{
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
             Cursor deletedUserCursor = db.query(DatabaseHelper.userDeletedTable,
                     null,
                     null,
@@ -234,11 +239,12 @@ public class UsersSync {
                 }while (deletedUserCursor.moveToNext());
             }
             deletedUserCursor.close();
+            /*
             if(deletedUserData.size() == 0){
                 requestQueue.add(pullRequest);
             } else{
                 numOfDeleteRequests = deletedUserData.size();
-            }
+            }*/
 
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
@@ -264,11 +270,11 @@ public class UsersSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
+                    /*
                     numOfDeleteRequests--;
                     if(numOfDeleteRequests == 0){
                         requestQueue.add(pullRequest);
-                    }
+                    }*/
 
                 }
             }, new Response.ErrorListener() {

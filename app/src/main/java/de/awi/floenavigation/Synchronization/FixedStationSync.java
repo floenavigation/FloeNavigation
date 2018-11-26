@@ -73,7 +73,7 @@ public class FixedStationSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
-    private int numOfDeleteRequests = 0;
+    //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
     private boolean dataPullCompleted;
@@ -193,7 +193,7 @@ public class FixedStationSync {
             requestQueue.add(request);
 
         }
-
+        sendFSDeleteRequest();
 
     }
 
@@ -201,6 +201,8 @@ public class FixedStationSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.fixedStationTable);
+            db.execSQL("Delete from " + DatabaseHelper.fixedStationDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -324,9 +326,8 @@ public class FixedStationSync {
 
                 }
             });
-            sendFSDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.fixedStationTable);
-            db.execSQL("Delete from " + DatabaseHelper.fixedStationDeletedTable);
+            requestQueue.add(pullRequest);
+
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -345,9 +346,10 @@ public class FixedStationSync {
 
     }
 
-    private void sendFSDeleteRequest(SQLiteDatabase db){
+    private void sendFSDeleteRequest(){
         try{
-
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
             Cursor deletedFixedStationCursor = db.query(DatabaseHelper.fixedStationDeletedTable,
                     null,
                     null,
@@ -363,11 +365,12 @@ public class FixedStationSync {
                 }while (deletedFixedStationCursor.moveToNext());
             }
             deletedFixedStationCursor.close();
+            /*
             if(deletedFixedStationData.size() == 0){
                 requestQueue.add(pullRequest);
             } else{
                 numOfDeleteRequests = deletedFixedStationData.size();
-            }
+            }*/
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -393,10 +396,11 @@ public class FixedStationSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    /*
                     numOfDeleteRequests--;
                     if(numOfDeleteRequests == 0){
                         requestQueue.add(pullRequest);
-                    }
+                    }*/
 
                 }
             }, new Response.ErrorListener() {

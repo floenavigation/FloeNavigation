@@ -60,7 +60,7 @@ public class WaypointsSync {
 
     private boolean dataPullCompleted;
 
-    private int numOfDeleteRequests = 0;
+    //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
     WaypointsSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
@@ -155,6 +155,8 @@ public class WaypointsSync {
 
         }
 
+        sendWaypointDeleteRequest();
+
 
     }
 
@@ -162,6 +164,8 @@ public class WaypointsSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
+            db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -241,9 +245,9 @@ public class WaypointsSync {
 
                 }
             });
-            sendWaypointDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.waypointsTable);
-            db.execSQL("Delete from " + DatabaseHelper.waypointDeletedTable);
+            requestQueue.add(pullRequest);
+
+
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -262,8 +266,10 @@ public class WaypointsSync {
 
     }
 
-    private void sendWaypointDeleteRequest(SQLiteDatabase db){
+    private void sendWaypointDeleteRequest(){
         try{
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
             Cursor deletedWaypointsCursor = db.query(DatabaseHelper.waypointDeletedTable,
                     null,
                     null,
@@ -279,11 +285,12 @@ public class WaypointsSync {
                 }while (deletedWaypointsCursor.moveToNext());
             }
             deletedWaypointsCursor.close();
+            /*
             if(deletedWaypointsData.size() == 0){
                 requestQueue.add(pullRequest);
             } else{
                 numOfDeleteRequests = deletedWaypointsData.size();
-            }
+            }*/
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -304,11 +311,11 @@ public class WaypointsSync {
                             Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "Error: " + jsonObject.getString("error"));
                         }
-
+                        /*
                         numOfDeleteRequests--;
                         if(numOfDeleteRequests == 0){
                             requestQueue.add(pullRequest);
-                        }
+                        }*/
 
                     } catch (JSONException e) {
                         e.printStackTrace();

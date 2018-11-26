@@ -55,7 +55,7 @@ public class StaticStationSync {
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
-    private int numOfDeleteRequests = 0;
+    //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
     private boolean dataPullCompleted;
@@ -146,6 +146,7 @@ public class StaticStationSync {
             requestQueue.add(request);
 
         }
+        sendSSDeleteRequest();
 
 
     }
@@ -154,6 +155,8 @@ public class StaticStationSync {
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -229,9 +232,9 @@ public class StaticStationSync {
 
                 }
             });
-            sendSSDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.staticStationListTable);
-            db.execSQL("Delete from " + DatabaseHelper.staticStationDeletedTable);
+
+            requestQueue.add(pullRequest);
+
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -250,8 +253,10 @@ public class StaticStationSync {
         return dataPullCompleted;
     }
 
-    private void sendSSDeleteRequest(SQLiteDatabase db){
+    private void sendSSDeleteRequest(){
         try {
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
             Cursor deletedStaticStationCursor = db.query(DatabaseHelper.staticStationDeletedTable,
                     null,
                     null,
@@ -267,11 +272,12 @@ public class StaticStationSync {
                 } while (deletedStaticStationCursor.moveToNext());
             }
             deletedStaticStationCursor.close();
+            /*
             if(deletedStaticStationData.size() == 0){
                 requestQueue.add(pullRequest);
             } else{
                 numOfDeleteRequests = deletedStaticStationData.size();
-            }
+            }*/
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -296,11 +302,11 @@ public class StaticStationSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
+                    /*
                     numOfDeleteRequests--;
                     if(numOfDeleteRequests == 0){
                         requestQueue.add(pullRequest);
-                    }
+                    }*/
 
                 }
             }, new Response.ErrorListener() {

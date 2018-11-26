@@ -54,7 +54,7 @@ public class StationListSync {
 
     private boolean dataPullCompleted;
 
-    private int numOfDeleteRequests = 0;
+    //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
     StationListSync(Context context, RequestQueue requestQueue, XmlPullParser xmlPullParser){
@@ -134,12 +134,15 @@ public class StationListSync {
             requestQueue.add(request);
 
         }
+        sendSLDeleteRequest();
     }
 
     public void onClickStationListPullButton(){
         try {
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
+            db.execSQL("Delete from " + DatabaseHelper.stationListTable);
+            db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
             pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -199,9 +202,9 @@ public class StationListSync {
 
                 }
             });
-            sendSLDeleteRequest(db);
-            db.execSQL("Delete from " + DatabaseHelper.stationListTable);
-            db.execSQL("Delete from " + DatabaseHelper.stationListDeletedTable);
+
+            requestQueue.add(pullRequest);
+
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -220,9 +223,11 @@ public class StationListSync {
 
     }
 
-    private void sendSLDeleteRequest(SQLiteDatabase db){
+    private void sendSLDeleteRequest(){
 
         try{
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
             Cursor deletedStationListCursor = db.query(DatabaseHelper.stationListDeletedTable,
                     null,
                     null,
@@ -238,11 +243,12 @@ public class StationListSync {
                 }while (deletedStationListCursor.moveToNext());
             }
             deletedStationListCursor.close();
+            /*
             if(deletedStationListData.size() == 0){
                 requestQueue.add(pullRequest);
             } else{
                 numOfDeleteRequests = deletedStationListData.size();
-            }
+            }*/
         } catch (SQLException e){
             Log.d(TAG, "Database Error");
             e.printStackTrace();
@@ -267,10 +273,11 @@ public class StationListSync {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    /*
                     numOfDeleteRequests--;
                     if(numOfDeleteRequests == 0){
                         requestQueue.add(pullRequest);
-                    }
+                    }*/
                 }
             }, new Response.ErrorListener() {
                 @Override
