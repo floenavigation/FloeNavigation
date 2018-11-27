@@ -6,7 +6,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
 
 public class StationList {
 

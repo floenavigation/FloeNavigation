@@ -10,8 +10,8 @@ import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 import android.util.Log;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
-import de.awi.floenavigation.helperClasses.NavigationFunctions;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.NavigationFunctions;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

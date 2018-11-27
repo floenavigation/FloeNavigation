@@ -8,8 +8,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import de.awi.floenavigation.helperClasses.ActionBarActivity;
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.ActionBarActivity;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.R;
 
 public class LoginPage extends ActionBarActivity {

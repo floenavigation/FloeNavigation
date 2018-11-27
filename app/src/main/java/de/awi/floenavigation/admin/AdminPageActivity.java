@@ -13,9 +13,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.widget.Toast;
 
-import de.awi.floenavigation.helperClasses.ActionBarActivity;
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
-import de.awi.floenavigation.helperClasses.DialogActivity;
+import de.awi.floenavigation.helperclasses.ActionBarActivity;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DialogActivity;
 import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.R;
 import de.awi.floenavigation.deployment.DeploymentActivity;

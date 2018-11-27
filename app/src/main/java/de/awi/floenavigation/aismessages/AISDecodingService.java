@@ -15,7 +15,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.services.GPS_Service;
 
 import static de.awi.floenavigation.aismessages.AIVDM.strbuildtodec;

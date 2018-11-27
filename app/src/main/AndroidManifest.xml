@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".helperClasses.EntrySplashScreen"
+            android:name=".helperclasses.EntrySplashScreen"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -198,7 +198,7 @@
                 android:value=".dashboard.MainActivity" />
         </activity>
         <activity
-            android:name=".helperClasses.DialogActivity"
+            android:name=".helperclasses.DialogActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
@@ -210,7 +210,7 @@
             android:screenOrientation="landscape"
             android:icon="@mipmap/ic_configuration_icon"
             android:roundIcon="@mipmap/ic_configuration_icon_round"></activity>
-        <activity android:name=".helperClasses.ActionBarActivity" />
+        <activity android:name=".helperclasses.ActionBarActivity" />
 
         <activity
             android:name=".admin.ListViewActivity"

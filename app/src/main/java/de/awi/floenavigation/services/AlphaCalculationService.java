@@ -15,8 +15,8 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
-import de.awi.floenavigation.helperClasses.NavigationFunctions;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.NavigationFunctions;
 
 
 /**

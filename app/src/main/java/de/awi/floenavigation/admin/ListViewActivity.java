@@ -30,8 +30,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import de.awi.floenavigation.helperClasses.ActionBarActivity;
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.ActionBarActivity;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.R;
 import de.awi.floenavigation.waypoint.WaypointActivity;
 

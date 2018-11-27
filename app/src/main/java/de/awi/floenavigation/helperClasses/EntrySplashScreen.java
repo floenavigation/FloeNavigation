@@ -1,4 +1,4 @@
-package de.awi.floenavigation.helperClasses;
+package de.awi.floenavigation.helperclasses;
 
 import android.app.Activity;
 import android.graphics.Color;

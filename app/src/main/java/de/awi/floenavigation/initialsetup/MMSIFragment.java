@@ -19,8 +19,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
-import de.awi.floenavigation.helperClasses.FragmentChangeListener;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.FragmentChangeListener;
 import de.awi.floenavigation.R;
 
 

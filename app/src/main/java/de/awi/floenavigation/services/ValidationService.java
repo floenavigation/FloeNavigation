@@ -17,9 +17,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
-import de.awi.floenavigation.helperClasses.DialogActivity;
-import de.awi.floenavigation.helperClasses.NavigationFunctions;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DialogActivity;
+import de.awi.floenavigation.helperclasses.NavigationFunctions;
 import de.awi.floenavigation.R;
 
 

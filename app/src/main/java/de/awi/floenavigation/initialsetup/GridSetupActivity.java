@@ -17,9 +17,9 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import de.awi.floenavigation.helperClasses.ActionBarActivity;
+import de.awi.floenavigation.helperclasses.ActionBarActivity;
 import de.awi.floenavigation.admin.AdminPageActivity;
-import de.awi.floenavigation.helperClasses.FragmentChangeListener;
+import de.awi.floenavigation.helperclasses.FragmentChangeListener;
 import de.awi.floenavigation.services.GPS_Service;
 import de.awi.floenavigation.R;
 

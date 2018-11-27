@@ -11,7 +11,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import de.awi.floenavigation.admin.AdminPageActivity;
-import de.awi.floenavigation.helperClasses.FragmentChangeListener;
+import de.awi.floenavigation.helperclasses.FragmentChangeListener;
 import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.R;
 

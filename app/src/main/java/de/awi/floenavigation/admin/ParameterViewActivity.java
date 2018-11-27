@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import de.awi.floenavigation.helperClasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.R;
 
 public class ParameterViewActivity extends ListActivity {
