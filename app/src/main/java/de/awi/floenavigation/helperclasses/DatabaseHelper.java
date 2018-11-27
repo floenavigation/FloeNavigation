@@ -290,7 +290,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
             //Only for debugging purpose
-            insertDeviceList(db);
+            //insertDeviceList(db);
 
             return  true;
         } catch(SQLiteException e){
