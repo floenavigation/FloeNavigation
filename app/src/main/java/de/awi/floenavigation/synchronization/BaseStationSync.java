@@ -29,6 +29,11 @@ import java.util.Map;
 
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
 
+/**
+ * This class is used for handling synchronization of base station tables in database.
+ * Operations done are reading database tables, pushing the data to the server and parsing the data received from the server
+ *
+ */
 public class BaseStationSync {
     private static final String TAG = "BaseStationSync";
     private Context mContext;
@@ -41,13 +46,24 @@ public class BaseStationSync {
     private DatabaseHelper dbHelper;
     private StringRequest request;
 
+    /**
+     * Hashtables for storing base station names, corresponding mmsi's and to check whether
+     * the corresponding base station is origin or not
+     */
     private HashMap<Integer, String> baseStationName = new HashMap<>();
     private HashMap<Integer, Integer> mmsiData = new HashMap<>();
     private HashMap<Integer, Integer> isOriginData = new HashMap<>();
 
+    /**
+     * Cursor is used to loop through the rows of {@link DatabaseHelper#baseStationTable}
+     * based on the selection in the Cursor query
+     */
     private Cursor baseStationCursor;
     private BaseStation baseStationList;
     private ArrayList<BaseStation> baseStationArrayList = new ArrayList<>();
+    /**
+     * Hashtable for storing base station deleted mmsi's
+     */
     private HashMap<Integer, Integer> deletedBaseStationData = new HashMap<>();
     private RequestQueue requestQueue;
     private XmlPullParser parser;
@@ -60,6 +76,15 @@ public class BaseStationSync {
         dataPullCompleted = false;
     }
 
+    /**
+     * Function is used to read base station table from internal db
+     * It is called from SyncActivity.java file
+     * @throws SQLiteException In case of error in reading database
+     * @see #baseStationCursor
+     * @see #baseStationName
+     * @see #mmsiData
+     * @see #isOriginData
+     */
     public void onClickBaseStationReadButton(){
         try{
             int i = 0;
@@ -88,6 +113,12 @@ public class BaseStationSync {
         }
     }
 
+    /**
+     * Function is used to push data from internal database to the server
+     * A Stringrequest {@link #request} for pushing the data is registered and added to the {@link #requestQueue}.
+     * callback function {@link Response.Listener#onResponse(Object)} notifies whether the request was successful or not
+     * If it is unsuccessful or the connection is not established {@link Response.Listener#error(VolleyError)} gets called
+     */
     public void onClickBaseStationSyncButton() {
         for (int i = 0; i < mmsiData.size(); i++) {
             final int index = i;
@@ -119,6 +150,12 @@ public class BaseStationSync {
 
                 }
             }) {
+                /**
+                 *
+                 * @return The Hashmap with {@link BaseStationSync#baseStationName}, {@link BaseStationSync#mmsiData} and {@link BaseStationSync#isOriginData}
+                 * is posted to the server on the {@link BaseStationSync#pushURL}
+                 *
+                 */
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
 
@@ -133,8 +170,25 @@ public class BaseStationSync {
             requestQueue.add(request);
 
         }
+
         sendBSDeleteRequest();
     }
+
+    /**
+     * Function is used to pull data from internal database to the server
+     * A Stringrequest {@link #request} for pulling the data is registered and added to the {@link #requestQueue}.
+     * callback function {@link Response.Listener#onResponse(Object)} notifies whether the request was successful or not
+     * If it is unsuccessful or the connection is not established {@link Response.Listener#error(VolleyError)} gets called
+     * On pulling the data from the server internal database tables {@link DatabaseHelper#baseStationTable} and {@link DatabaseHelper#baseStationDeletedTable}
+     * are cleared.
+     * <p>
+     * The server sends the data in .xml format, therefore it has to extract the data based on the tags
+     * Inside {@link Response.Listener#onResponse(Object)} it loops through the entire xml file till it reaches end of document.
+     * Based on the {@link XmlPullParser#START_TAG}, {@link XmlPullParser#TEXT}, {@link XmlPullParser#END_TAG} it adds the values received to
+     * the corresponding {@link BaseStation#setStationName(String)}, {@link BaseStation#setMmsi(int)}, {@link BaseStation#setOrigin(int)}
+     * Each {@link #baseStationList} is added to the {@link #baseStationArrayList} which is individually taken and added to the internal database.
+     * </p>
+     */
 
     public void onClickBaseStationPullButton(){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
@@ -208,6 +262,12 @@ public class BaseStationSync {
 
     }
 
+    /**
+     *
+     * @param baseUrl Server URL configured by the admin
+     * @param port    Port number configured by the admin
+     * @see de.awi.floenavigation.admin.ParameterViewActivity
+     */
     public void setBaseUrl(String baseUrl, String port){
         pushURL = "http://" + baseUrl + ":" + port + "/BaseStation/pullStations.php";
         pullURL = "http://" + baseUrl + ":" + port + "/BaseStation/pushStations.php";
@@ -215,9 +275,23 @@ public class BaseStationSync {
 
     }
 
+    /**
+     *
+     * @return It returns the flag to check whether the data pull from server is completed or not
+     * If completed {@link #dataPullCompleted} returns true.
+     */
     public boolean getDataCompleted(){
         return dataPullCompleted;
     }
+
+    /**
+     * After the post request is send to the server, this function is called to send {@link DatabaseHelper#baseStationDeletedTable}
+     * to the server.
+     * Initially the data is extracted from the internal database and then post request is send to the server.
+     * A Stringrequest {@link #request} for pushing the data is registered and added to the {@link #requestQueue}.
+     * callback function {@link Response.Listener#onResponse(Object)} notifies whether the request was successful or not
+     * If it is unsuccessful or the connection is not established {@link Response.Listener#error(VolleyError)} gets called
+     */
 
     private void sendBSDeleteRequest(){
 
@@ -288,6 +362,12 @@ public class BaseStationSync {
     }
 
 }
+
+/**
+ * This class is used to store the data received/pulled from main server.
+ * Contents are updated based on the corresponding mmsi's if already present in internal db
+ * else a new entry is added with all the values.
+ */
 
 class BaseStation{
 
