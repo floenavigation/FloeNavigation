@@ -224,7 +224,7 @@ public class BaseStationSync {
         try{
             dbHelper = DatabaseHelper.getDbInstance(mContext);
             db = dbHelper.getReadableDatabase();
-            Cursor deletedStationListCursor = db.query(DatabaseHelper.stationListDeletedTable,
+            Cursor deletedStationListCursor = db.query(DatabaseHelper.baseStationDeletedTable,
                     null,
                     null,
                     null,
