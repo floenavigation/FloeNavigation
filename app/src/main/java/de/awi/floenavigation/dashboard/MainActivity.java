@@ -147,9 +147,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onClickSampleMeasureBtn(View view) {
-        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS && numOfDeviceList != 0) {
-            Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
-            startActivity(sampleMeasureIntent);
+        if (numOfBaseStations >= DatabaseHelper.NUM_OF_BASE_STATIONS) {
+            if (numOfDeviceList != 0) {
+                Intent sampleMeasureIntent = new Intent(this, SampleMeasurementActivity.class);
+                startActivity(sampleMeasureIntent);
+            }else
+                Toast.makeText(getApplicationContext(), "No devices installed", Toast.LENGTH_SHORT).show();
         }else {
             Toast.makeText(getApplicationContext(), "Initial configuration is not completed", Toast.LENGTH_SHORT).show();
         }
