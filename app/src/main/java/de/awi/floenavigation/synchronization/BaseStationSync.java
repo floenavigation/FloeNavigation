@@ -35,6 +35,7 @@ public class BaseStationSync {
 
     private String pushURL = "";
     private String pullURL = "";
+    private String deleteURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
@@ -47,6 +48,7 @@ public class BaseStationSync {
     private Cursor baseStationCursor;
     private BaseStation baseStationList;
     private ArrayList<BaseStation> baseStationArrayList = new ArrayList<>();
+    private HashMap<Integer, Integer> deletedBaseStationData = new HashMap<>();
     private RequestQueue requestQueue;
     private XmlPullParser parser;
     private boolean dataPullCompleted;
@@ -131,12 +133,14 @@ public class BaseStationSync {
             requestQueue.add(request);
 
         }
+        sendBSDeleteRequest();
     }
 
     public void onClickBaseStationPullButton(){
         dbHelper = DatabaseHelper.getDbInstance(mContext);
         db = dbHelper.getReadableDatabase();
         db.execSQL("Delete from " + DatabaseHelper.baseStationTable);
+        db.execSQL("DELETE from " + DatabaseHelper.baseStationDeletedTable);
         StringRequest pullRequest = new StringRequest(pullURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -207,12 +211,82 @@ public class BaseStationSync {
     public void setBaseUrl(String baseUrl, String port){
         pushURL = "http://" + baseUrl + ":" + port + "/BaseStation/pullStations.php";
         pullURL = "http://" + baseUrl + ":" + port + "/BaseStation/pushStations.php";
+        deleteURL = "http://" + baseUrl + ":" + port + "/BaseStation/deleteStations.php";
 
     }
 
     public boolean getDataCompleted(){
         return dataPullCompleted;
     }
+
+    private void sendBSDeleteRequest(){
+
+        try{
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            Cursor deletedStationListCursor = db.query(DatabaseHelper.stationListDeletedTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            int i = 0;
+            if(deletedStationListCursor.moveToFirst()){
+                do{
+                    deletedBaseStationData.put(i, deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
+                    Log.d(TAG, "MMSI to be Deleted: " + deletedStationListCursor.getInt(deletedStationListCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
+                    i++;
+
+                }while (deletedStationListCursor.moveToNext());
+            }
+            deletedStationListCursor.close();
+
+        } catch (SQLException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+        for(int j = 0; j < deletedBaseStationData.size(); j++){
+            final int delIndex = j;
+            request = new StringRequest(Request.Method.POST, deleteURL, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    HashMap<String,String> hashMap = new HashMap<String, String>();
+                    hashMap.put(DatabaseHelper.mmsi,(deletedBaseStationData.get(delIndex) == null)? "" : deletedBaseStationData.get(delIndex).toString());
+                    //Log.d(TAG, "MMSI sent to be Deleted: " + deletedStationListData.get(delIndex) + " Index: " + String.valueOf(delIndex));
+                    return hashMap;
+                }
+            };
+            requestQueue.add(request);
+
+        }
+
+    }
+
 }
 
 class BaseStation{

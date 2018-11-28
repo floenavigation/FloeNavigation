@@ -57,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String stationListDeletedTable = "STATION_LIST_DELETED";
     public static final String fixedStationDeletedTable = "FIXED_STATION_DELETED";
     public static final String staticStationDeletedTable = "STATIC_STATION_DELETED";
+    public static final String baseStationDeletedTable = "BASE_STATION_DELETED";
     public static final String waypointDeletedTable = "WAYPOINT_DELETED";
     public static final String userDeletedTable = "USERS_DELETED";
 
@@ -192,6 +193,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 deleteTime + " TEXT); ");
 
         db.execSQL("CREATE TABLE " + fixedStationDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
+                deleteTime + " TEXT); ");
+
+        db.execSQL("CREATE TABLE " + baseStationDeletedTable + " (" + mmsi + " INTEGER PRIMARY KEY, " +
                 deleteTime + " TEXT); ");
 
         db.execSQL("CREATE TABLE " + userDeletedTable + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +

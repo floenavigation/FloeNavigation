@@ -228,6 +228,8 @@ public class ListViewActivity extends ActionBarActivity {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
                         insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoFixedStationDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoBaseStationDeletedTable(db, mmsiToBeRemoved);
                         updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
@@ -275,6 +277,13 @@ public class ListViewActivity extends ActionBarActivity {
         deletedUser.put(DatabaseHelper.userName, user);
         deletedUser.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
         db.insert(DatabaseHelper.userDeletedTable, null, deletedUser);
+    }
+
+    private void insertIntoBaseStationDeletedTable(SQLiteDatabase db, String mmsi) {
+        ContentValues deletedBaseStation = new ContentValues();
+        deletedBaseStation.put(DatabaseHelper.mmsi, mmsi);
+        deletedBaseStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.baseStationDeletedTable, null, deletedBaseStation);
     }
 
     private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {

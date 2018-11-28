@@ -139,6 +139,8 @@ public class RecoveryActivity extends ActionBarActivity {
 
                         db.delete(DatabaseHelper.stationListTable, DatabaseHelper.mmsi + " = ?", new String[]{mmsiToBeRemoved});
                         insertIntoStationListDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoFixedStationDeletedTable(db, mmsiToBeRemoved);
+                        insertIntoBaseStationDeletedTable(db, mmsiToBeRemoved);
                         updataMMSIInDBTables(Integer.parseInt(mmsiToBeRemoved), db, (Integer.parseInt(mmsiToBeRemoved) == baseStnMMSI[DatabaseHelper.firstStationIndex]));
 
                     } else {
@@ -156,6 +158,13 @@ public class RecoveryActivity extends ActionBarActivity {
         } catch (SQLException e){
             Log.d(TAG, "Error Reading from Database");
         }
+    }
+
+    private void insertIntoBaseStationDeletedTable(SQLiteDatabase db, String mmsi) {
+        ContentValues deletedBaseStation = new ContentValues();
+        deletedBaseStation.put(DatabaseHelper.mmsi, mmsi);
+        deletedBaseStation.put(DatabaseHelper.deleteTime, String.valueOf(System.currentTimeMillis() - super.timeDiff));
+        db.insert(DatabaseHelper.baseStationDeletedTable, null, deletedBaseStation);
     }
 
     private void insertIntoFixedStationDeletedTable(SQLiteDatabase db, String mmsiToBeAdded) {
