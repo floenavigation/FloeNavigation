@@ -28,36 +28,97 @@ import java.util.Map;
 
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
 
+/**
+ * Synchronizes all the Static Stations in the Local Database with the Server.
+ * Reads all the {@link StaticStation} Data from the Database and stores it in {@link HashMap}s.
+ * Creates {@link StringRequest}s and inserts it in to a {@link RequestQueue} to push and pull Data from the Server.
+ * Clears the Static Station table before inserting Data that was pulled from the Server.
+ * <p>
+ * Uses {@link StaticStation} to create a new Static Station Object  and insert it in Database, for each Static Station that is pulled from the Server.
+ *</p>
+ * @see DatabaseHelper#staticStationListTable
+ * @see DatabaseHelper#staticStationDeletedTable
+ * @see SyncActivity
+ * @see StaticStation
+ * @see de.awi.floenavigation.synchronization
+ */
+
 public class StaticStationSync {
 
     private static final String TAG = "StaticStnSyncActivity";
     private Context mContext;
 
+    /**
+     * URL to use for Pushing Data to the Server
+     * @see #setBaseUrl(String, String)
+     */
     private String URL = "";
+
+    /**
+     * URL to use for Pulling Data from the Server
+     * @see #setBaseUrl(String, String)
+     */
     private String pullURL = "";
+
+    /**
+     * URL to use for sending Delete Request to the Server
+     * @see #setBaseUrl(String, String)
+     */
     private String deleteURL = "";
 
     private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
     private StringRequest request;
 
+    /**
+     * Stores {@link StaticStation#stationName} of all Static Station
+     */
     private HashMap<Integer, String> stationNameData = new HashMap<>();
+
+    /**
+     * Stores {@link StaticStation#alpha} of all Static Station
+     */
     private HashMap<Integer, Double> alphaData = new HashMap<>();
+
+    /**
+     * Stores {@link StaticStation#distance} of all Static Station
+     */
     private HashMap<Integer, Double> distanceData = new HashMap<>();
+
+    /**
+     * Stores {@link StaticStation#xPosition} of all Static Station
+     */
     private HashMap<Integer, Double> xPositionData = new HashMap<>();
+
+    /**
+     * Stores {@link StaticStation#yPosition} of all Static Station
+     */
     private HashMap<Integer, Double> yPositionData = new HashMap<>();
+
+    /**
+     * Stores {@link StaticStation#stationType} of all Static Station
+     */
     private HashMap<Integer, String> stationTypeData = new HashMap<>();
 
+    /**
+     * Stores {@link StaticStation#stationName} of all the Static Station that are to be deleted.
+     * Reads {@link StaticStation#stationName} from {@value DatabaseHelper#staticStationDeletedTable}
+     */
     private HashMap<Integer, String> deletedStaticStationData = new HashMap<Integer, String>();
     private Cursor staticStationCursor;
     private StaticStation staticStation;
     private ArrayList<StaticStation> staticStationList = new ArrayList<>();
+
+
     private RequestQueue requestQueue;
     private XmlPullParser parser;
 
     //private int numOfDeleteRequests = 0;
     private StringRequest pullRequest;
 
+    /**
+     * <code>true</code> if all Static Stations are pulled from the server and inserted in to the local Database
+     */
     private boolean dataPullCompleted;
 
 
@@ -68,6 +129,11 @@ public class StaticStationSync {
         dataPullCompleted = false;
     }
 
+    /**
+     * Reads the {@value DatabaseHelper#staticStationListTable} Table and inserts the data from all the Columns of the
+     * {@value DatabaseHelper#staticStationListTable} Table in to their respective {@link HashMap}.
+     *
+     */
     public void onClickStaticStationReadButton(){
         try{
             int i = 0;
@@ -100,7 +166,12 @@ public class StaticStationSync {
 
     }
 
-
+    /**
+     * Creates {@link StringRequest}s for each Static Station and inserts all the requests in the {@link RequestQueue}
+     *
+     * {@link @value DatabaseHelper#staticStationListTable} Table in to their respective {@link HashMap}.
+     *
+     */
     public void onClickStaticStationSyncButton(){
         for(int i = 0; i < stationNameData.size(); i++){
             final int index = i;
@@ -147,8 +218,6 @@ public class StaticStationSync {
 
         }
         sendSSDeleteRequest();
-
-
     }
 
     public void onClickStaticStationPullButton(){
