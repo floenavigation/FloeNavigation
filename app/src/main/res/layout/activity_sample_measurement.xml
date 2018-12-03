@@ -67,6 +67,7 @@
             android:maxLines="1"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
+            android:layout_marginStart="5dp"
             android:background="@drawable/et_bg"/>
 
     </LinearLayout>
@@ -95,6 +96,9 @@
             android:background="@drawable/et_bg"
             android:layout_width="wrap_content"
             android:layout_weight="2"
+            android:paddingLeft="15dp"
+            android:maxLines="1"
+            android:layout_marginStart="5dp"
             android:layout_gravity="center"
             android:layout_height="30sp"/>
     </LinearLayout>

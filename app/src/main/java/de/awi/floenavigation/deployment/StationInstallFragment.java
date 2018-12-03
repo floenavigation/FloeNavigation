@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.helperclasses.ActionBarActivity;
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.helperclasses.FragmentChangeListener;
@@ -60,20 +61,21 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
     private Double tabletLon;
     private boolean changeFormat;
     private int numOfSignificantFigures;
-    private MenuItem gpsIconItem, aisIconItem;
+    private MenuItem gpsIconItem, aisIconItem, gridSetupIconItem;
     private boolean locationStatus = false;
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
     private BroadcastReceiver aisPacketBroadcastReceiver;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_station_install, container, false);
+
         stationTypeAIS = getArguments().getBoolean("stationTypeAIS");
         layout.findViewById(R.id.station_confirm).setOnClickListener(this);
-
         if (stationTypeAIS) {
             layout.findViewById(R.id.stationMMSI).setVisibility(View.VISIBLE);
             layout.findViewById(R.id.station_mmsi).setEnabled(true);
@@ -131,11 +133,23 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
             latLonFormat.setVisible(false);
         }
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
 
         super.onCreateOptionsMenu(menu,inflater);
     }
@@ -200,6 +214,7 @@ public class StationInstallFragment extends Fragment implements View.OnClickList
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
+
 
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }

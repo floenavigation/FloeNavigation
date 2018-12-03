@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import de.awi.floenavigation.R;
+import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.services.GPS_Service;
 
 public class ActionBarActivity extends Activity {
@@ -30,6 +31,7 @@ public class ActionBarActivity extends Activity {
     public static final String colorRed = "#d32f2f";
     private long gpsTime;
     public long timeDiff;
+    public MenuItem gridSetupIconItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +63,32 @@ public class ActionBarActivity extends Activity {
         statusHandler.postDelayed(gpsLocationRunnable, UPDATE_TIME);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu, boolean showLatlon) {
+    public boolean onCreateOptionsMenu(Menu menu, int showExtraParams) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
-        if (showLatlon){
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
+        if (showExtraParams == 1){
             MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
             latLonFormat.setVisible(true);
+        } else if(showExtraParams == 2){
+            MenuItem aboutUs = menu.findItem(R.id.aboutUs);
+            aboutUs.setVisible(true);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -82,12 +98,24 @@ public class ActionBarActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
+
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -120,6 +148,7 @@ public class ActionBarActivity extends Activity {
 
         registerReceiver(aisPacketBroadcastReceiver, new IntentFilter(GPS_Service.AISPacketBroadcast));
         registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service.GPSBroadcast));
+
     }
 
     @Override

@@ -215,6 +215,8 @@ public class ValidationService extends IntentService {
         dialogIntent.putExtra(DialogActivity.DIALOG_TITLE, title);
         dialogIntent.putExtra(DialogActivity.DIALOG_MSG, popupMsg);
         dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, false);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ABOUTUS, false);
+        dialogIntent.putExtra(DialogActivity.DIALOG_TABLETID, false);
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_warning_black_24dp);
 
         //dialogIntent.putExtras(dialogParams);

@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -77,7 +78,8 @@ public class SampleMeasurementActivity extends Activity {
     private boolean locationStatus = false;
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
-    private MenuItem gpsIconItem, aisIconItem;
+    private MenuItem gpsIconItem, aisIconItem, gridSetupIconItem;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +90,31 @@ public class SampleMeasurementActivity extends Activity {
         numOfSignificantFigures = DatabaseHelper.readSiginificantDigitsSetting(this);
 
 
+
         //Advanced Search Feature
-        DatabaseHelper.loadDeviceList(getApplicationContext()); //only for debugging purpose
+        DatabaseHelper.loadDeviceList(getApplicationContext());
         setSpinnerValues();
-        AutoCompleteTextView deviceNameTextView = findViewById(R.id.deviceshortname);
+        final AutoCompleteTextView deviceNameTextView = findViewById(R.id.deviceshortname);
         ArrayAdapter<String> adapter = DatabaseHelper.advancedSearchTextView(getApplicationContext());
         deviceNameTextView.setDropDownBackgroundResource(R.color.backgroundGradStart);
-        deviceNameTextView.setThreshold(1);
+        deviceNameTextView.setThreshold(0);
         deviceNameTextView.setAdapter(adapter);
+        deviceNameTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus){
+                    deviceNameTextView.showDropDown();
+                }
+            }
+        });
+        deviceNameTextView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(final View view){
+                deviceNameTextView.showDropDown();
+            }
+
+
+        });
 
         //on Click listener for device name
         deviceNameTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -171,6 +190,7 @@ public class SampleMeasurementActivity extends Activity {
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
+
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }
         };
@@ -210,11 +230,22 @@ public class SampleMeasurementActivity extends Activity {
         MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
         latLonFormat.setVisible(true);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
         return super.onCreateOptionsMenu(menu);
     }
 

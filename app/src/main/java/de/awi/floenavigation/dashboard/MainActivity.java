@@ -7,11 +7,15 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +25,7 @@ import de.awi.floenavigation.deployment.DeploymentActivity;
 import de.awi.floenavigation.grid.GridActivity;
 import de.awi.floenavigation.helperclasses.ActionBarActivity;
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
+import de.awi.floenavigation.helperclasses.DialogActivity;
 import de.awi.floenavigation.network.NetworkService;
 import de.awi.floenavigation.sample_measurement.SampleMeasurementActivity;
 import de.awi.floenavigation.services.AlphaCalculationService;
@@ -129,6 +134,30 @@ public class MainActivity extends ActionBarActivity {
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu, 2);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.aboutUs:
+                 displayDialogBox();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
+
+    private void displayDialogBox() {
+
+        Intent dialogIntent = new Intent(this, DialogActivity.class);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ABOUTUS, true);
+        startActivity(dialogIntent);
     }
 
     public void onClickDeploymentBtn(View view){

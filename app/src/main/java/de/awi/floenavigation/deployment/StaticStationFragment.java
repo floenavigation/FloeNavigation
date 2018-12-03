@@ -54,7 +54,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
     private double xPosition;
     private double yPosition;
     private double theta;
-    private MenuItem gpsIconItem, aisIconItem;
+    private MenuItem gpsIconItem, aisIconItem, gridSetupIconItem;
     private boolean locationStatus = false;
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
@@ -70,6 +70,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View layout =  inflater.inflate(R.layout.fragment_static_station, container, false);
+
         layout.findViewById(R.id.static_station_finish).setOnClickListener(this);
         layout.findViewById(R.id.static_station_finish).setEnabled(false);
         layout.findViewById(R.id.static_station_finish).setClickable(false);
@@ -133,11 +134,23 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
         MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
         latLonFormat.setVisible(false);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
 
         super.onCreateOptionsMenu(menu,inflater);
     }
@@ -273,6 +286,7 @@ public class StaticStationFragment extends Fragment implements View.OnClickListe
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
+
 
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }

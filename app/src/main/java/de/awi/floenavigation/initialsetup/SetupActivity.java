@@ -363,7 +363,7 @@ public class SetupActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         //getMenuInflater().inflate(R.menu.main_menu, menu);
 
-        return super.onCreateOptionsMenu(menu, true);
+        return super.onCreateOptionsMenu(menu, 1);
     }
 
     private void dialogBoxDisplay() {
@@ -377,6 +377,7 @@ public class SetupActivity extends ActionBarActivity {
         dialogIntent.putExtra(DialogActivity.DIALOG_BETA, receivedBeta);
         dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, true);
         dialogIntent.putExtra(DialogActivity.DIALOG_TABLETID, false);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ABOUTUS, false);
         startActivity(dialogIntent);
     }
 

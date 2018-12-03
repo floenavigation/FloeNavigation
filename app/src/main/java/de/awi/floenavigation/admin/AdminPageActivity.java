@@ -202,6 +202,7 @@ public class AdminPageActivity extends ActionBarActivity {
         dialogIntent.putExtra(DialogActivity.DIALOG_ICON, R.drawable.ic_done_all_black_24dp);
         dialogIntent.putExtra(DialogActivity.DIALOG_OPTIONS, false);
         dialogIntent.putExtra(DialogActivity.DIALOG_TABLETID, true);
+        dialogIntent.putExtra(DialogActivity.DIALOG_ABOUTUS, false);
         startActivity(dialogIntent);
     }
 

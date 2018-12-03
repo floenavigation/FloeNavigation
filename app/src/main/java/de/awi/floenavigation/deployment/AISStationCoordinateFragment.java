@@ -27,6 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.helperclasses.ActionBarActivity;
 import de.awi.floenavigation.admin.AdminPageActivity;
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
@@ -62,7 +63,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
     private final static int MAX_TIMER = 300; //5 mins timer
     private boolean isSetupComplete = false;
     private Runnable aisStationRunnable;
-    private MenuItem gpsIconItem, aisIconItem;
+    private MenuItem gpsIconItem, aisIconItem, gridSetupIconItem;
     private boolean locationStatus = false;
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
@@ -82,6 +83,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         View layout = inflater.inflate(R.layout.fragment_station_coordinate, container, false);
         Button button = layout.findViewById(R.id.station_finish);
         button.setOnClickListener(this);
+
         //layout.findViewById(R.id.station_finish).setClickable(false);
         button.setText(R.string.aisStationCancel);
         MMSINumber = getArguments().getInt(DatabaseHelper.mmsi);
@@ -175,11 +177,23 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
         MenuItem latLonFormat = menu.findItem(R.id.changeLatLonFormat);
         latLonFormat.setVisible(false);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
 
         super.onCreateOptionsMenu(menu,inflater);
     }
@@ -369,6 +383,7 @@ public class AISStationCoordinateFragment extends Fragment implements View.OnCli
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
+
 
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }

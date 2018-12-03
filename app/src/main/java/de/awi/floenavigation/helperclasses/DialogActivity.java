@@ -2,6 +2,7 @@ package de.awi.floenavigation.helperclasses;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,15 +15,20 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import de.awi.floenavigation.R;
 import de.awi.floenavigation.dashboard.MainActivity;
 import de.awi.floenavigation.admin.AdminPageActivity;
 import de.awi.floenavigation.initialsetup.SetupActivity;
@@ -35,6 +41,7 @@ public class DialogActivity extends Activity {
     private int dialogIcon;
     private boolean showDialogOptions = false;
     private boolean tabletIdDialog = false;
+    private boolean aboutUsDialog = false;
     //public static boolean servicesStarted = true;
     public static final String DIALOG_BUNDLE = "dialogBundle";
     public static final String DIALOG_TITLE = "title";
@@ -44,6 +51,7 @@ public class DialogActivity extends Activity {
     public static final String DIALOG_BETA = "beta";
     private static final String TAG = "DialogActivity";
     public static final String DIALOG_TABLETID = "tabletIdDialog";
+    public static final String DIALOG_ABOUTUS = "aboutUsDialog";
     private String tabletId;
     private AlertDialog alertDialog;
     private double receivedBeta = 0.0;
@@ -68,6 +76,9 @@ public class DialogActivity extends Activity {
 
 
         Intent callingIntent = getIntent();
+        if(callingIntent.getExtras().containsKey(DIALOG_ABOUTUS)){
+            aboutUsDialog = callingIntent.getExtras().getBoolean(DIALOG_ABOUTUS);
+        }
         if(callingIntent.getExtras().containsKey(DIALOG_TITLE)){
             dialogTitle = callingIntent.getExtras().getString(DIALOG_TITLE);
         }
@@ -87,98 +98,124 @@ public class DialogActivity extends Activity {
             tabletIdDialog = callingIntent.getExtras().getBoolean(DIALOG_TABLETID);
         }
 
-        //setContentView(R.layout.activity_dialog);
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
-        alertBuilder.setIcon(dialogIcon);
-        alertBuilder.setTitle(dialogTitle);
-        alertBuilder.setMessage(dialogMsg);
-
-
-        if (showDialogOptions){
-
-            alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+        if(aboutUsDialog) {
+            Dialog aboutUs = new Dialog(this);
+            aboutUs.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            WindowManager.LayoutParams wmlp = aboutUs.getWindow().getAttributes();
+            wmlp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            wmlp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            aboutUs.setContentView(R.layout.activity_dialog);
+            CardView aboutUsView = aboutUs.findViewById(R.id.aboutUs_View);
+            CardView normalView = aboutUs.findViewById(R.id.normalDialog_View);
+            normalView.setVisibility(View.GONE);
+            aboutUsView.setVisibility(View.VISIBLE);
+            aboutUs.setTitle("");
+            aboutUs.setCancelable(true);
+            aboutUs.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //clearDatabase();
-                    Intent intent = new Intent(getApplicationContext(), SetupActivity.class);
-                    intent.putExtra(SetupActivity.calledFromCoordinateFragment, false);
-                    startActivity(intent);
-                }
-            });
-            alertBuilder.setNegativeButton("Finish", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    alertDialog.cancel();
-                    new InsertBetaOnStartup().execute();
-                    showNavigationBar();
-                    SetupActivity.runServices(getApplicationContext());
-                    //MainActivity.servicesStarted = true;
-                    //servicesStarted = false;
+                public void onCancel(DialogInterface dialog) {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                 }
             });
-        }
+            aboutUs.setCanceledOnTouchOutside(true);
 
-        if(tabletIdDialog){
-            final EditText input = new EditText(this);
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
-            input.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            aboutUs.show();
 
-                }
+        } else {
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
+            alertBuilder.setIcon(dialogIcon);
+            alertBuilder.setTitle(dialogTitle);
+            alertBuilder.setMessage(dialogMsg);
 
-                }
 
-                @Override
-                public void afterTextChanged(Editable s) {
-                    if (!TextUtils.isEmpty(s)) {
-                        ((AlertDialog)alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+            if (showDialogOptions) {
+
+                alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //clearDatabase();
+                        Intent intent = new Intent(getApplicationContext(), SetupActivity.class);
+                        intent.putExtra(SetupActivity.calledFromCoordinateFragment, false);
+                        startActivity(intent);
+                    }
+                });
+                alertBuilder.setNegativeButton("Finish", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog.cancel();
+                        new InsertBetaOnStartup().execute();
+                        showNavigationBar();
+                        SetupActivity.runServices(getApplicationContext());
+                        //MainActivity.servicesStarted = true;
+                        //servicesStarted = false;
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                    }
+                });
+            }
+
+            if (tabletIdDialog) {
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
                     }
 
-                }
-            });
-            alertBuilder.setView(input);
-            alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    tabletId = input.getText().toString();
-                    Log.d(TAG, tabletId);
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                    //insert in Db;
-                    new SetupTabletID().execute();
-                    alertDialog.cancel();
-                    Intent intent = new Intent(getApplicationContext(), AdminPageActivity.class);
-                    startActivity(intent);
+                    }
 
-                }
-            });
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (!TextUtils.isEmpty(s)) {
+                            ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        }
+
+                    }
+                });
+                alertBuilder.setView(input);
+                alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tabletId = input.getText().toString();
+                        Log.d(TAG, tabletId);
+
+                        //insert in Db;
+                        new SetupTabletID().execute();
+                        alertDialog.cancel();
+                        Intent intent = new Intent(getApplicationContext(), AdminPageActivity.class);
+                        startActivity(intent);
+
+                    }
+                });
+            }
+
+            Log.d(TAG, dialogTitle);
+            Log.d(TAG, String.valueOf(showDialogOptions));
+            alertDialog = alertBuilder.create();
+            if (showDialogOptions || tabletIdDialog) {
+                alertDialog.setCancelable(false);
+                alertDialog.setCanceledOnTouchOutside(false);
+            }
+
+            if (tabletIdDialog) {
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    }
+                });
+            }
+
+
+            alertDialog.show();
         }
-
-        Log.d(TAG, dialogTitle);
-        Log.d(TAG, String.valueOf(showDialogOptions));
-        alertDialog = alertBuilder.create();
-        if(showDialogOptions || tabletIdDialog){
-            alertDialog.setCancelable(false);
-            alertDialog.setCanceledOnTouchOutside(false);
-        }
-
-        if (tabletIdDialog) {
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                }
-            });
-        }
-
-
-        alertDialog.show();
     }
 
 

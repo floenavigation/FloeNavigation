@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/gridSetupComplete"
+        android:icon="@drawable/ic_settings_input_component_red_24dp"
+        android:title="@string/grid_setup_complete"
+        android:visible="true"
+        android:orderInCategory="1"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/currentLocationAvail"
         android:icon="@drawable/ic_my_location_black_24dp"
         android:title="@string/location_available"
@@ -28,6 +36,13 @@
         android:id="@+id/changeLatLonFormat"
         android:title="@string/latLonChangeFormat"
         android:icon="@drawable/ic_transform_black_24dp"
+        android:visible="false"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/aboutUs"
+        android:title="@string/about_us"
         android:visible="false"
         app:showAsAction="ifRoom"
         />

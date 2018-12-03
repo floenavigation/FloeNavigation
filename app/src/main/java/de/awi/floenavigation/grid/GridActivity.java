@@ -106,7 +106,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
     private boolean locationStatus = false;
     private boolean packetStatus = false;
     private final Handler statusHandler = new Handler();
-    private MenuItem gpsIconItem, aisIconItem, emptyIcon;
+    private MenuItem gpsIconItem, aisIconItem, emptyIcon, gridSetupIconItem;
     private MapView myGridView;
     private View myView;
     private ActionButton buttonView;
@@ -115,22 +115,13 @@ public class GridActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-        Log.d(TAG, "LifeCycle OnCreate");
-
-        //setContentView(R.layout.activity_grid);
-
-        //myGridView.invalidate();
-        //setContentView(myGridView);
         setContentView(R.layout.activity_grid);
-        //myGridView =  new MapView(this);
+
         myGridView = (MapView) findViewById(R.id.GridView);
         myView = this.findViewById(R.id.GridView);
         buttonView = this.findViewById(R.id.action_button);
         buttonView.setOnClickListener(this);
-        //myGridView.toOrigin(buttonView);
+
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.myLayout);
         BubbleDrawable myBubble = new BubbleDrawable(BubbleDrawable.CENTER);
         myBubble.setCornerRadius(20);
@@ -139,13 +130,6 @@ public class GridActivity extends Activity implements View.OnClickListener{
         myGridView.setBubbleLayout(linearLayout, myBubble);
 
     }
-
-
-
-
-
-
-
 
 
     @Override
@@ -265,13 +249,25 @@ public class GridActivity extends Activity implements View.OnClickListener{
         getMenuInflater().inflate(R.menu.main_menu, menu);
         getMenuInflater().inflate(R.menu.grid_menu, menu);
 
-        int[] iconItems = {R.id.currentLocationAvail, R.id.aisPacketAvail};
-        gpsIconItem = menu.findItem(iconItems[0]);
+        int[] iconItems = {R.id.gridSetupComplete, R.id.currentLocationAvail, R.id.aisPacketAvail};
+        gridSetupIconItem = menu.findItem(iconItems[0]);
+        gridSetupIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        gpsIconItem = menu.findItem(iconItems[1]);
         gpsIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        aisIconItem = menu.findItem(iconItems[1]);
+        aisIconItem = menu.findItem(iconItems[2]);
         aisIconItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         emptyIcon = menu.findItem(R.id.empty);
         emptyIcon.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if(MainActivity.numOfBaseStations >= DatabaseHelper.INITIALIZATION_SIZE) {
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorGreen), PorterDuff.Mode.SRC_IN);
+            }
+        } else{
+            if (gridSetupIconItem != null) {
+                gridSetupIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
+            }
+        }
 
         MenuItem fixedStationItem = menu.findItem(R.id.FixedStation);
         fixedStationItem.setChecked(showFixedStation);
@@ -434,6 +430,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                     if (aisIconItem != null)
                         aisIconItem.getIcon().setColorFilter(Color.parseColor(ActionBarActivity.colorRed), PorterDuff.Mode.SRC_IN);
                 }
+
                 statusHandler.postDelayed(this, ActionBarActivity.UPDATE_TIME);
             }
         };

@@ -112,7 +112,7 @@
     <string name="syncActivityStartSync">Start Sync</string>
     <string name="syncFinish">Finish</string>
     <string name="syncPull">Start Pull from Server</string>
-    <string name="syncWelcomeMsg">Welcome to FloeNavigation Synchronization Tool.\nPlease press Start Sync Button to begin Synchronization.\nPlease remember to Sync all Data from all Tablets before Pulling new Data from the Server </string>
+    <string name="syncWelcomeMsg">Welcome to FloeNavigation Synchronization Tool.\nPlease make sure that you are connected to the Sync Server network and the Sync Server Parameters are set correctly.\nPlease press Start Sync Button to begin Synchronization.\nPlease remember to Sync all Data from all Tablets before Pulling new Data from the Server </string>
 
 
 
@@ -133,11 +133,11 @@
     <string name="second_station_message_count">Second Station Message Count</string>
     <string name="ok">Ok</string>
     <string name="next">Next</string>
-    <string name="location_available">location_available</string>
+    <string name="location_available">Location Available</string>
 
 
     <string name="label_parameter_view_activity">System Parameters</string>
-    <string name="ais_data_available">ais_data_available</string>
+    <string name="ais_data_available">AIS Data Available</string>
     <string name="aisStationCancel">Cancel</string>
     <string name="waypointLabel">Label</string>
     <string name="sampleMeasurementLabelId">LabelID</string>
@@ -154,6 +154,19 @@
     <string name="tablet">Tablet</string>
     <string name="admin_view_users_btn">View Users</string>
     <string name="mothership">Mother Ship</string>
+    <string name="grid_setup_complete">Grid Setup Complete</string>
+    <string name="about_us">About Us</string>
+    <string name="about_us_app_name">Sea Ice Navigation System</string>
+    <string name="about_us_version">Sea Ice Navigation System Version 1.0.0</string>
+    <string name="about_us_developed_by">Developed By:</string>
+    <string name="about_us_developer_1">Rintu Daniel</string>
+    <string name="about_us_developer_1_email">danielrintu@gmail.com</string>
+    <string name="about_us_developer_2">Nadeem Gul</string>
+    <string name="about_us_developer_2_email">gul.nadeemm@gmail.com</string>
+    <string name="about_us_developed_for">Developed for: \t\tSea Ice Physics Section, AWI</string>
+    <string name="about_us_built_on">Built on: \t\t\t\tDecember 03, 2018</string>
+    <string name="about_us_android_version">Android: \t\t\t\t6.0.1</string>
+    <string name="about_us_quote">Learning never exhausts the mind. \nLeonardo Da Vinci</string>
 
 
 </resources>
