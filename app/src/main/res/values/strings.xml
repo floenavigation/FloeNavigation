@@ -151,7 +151,7 @@
     <string name="mobile_stations">Mobile Stations</string>
     <string name="waypoints">Waypoints</string>
     <string name="static_stations">Static Stations</string>
-    <string name="tablet">Tablet</string>
+    <string name="tablet">Own Position</string>
     <string name="admin_view_users_btn">View Users</string>
     <string name="mothership">Mother Ship</string>
     <string name="grid_setup_complete">Grid Setup Complete</string>
