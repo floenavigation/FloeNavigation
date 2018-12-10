@@ -83,6 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String distance = "DISTANCE";
     public static final String deviceType = "DEVICE_TYPE";
     public static final String updateTime = "UPDATE_TIME";
+    public static final String isCalculated = "IS_COORDINATE_CALCULATED";
     public static final String isPredicted = "IS_POSITION_PREDICTED";
     public static final String isLocationReceived = "IS_LOCATION_RECEIVED";
     public static final String userName = "USERNAME";
@@ -107,6 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final long station2InitialY = 0;
     public static final double station1Alpha = 0.0;
     public static final double station2Alpha = 0.0;
+    public static final int MOBILE_STATION_IS_CALCULATED = 1;
     public static final int BASESTN1 = 1000;
     public static final int BASESTN2 = 1001;
 
@@ -238,6 +240,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     xPosition + " REAL, " +
                     yPosition + " REAL, " +
                     updateTime + " TEXT, " +
+                    isCalculated + " NUMERIC, " +
+                    packetType + " INTEGER, " +
                     mmsi + " INTEGER NOT NULL);");
 
             //Create Sample/Measurement Table

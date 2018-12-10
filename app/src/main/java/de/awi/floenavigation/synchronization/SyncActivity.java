@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,15 +16,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -70,6 +80,9 @@ public class SyncActivity extends Activity {
 
     public long numOfBaseStations;
 
+    private HashMap<Integer, String> stationNameData = new HashMap<>();
+    private HashMap<Integer, Integer> mmsiData = new HashMap<>();
+
     Context mContext;
 
     @Override
@@ -112,10 +125,13 @@ public class SyncActivity extends Activity {
                 waitingMsg.setText(msg);
                 msg = "Stopping Services and Clearing Metadata";
                 waitingMsg.setText(msg);
-                clearMobileStationTable();
+                //clearMobileStationTable();
                 setBaseUrl(hostname, port);
                 stopServices();
                 if (numOfBaseStations == 2) {
+                    readMobileStations();
+                    sendMobileStations();
+                    clearMobileStationTable();
                     msg = "Reading Fixed Stations from Database and Pushing it to the Server";
                     waitingMsg.setText(msg);
                     fixedStationSync.onClickFixedStationReadButton();
@@ -380,6 +396,81 @@ public class SyncActivity extends Activity {
         msg = "Clearing Database and Pulling Configuration Parameters from the Server";
         waitingMsg.setText(msg);
         parameterSync.onClickParameterPullButton(numOfBaseStations);
+    }
+
+    public void readMobileStations(){
+        try{
+            int i = 0;
+            dbHelper = DatabaseHelper.getDbInstance(mContext);
+            db = dbHelper.getReadableDatabase();
+            Cursor mobileStationCursor = db.query(DatabaseHelper.mobileStationTable,
+                    null,
+                    null,
+                    null,
+                    null, null, null);
+            if(mobileStationCursor.moveToFirst()){
+                do{
+                    stationNameData.put(i, mobileStationCursor.getString(mobileStationCursor.getColumnIndexOrThrow(DatabaseHelper.stationName)));
+                    mmsiData.put(i, mobileStationCursor.getInt(mobileStationCursor.getColumnIndexOrThrow(DatabaseHelper.mmsi)));
+
+                    i++;
+
+                }while (mobileStationCursor.moveToNext());
+            }
+            mobileStationCursor.close();
+            Toast.makeText(mContext, "Read Completed from DB", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e){
+            Log.d(TAG, "Database Error");
+            e.printStackTrace();
+        }
+
+    }
+
+    public void sendMobileStations(){
+        for(int i = 0; i < mmsiData.size(); i++){
+            final int index = i;
+            StringRequest request;
+            String URL = "http://192.168.137.1:80/pullMobileStation.php";
+            request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.names().get(0).equals("success")) {
+                            //Toast.makeText(mContext, "SUCCESS " + jsonObject.getString("success"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "SUCCESS: " + jsonObject.getString("success"));
+                        } else {
+                            Toast.makeText(mContext, "Error" + jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error: " + jsonObject.getString("error"));
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    HashMap<String,String> hashMap = new HashMap<String, String>();
+                    hashMap.put(DatabaseHelper.stationName,(stationNameData.get(index) == null)? "" : stationNameData.get(index));
+                    hashMap.put(DatabaseHelper.mmsi,(mmsiData.get(index) == null)? "" : mmsiData.get(index).toString());
+
+                    return hashMap;
+                }
+            };
+            requestQueue.add(request);
+
+        }
+        //sendSLDeleteRequest();
     }
 
     private class RestartServices extends AsyncTask<Void,Void,Void> {

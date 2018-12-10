@@ -33,6 +33,7 @@ import java.util.TimerTask;
 
 import com.scalified.fab.ActionButton;
 
+import de.awi.floenavigation.aismessages.AISDecodingService;
 import de.awi.floenavigation.helperclasses.ActionBarActivity;
 import de.awi.floenavigation.helperclasses.DatabaseHelper;
 import de.awi.floenavigation.services.GPS_Service;
@@ -613,9 +614,10 @@ public class GridActivity extends Activity implements View.OnClickListener{
                 //double xPosition, yPosition;
                 //int mmsi;
 
-                mMobileStnCursor = db.query(DatabaseHelper.mobileStationTable, new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.xPosition, DatabaseHelper.yPosition},
-                        null,
-                        null,
+                mMobileStnCursor = db.query(DatabaseHelper.mobileStationTable,
+                        new String[]{DatabaseHelper.mmsi, DatabaseHelper.stationName, DatabaseHelper.xPosition, DatabaseHelper.yPosition, DatabaseHelper.isCalculated},
+                        DatabaseHelper.isCalculated + " = ?",
+                        new String[] {Integer.toString(DatabaseHelper.MOBILE_STATION_IS_CALCULATED)},
                         null, null, null, null);
                 //mMobileStationXs = new double[mMobileStnCursor.getCount()];
                 //mMobileStationYs = new double[mMobileStnCursor.getCount()];
@@ -631,6 +633,7 @@ public class GridActivity extends Activity implements View.OnClickListener{
                         mMobileStationXs.put(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.xPosition)));
                         mMobileStationYs.put(i, mMobileStnCursor.getDouble(mMobileStnCursor.getColumnIndex(DatabaseHelper.yPosition)));
                         mMobileStationNames.put(i, mMobileStnCursor.getString(mMobileStnCursor.getColumnIndex(DatabaseHelper.stationName)));
+                        //Log.d(TAG, "Mobile Station MMSI: " + mMobileStationMMSIs.get(i) + " X: " + mMobileStationXs.get(i) + " Y: " + mMobileStationYs.get(i));
                         mMobileStnCursor.moveToNext();
                     }
                     mMobileStnCursor.close();

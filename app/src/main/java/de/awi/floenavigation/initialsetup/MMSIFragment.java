@@ -126,12 +126,13 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         //DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         try{
             //db = databaseHelper.getWritableDatabase();
+            dbHelper = DatabaseHelper.getDbInstance(getActivity());
+            db = dbHelper.getReadableDatabase();
             if (stationCount == 1 && baseStationRetrievalfromDB(db, MMSI) == MMSI){
                 Toast.makeText(getActivity(), "Duplicate MMSI, AIS Station is already existing", Toast.LENGTH_LONG).show();
                 return false;
             }
-            dbHelper = DatabaseHelper.getDbInstance(getActivity());
-            db = dbHelper.getReadableDatabase();
+
             ContentValues station = new ContentValues();
             station.put(DatabaseHelper.mmsi, MMSI);
             station.put(DatabaseHelper.stationName, AISStationName);
@@ -159,6 +160,10 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
                 Toast.makeText(getActivity(), "Wrong Data", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "StationCount Greater than 2");
             }
+            if (checkStationInMobileTable(db, MMSI)) {
+                db.delete(DatabaseHelper.mobileStationTable, DatabaseHelper.mmsi + " = ?", new String[]{String.valueOf(MMSI)});
+                Log.d(TAG, "Station Removed from Mobile Station Table");
+            }
 
             db.insert(DatabaseHelper.stationListTable, null, station);
             db.insert(DatabaseHelper.baseStationTable, null, baseStationContent);
@@ -172,6 +177,22 @@ public class MMSIFragment extends Fragment implements View.OnClickListener{
         }
         return true;
 
+    }
+
+    private boolean checkStationInMobileTable(SQLiteDatabase db, int MMSI){
+        boolean isPresent = false;
+        try{
+
+            Cursor mMobileStationCursor;
+            mMobileStationCursor = db.query(DatabaseHelper.mobileStationTable, new String[]{DatabaseHelper.mmsi}, DatabaseHelper.mmsi + " = ?",
+                    new String[]{String.valueOf(MMSI)}, null, null, null);
+            isPresent = mMobileStationCursor.moveToFirst();
+            mMobileStationCursor.close();
+        }catch (SQLException e){
+            Log.d(TAG, "SQLiteException");
+            e.printStackTrace();
+        }
+        return isPresent;
     }
 
     @Override

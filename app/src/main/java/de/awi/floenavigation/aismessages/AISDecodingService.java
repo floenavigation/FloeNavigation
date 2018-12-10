@@ -133,11 +133,6 @@ public class AISDecodingService extends IntentService {
                 Log.d(TAG, String.valueOf(recvdMMSI));
             }
 
-            //For testing
-            if(recvdMMSI == 211280840){
-                Log.d(TAG, "211280840 : " + packet);
-            }
-
             Cursor cursor_stnlist = db.query(DatabaseHelper.stationListTable,
                     new String[] {DatabaseHelper.mmsi, DatabaseHelper.stationName},
                     DatabaseHelper.mmsi + " = ?",
@@ -173,7 +168,7 @@ public class AISDecodingService extends IntentService {
                     decodedValues.put(DatabaseHelper.stationName, recvdStationName);
                 }
                 decodedValues.put(DatabaseHelper.mmsi, recvdMMSI);
-                //decodedValues.put(DatabaseHelper.packetType, packetType);
+                decodedValues.put(DatabaseHelper.packetType, packetType);
                 if ((msgType != STATIC_VOYAGE_DATA_CLASSB) && (msgType != STATIC_DATA_CLASSA)) {
                     decodedValues.put(DatabaseHelper.latitude, recvdLat);
                     decodedValues.put(DatabaseHelper.longitude, recvdLon);
